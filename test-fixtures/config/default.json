@@ -1,0 +1,17 @@
+{
+  "repos": [
+    {
+      "name": "test",
+      "url": "github.com/cleung2010/go-git2consul",
+      "branches": [
+        "test"
+      ],
+      "hooks": [
+        {
+          "type": "polling",
+          "interval": 60
+        }
+      ]
+    }
+  ]
+}

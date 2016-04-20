@@ -1,0 +1,8 @@
+{
+  "repos": [
+    {
+      "name": "test",
+      "url": "./test-fixtures/git"
+    }
+  ]
+}
