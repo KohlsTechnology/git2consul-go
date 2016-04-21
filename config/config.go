@@ -25,26 +25,42 @@ type Repo struct {
 	Name     string   `json:"name"`
 	Url      string   `json:"url"`
 	Branches []string `json:"branches"`
-	Hooks    Hooks    `json:"hooks"`
+	Hooks    *Hooks   `json:"hooks"`
 }
 
 type Repos []Repo
 
 type Config struct {
-	Repos Repos `json:"repos"`
+	Repos      *Repos `json:"repos"`
+	LocalStore string `json:"local_store,omitempty"`
 }
 
-func Load(file string) *Config {
+// Create configuration from a provided file path
+func Load(file string) (*Config, error) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
 		os.Exit(1)
 	}
 
+	// Create Config object pointer and unmashal JSON into it
 	config := &Config{}
-
-	json.Unmarshal(content, config)
+	err = json.Unmarshal(content, config)
+	if err != nil {
+		return nil, err
+	}
 
 	log.Debugf("Config: %+v", config)
 
-	return config
+	log.Info("Setting configuration with sane defaults")
+	err = config.setDefaultConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	return config, nil
+}
+
+// Return a configuration with sane defaults
+func (c *Config) setDefaultConfig() error {
+	return nil
 }

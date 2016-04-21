@@ -8,7 +8,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/cleung2010/go-git2consul/config"
 	"github.com/cleung2010/go-git2consul/exit"
-	"github.com/cleung2010/go-git2consul/git2consul"
+	"github.com/cleung2010/go-git2consul/repository"
 )
 
 var quit = make(chan bool)
@@ -49,7 +49,12 @@ func main() {
 		log.Info("No configuration provided")
 	}
 
-	git2consul.CloneRepos(c)
+	for {
+		err := repository.Poll(c.Repos)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	//Wait for shutdown signal
 	<-quit
