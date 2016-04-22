@@ -21,22 +21,45 @@ func defaultStore(name string) string {
 
 // Poll all repos, and either clone or pull
 // TODO: Pass in local store, use channel and go to poll indefinitely
-func Poll(repos *config.Repos) error {
+func Poll(repos []*config.Repo) error {
 
-	// TODO: goroutine on each repo whether to clone or poll
-	for _, repo := range *repos {
+	// TODO: goroutine on for interval polling
+	for _, repo := range repos {
 		path := defaultStore(repo.Name)
 		log.Infof("Polling repository: %s from %s", repo.Name, repo.Url)
 
-		// Make directory
-		err := os.Mkdir(path, 0755)
-		if err != nil {
-			return err
-		}
+		if _, err := os.Stat(path); err != nil {
+			// If there is no repo, create and clone
+			if os.IsNotExist(err) {
+				log.Infof("%s does not cached, cloning to %s", repo.Name, path)
+				err := os.Mkdir(path, 0755)
+				if err != nil {
+					return err
+				}
 
-		_, err = Clone(&repo)
-		if err != nil {
-			return err
+				_, err = Clone(repo)
+				if err != nil {
+					return err
+				}
+			} else {
+				return err
+			}
+		} else {
+			// Pull the repository
+			log.Infof("Pulling commits to repository %s", repo.Name)
+			raw_repo, err := git.OpenRepository(path)
+			if err != nil {
+				return err
+			}
+			r := &Repository{
+				raw_repo,
+				repo,
+			}
+
+			err = r.Pull()
+			if err != nil {
+				return err
+			}
 		}
 
 	}

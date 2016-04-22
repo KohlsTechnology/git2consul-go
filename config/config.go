@@ -19,20 +19,20 @@ type Hook struct {
 	Port int    `json:"port,omitempty"`
 }
 
-type Hooks []Hook
+type Hooks []*Hook
 
 type Repo struct {
 	Name     string   `json:"name"`
 	Url      string   `json:"url"`
 	Branches []string `json:"branches"`
-	Hooks    *Hooks   `json:"hooks"`
+	Hooks    *[]Hook  `json:"hooks"`
 }
 
-type Repos []Repo
+type Repos []*Repo
 
 type Config struct {
-	Repos      *Repos `json:"repos"`
-	LocalStore string `json:"local_store,omitempty"`
+	Repos      []*Repo `json:"repos"`
+	LocalStore string  `json:"local_store,omitempty"`
 }
 
 // Create configuration from a provided file path
@@ -49,18 +49,30 @@ func Load(file string) (*Config, error) {
 		return nil, err
 	}
 
-	log.Debugf("Config: %+v", config)
-
 	log.Info("Setting configuration with sane defaults")
 	err = config.setDefaultConfig()
 	if err != nil {
 		return nil, err
 	}
 
+	log.Debugf("Using configuration: %+v", config)
+
 	return config, nil
 }
 
 // Return a configuration with sane defaults
 func (c *Config) setDefaultConfig() error {
+
+	// Set the default cache store to be the OS' temp dir
+	if len(c.LocalStore) == 0 {
+		c.LocalStore = os.TempDir()
+	}
+
+	//For each repo, set default branch and hook
+	for _, repo := range c.Repos {
+		branch := []string{"master"}
+		repo.Branches = branch
+
+	}
 	return nil
 }

@@ -41,19 +41,19 @@ func main() {
 
 	log.Infof("Starting git2consul version: %s", Version)
 
-	c := new(config.Config)
-	if len(filename) > 0 {
-		c = config.Load(filename)
-		log.Debugf("Using configuration: %+v", c)
-	} else {
-		log.Info("No configuration provided")
+	if len(filename) == 0 {
+		log.Fatal("No configuration file provided")
 	}
 
-	for {
-		err := repository.Poll(c.Repos)
-		if err != nil {
-			log.Fatal(err)
-		}
+	c, err := config.Load(filename)
+	if err != nil {
+		log.Error(err)
+		close(quit)
+	}
+
+	err = repository.Poll(c.Repos)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	//Wait for shutdown signal
