@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -12,7 +13,7 @@ type Hook struct {
 	Type string `json:"type"`
 
 	// Specific to polling
-	Interval int `json:"interval"`
+	Interval time.Duration `json:"interval"`
 
 	// Specific to webhooks
 	Url  string `json:"url,omitempty"`
@@ -80,7 +81,7 @@ func (c *Config) setDefaultConfig() error {
 		if len(repo.Hooks) == 0 {
 			hook := &Hook{
 				Type:     "polling",
-				Interval: 60,
+				Interval: 60 * time.Second,
 			}
 
 			repo.Hooks = append(repo.Hooks, hook)

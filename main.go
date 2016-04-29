@@ -51,7 +51,7 @@ func main() {
 		close(quit)
 	}
 
-	err = repository.Poll(c.Repos)
+	err = repository.PollRepos(c)
 	if err != nil {
 		log.Fatal(err)
 	}
