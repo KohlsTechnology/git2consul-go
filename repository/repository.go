@@ -32,14 +32,14 @@ func PollRepos(cfg *config.Config) error {
 		}
 
 		// Poll repository by interval, or webhook
-		go r.PollRepoByInterval()
+		go r.pollRepoByInterval()
 		// go r.PollRepoByWebhook()
 	}
 
 	return nil
 }
 
-func (r *Repository) Poll() error {
+func (r *Repository) poll() error {
 	if _, err := os.Stat(r.store); err != nil {
 		// If there is no repo, create and clone
 		if os.IsNotExist(err) {
@@ -67,7 +67,7 @@ func (r *Repository) Poll() error {
 	return nil
 }
 
-func (r *Repository) PollRepoByInterval() {
+func (r *Repository) pollRepoByInterval() {
 	hooks := r.repoConfig.Hooks
 	interval := time.Second
 
@@ -85,17 +85,23 @@ func (r *Repository) PollRepoByInterval() {
 	}
 
 	// Initial poll
-	r.Poll()
+	err := r.poll()
+	if err != nil {
+		log.Error(err)
+	}
 
 	ticker := time.NewTicker(interval * time.Second)
 	for {
 		select {
 		case <-ticker.C:
-			r.Poll()
+			err := r.poll()
+			if err != nil {
+				log.Error(err)
+			}
 		}
 	}
 }
 
-func (r *Repository) PollRepoByWebhook() {
+func (r *Repository) pollRepoByWebhook() {
 
 }

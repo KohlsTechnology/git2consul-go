@@ -3,6 +3,7 @@
     {
       "name": "test",
       "url": "./test-fixtures/git",
+      "branches": ["master", "test"],
       "hooks": [
         {
           "type": "polling",
