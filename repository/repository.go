@@ -3,6 +3,7 @@ package repository
 import (
 	"os"
 	"path/filepath"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/cleung2010/go-git2consul/config"
@@ -65,4 +66,12 @@ func Poll(repos []*config.Repo) error {
 	}
 
 	return nil
+}
+
+func (r *Repository) PollRepoByInterval(d time.Duration) {
+
+}
+
+func (r *Repository) PollRepoByWebhook() {
+
 }

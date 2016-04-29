@@ -2,7 +2,7 @@
   "repos": [
     {
       "name": "test",
-      "url": "github.com/cleung2010/go-git2consul",
+      "url": "github.com/Cimpress-MCP/go-git2consul",
       "branches": [
         "test"
       ],

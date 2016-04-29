@@ -25,7 +25,7 @@ type Repo struct {
 	Name     string   `json:"name"`
 	Url      string   `json:"url"`
 	Branches []string `json:"branches"`
-	Hooks    *[]Hook  `json:"hooks"`
+	Hooks    []*Hook  `json:"hooks"`
 }
 
 type Repos []*Repo
@@ -71,8 +71,20 @@ func (c *Config) setDefaultConfig() error {
 	//For each repo, set default branch and hook
 	for _, repo := range c.Repos {
 		branch := []string{"master"}
-		repo.Branches = branch
+		// If there are no branches, set it to master
+		if len(repo.Branches) == 0 {
+			repo.Branches = branch
+		}
 
+		// If there are no hooks, set a 60s polling hook
+		if len(repo.Hooks) == 0 {
+			hook := &Hook{
+				Type:     "polling",
+				Interval: 60,
+			}
+
+			repo.Hooks = append(repo.Hooks, hook)
+		}
 	}
 	return nil
 }
