@@ -2,7 +2,13 @@
   "repos": [
     {
       "name": "test",
-      "url": "./test-fixtures/git"
+      "url": "./test-fixtures/git",
+      "hooks": [
+        {
+          "type": "polling",
+          "interval": 5
+        }
+      ]
     }
   ]
 }

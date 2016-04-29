@@ -1,23 +1,17 @@
 package repository
 
-import (
-	"github.com/cleung2010/go-git2consul/config"
-	"github.com/libgit2/git2go"
-)
+import "github.com/libgit2/git2go"
 
 // Clone the repository
-func Clone(cr *config.Repo) (*Repository, error) {
+func (r *Repository) Clone() error {
 	// Use temp dir for now
 
-	raw_repo, err := git.Clone(cr.Url, defaultStore(cr.Name), &git.CloneOptions{})
+	raw_repo, err := git.Clone(r.repoConfig.Url, r.store, &git.CloneOptions{})
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	repo := &Repository{
-		raw_repo,
-		cr,
-	}
+	r.Repository = raw_repo
 
-	return repo, nil
+	return nil
 }

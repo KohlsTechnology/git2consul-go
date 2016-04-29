@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/libgit2/git2go"
 )
 
@@ -47,10 +48,11 @@ func (r *Repository) Pull() error {
 
 	// Actions to take depending on analysis outcome
 	if analysis&git.MergeAnalysisUpToDate != 0 {
-		fmt.Println("Already up to date.")
+		log.Infof("Skipping pull on repository %s. Already up to date", r.repoConfig.Name)
 		return nil
 	} else if analysis&git.MergeAnalysisNormal != 0 {
 		// Just merge changes
+		log.Info("Changes detected, pulling commits")
 		if err := r.Merge(mergeHeads, nil, nil); err != nil {
 			return err
 		}
@@ -65,7 +67,7 @@ func (r *Repository) Pull() error {
 		if index.HasConflicts() {
 			iter, err := index.ConflictIterator()
 			if err != nil {
-				return fmt.Errorf("could not create iterator for conflicts: %s", err.Error())
+				return fmt.Errorf("Could not create iterator for conflicts: %s", err.Error())
 			}
 			defer iter.Free()
 

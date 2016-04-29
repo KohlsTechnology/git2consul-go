@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"time"
@@ -59,6 +60,25 @@ func Load(file string) (*Config, error) {
 	log.Debugf("Using configuration: %+v", config)
 
 	return config, nil
+}
+
+// TODO: Improve on checks
+// Check for the validitiy of the configuration file
+func (c *Config) checkConfig() error {
+	for _, repo := range c.Repos {
+		// Check on hooks
+		for _, hook := range repo.Hooks {
+			if hook.Type != "polling" || hook.Type != "webhook" {
+				return fmt.Errorf("Invalid hook type: %s", hook.Type)
+			}
+
+			if hook.Interval <= 0 {
+				return fmt.Errorf("Invalid interval: %s. Hook interval must be greater than zero", hook.Interval)
+			}
+		}
+	}
+
+	return nil
 }
 
 // Return a configuration with sane defaults
