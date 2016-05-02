@@ -46,6 +46,7 @@ func (r *Repository) Pull() error {
 			return err
 		}
 
+		// If the ref on the branch doesn't exist locally, create it
 		// This also creates the branch
 		localBranchRef, err := r.References.Lookup(rawLocalBranchRefs[i])
 		if err != nil {
@@ -57,14 +58,14 @@ func (r *Repository) Pull() error {
 
 		//Fast-foward changes and checkout
 		// log.Debugf("=== %s", rawRemoteBranchRefs[i])
-		err = r.SetHead(rawLocalBranchRefs[i])
-		if err != nil {
-			return err
-		}
-		err = r.CheckoutHead(&git.CheckoutOpts{})
-		if err != nil {
-			return err
-		}
+		// err = r.SetHead(rawLocalBranchRefs[i])
+		// if err != nil {
+		// 	return err
+		// }
+		// err = r.CheckoutHead(&git.CheckoutOpts{})
+		// if err != nil {
+		// 	return err
+		// }
 
 		// h, _ := r.Head()
 		// log.Debugf("=== Head: %s", h.Target().String())
@@ -96,23 +97,6 @@ func (r *Repository) Pull() error {
 			localBranchRef.SetTarget(remoteBranchRef.Target(), "")
 
 			r.StateCleanup()
-
-			// Point branch to the object
-			// _, err := localBranchRef.SetTarget(remoteBranchRef.Target(), "")
-			// if err != nil {
-			// 	return err
-			// }
-			//
-			// //Checkout head
-			// err = r.SetHead(rawLocalBranchRefs[i])
-			// if err != nil {
-			// 	return err
-			// }
-			//
-			// err = r.CheckoutHead(&git.CheckoutOpts{})
-			// if err != nil {
-			// 	return err
-			// }
 		} else if analysis&git.MergeAnalysisNormal != 0 {
 			// Just merge changes
 			bn, _ := localBranchRef.Branch().Name()
