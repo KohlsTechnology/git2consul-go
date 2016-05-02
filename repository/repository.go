@@ -59,11 +59,7 @@ func (r *Repository) poll() error {
 	} else {
 		// Pull the repository
 		for _, branch := range r.repoConfig.Branches {
-			r.PullOne(branch)
-		}
-		err = r.Pull()
-		if err != nil {
-			return err
+			r.Pull(branch)
 		}
 	}
 
