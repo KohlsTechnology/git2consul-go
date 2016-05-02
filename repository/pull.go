@@ -31,53 +31,50 @@ func (r *Repository) Pull() error {
 	}
 	defer origin.Free()
 
-	headBranchRefs, remoteBranchRefs := buildRefs(r.repoConfig.Branches)
-	err = origin.Fetch(remoteBranchRefs, nil, "") // Should I fetch from heads or from remotes?
+	rawLocalBranchRefs, rawRemoteBranchRefs := buildRefs(r.repoConfig.Branches)
+	err = origin.Fetch(rawRemoteBranchRefs, nil, "") // Should I fetch from heads or from remotes?
 	if err != nil {
 		return err
 	}
 
-	// Iterate on remote refs, and do a merge
-	// TODO: Figure out how to do multi-branch merge
-	log.Debugf("All remote refs: %q", remoteBranchRefs)
-	for i, _ := range remoteBranchRefs {
-		log.Debugf("Current remote ref: %s | Index: %d", remoteBranchRefs[i], i)
-		remoteBranchRef, err := r.References.Lookup(remoteBranchRefs[i])
+	// Iterate on remote refs for specified branches and do a merge
+	log.Debugf("All remote refs: %q", rawRemoteBranchRefs)
+	for i, _ := range rawRemoteBranchRefs {
+		log.Debugf("Current remote ref: %s | Index: %d", rawRemoteBranchRefs[i], i)
+		remoteBranchRef, err := r.References.Lookup(rawRemoteBranchRefs[i])
 		if err != nil {
-			log.Debug("=== 1")
+			return err
+		}
+		log.Debugf("Remote ref: %s", remoteBranchRef.Target())
+
+		// This also creates the branch
+		localBranchRef, err := r.References.Lookup(rawLocalBranchRefs[i])
+		if err != nil {
+			localBranchRef, err = r.References.Create(rawLocalBranchRefs[i], remoteBranchRef.Target(), true, "")
+			if err != nil {
+				return err
+			}
+		}
+
+		//Fast-foward changes and checkout
+		err = r.SetHead(rawLocalBranchRefs[i])
+		if err != nil {
+			return err
+		}
+		err = r.CheckoutHead(&git.CheckoutOpts{})
+		if err != nil {
 			return err
 		}
 
+		// Create annotated commit
 		annotatedCommit, err := r.AnnotatedCommitFromRef(remoteBranchRef)
 		if err != nil {
 			return err
 		}
 
-		// If branch does not exist, create it
-		// if !localBranchRef.IsBranch() {
-		// bn, err := localBranchRef.Branch().Name()
-		// if err != nil {
-		// 	return err
-		// }
-		remoteCommit, err := r.LookupCommit(remoteBranchRef.Target())
-		if err != nil {
-			return err
-		}
-
-		_, err = r.CreateBranch(r.repoConfig.Branches[i], remoteCommit, true)
-		if err != nil {
-			return err
-		}
-		// }
-
 		// Merge analysis
 		mergeHeads := []*git.AnnotatedCommit{annotatedCommit}
 		analysis, _, err := r.MergeAnalysis(mergeHeads)
-		if err != nil {
-			return err
-		}
-
-		localBranchRef, err := r.References.Lookup(headBranchRefs[i])
 		if err != nil {
 			return err
 		}
@@ -88,7 +85,8 @@ func (r *Repository) Pull() error {
 			// return nil
 		} else if analysis&git.MergeAnalysisNormal != 0 {
 			// Just merge changes
-			log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, remoteBranchRef)
+			bn, _ := localBranchRef.Branch().Name()
+			log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, bn)
 			if err := r.Merge(mergeHeads, nil, nil); err != nil {
 				return err
 			}
@@ -163,7 +161,7 @@ func (r *Repository) Pull() error {
 				return err
 			}
 
-			branchRef, err := r.References.Lookup(headBranchRefs[i])
+			branchRef, err := r.References.Lookup(rawLocalBranchRefs[i])
 			if err != nil {
 				return err
 			}
