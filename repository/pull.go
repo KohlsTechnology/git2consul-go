@@ -21,6 +21,90 @@ func buildRefs(branches []string) ([]string, []string) {
 	return headBranchRef, remoteBranchRef
 }
 
+func mergeBranch() {
+
+}
+
+// Pull a repository branch
+func (r *Repository) PullOne(branchName string) error {
+	origin, err := r.Remotes.Lookup("origin")
+	if err != nil {
+		return err
+	}
+	defer origin.Free()
+
+	rawLocalBranchRef := fmt.Sprintf("refs/heads/%s", branchName)
+	rawRemoteBranchRef := fmt.Sprintf("refs/remotes/origin/%s", branchName)
+
+	// Fetch
+	err = origin.Fetch([]string{rawLocalBranchRef}, nil, "")
+	if err != nil {
+		return err
+	}
+
+	remoteBranchRef, err := r.References.Lookup(rawRemoteBranchRef)
+	if err != nil {
+		return err
+	}
+
+	// If the ref on the branch doesn't exist locally, create it
+	// This also creates the branch
+	localBranchRef, err := r.References.Lookup(rawLocalBranchRef)
+	if err != nil {
+		localBranchRef, err = r.References.Create(rawLocalBranchRef, remoteBranchRef.Target(), true, "")
+		if err != nil {
+			return err
+		}
+	}
+
+	err = r.SetHead(rawLocalBranchRef)
+	if err != nil {
+		return err
+	}
+	err = r.CheckoutHead(&git.CheckoutOpts{})
+	if err != nil {
+		return err
+	}
+
+	// Create annotated commit
+	annotatedCommit, err := r.AnnotatedCommitFromRef(remoteBranchRef)
+	if err != nil {
+		return err
+	}
+
+	// Merge analysis
+	mergeHeads := []*git.AnnotatedCommit{annotatedCommit}
+	analysis, _, err := r.MergeAnalysis(mergeHeads)
+	if err != nil {
+		return err
+	}
+
+	// Action on analysis
+	if analysis&git.MergeAnalysisUpToDate != 0 { // On up-to-date merge
+		log.Infof("Skipping pull on repository %s, branch %s. Already up to date", r.repoConfig.Name, branchName)
+	} else if analysis&git.MergeAnalysisFastForward != 0 { // On fast-forward merge
+		log.Infof("Changes detected on repository %s branch %s, Fast-forwarding", r.repoConfig.Name, branchName)
+
+		err := r.Merge(mergeHeads, nil, nil)
+		if err != nil {
+			return err
+		}
+
+		localBranchRef.SetTarget(remoteBranchRef.Target(), "")
+	} else if analysis&git.MergeAnalysisNormal != 0 { // On normal merge
+		log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, branchName)
+
+		if err := r.Merge(mergeHeads, nil, nil); err != nil {
+			return err
+		}
+
+		localBranchRef.SetTarget(remoteBranchRef.Target(), "")
+	}
+
+	r.StateCleanup()
+	return nil
+}
+
 // Pull the repository, which is a fetch and merge
 // It attempts to pull all branches specified in the repository configuration
 func (r *Repository) Pull() error {
@@ -56,19 +140,16 @@ func (r *Repository) Pull() error {
 			}
 		}
 
-		//Fast-foward changes and checkout
-		// log.Debugf("=== %s", rawRemoteBranchRefs[i])
-		// err = r.SetHead(rawLocalBranchRefs[i])
-		// if err != nil {
-		// 	return err
-		// }
-		// err = r.CheckoutHead(&git.CheckoutOpts{})
-		// if err != nil {
-		// 	return err
-		// }
-
-		// h, _ := r.Head()
-		// log.Debugf("=== Head: %s", h.Target().String())
+		// Checkout correct branch
+		// TODO: Thread safe, so that manual checkout does not mess up the analysis
+		err = r.SetHead(rawLocalBranchRefs[i])
+		if err != nil {
+			return err
+		}
+		err = r.CheckoutHead(&git.CheckoutOpts{})
+		if err != nil {
+			return err
+		}
 
 		// Create annotated commit
 		annotatedCommit, err := r.AnnotatedCommitFromRef(remoteBranchRef)
@@ -83,87 +164,33 @@ func (r *Repository) Pull() error {
 			return err
 		}
 
-		// Actions to take depending on analysis outcome
-		if analysis&git.MergeAnalysisUpToDate != 0 {
+		// Action on analysis
+		if analysis&git.MergeAnalysisUpToDate != 0 { // On up-to-date merge
 			bn, _ := localBranchRef.Branch().Name()
 			log.Infof("Skipping pull on repository %s, branch %s. Already up to date", r.repoConfig.Name, bn)
-		} else if analysis&git.MergeAnalysisFastForward != 0 {
+		} else if analysis&git.MergeAnalysisFastForward != 0 { // On fast-forward merge
 			bn, _ := localBranchRef.Branch().Name()
 			log.Infof("Changes detected on repository %s branch %s, Fast-forwarding", r.repoConfig.Name, bn)
+
+			err := r.Merge(mergeHeads, nil, nil)
+			if err != nil {
+				return err
+			}
+
+			localBranchRef.SetTarget(remoteBranchRef.Target(), "")
+		} else if analysis&git.MergeAnalysisNormal != 0 { // On normal merge
+			// Just merge changes
+			bn, _ := localBranchRef.Branch().Name()
+			log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, bn)
+
 			if err := r.Merge(mergeHeads, nil, nil); err != nil {
 				return err
 			}
 
 			localBranchRef.SetTarget(remoteBranchRef.Target(), "")
-
-			r.StateCleanup()
-		} else if analysis&git.MergeAnalysisNormal != 0 {
-			// Just merge changes
-			bn, _ := localBranchRef.Branch().Name()
-			log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, bn)
-			// if err := r.Merge(mergeHeads, nil, nil); err != nil {
-			// 	return err
-			// }
-			//
-			// // Check for conflicts
-			// index, err := r.Index()
-			// if err != nil {
-			// 	return err
-			// }
-			// defer index.Free()
-			//
-			// if index.HasConflicts() {
-			// 	iter, err := index.ConflictIterator()
-			// 	if err != nil {
-			// 		return fmt.Errorf("Could not create iterator for conflicts: %s", err.Error())
-			// 	}
-			// 	defer iter.Free()
-			//
-			// 	for entry, err := iter.Next(); err != nil; entry, err = iter.Next() {
-			// 		fmt.Printf("CONFLICT: %s\n", entry.Our.Path)
-			// 	}
-			// 	return errors.New("Conflicts encountered. Please resolve them.")
-			// }
-			//
-			// // Make the merge commit
-			// sig, err := r.DefaultSignature()
-			// if err != nil {
-			// 	return err
-			// }
-			//
-			// // Get Write Tree
-			// treeId, err := index.WriteTree()
-			// if err != nil {
-			// 	return err
-			// }
-			//
-			// tree, err := r.LookupTree(treeId)
-			// if err != nil {
-			// 	return err
-			// }
-			// defer tree.Free()
-			//
-			// localCommit, err := r.LookupCommit(localBranchRef.Target())
-			// if err != nil {
-			// 	return err
-			// }
-			// defer localCommit.Free()
-			//
-			// remoteCommit, err := r.LookupCommit(remoteBranchRef.Target())
-			// if err != nil {
-			// 	return err
-			// }
-			// defer remoteCommit.Free()
-			//
-			// _, err = r.CreateCommit("HEAD", sig, sig, "", tree, localCommit, remoteCommit)
-			// if err != nil {
-			// 	return fmt.Errorf("could not create commit after merge: %s", err.Error())
-			// }
-			//
-			// // Clean up
-			// r.StateCleanup()
 		}
 	}
 
+	r.StateCleanup()
 	return nil
 }
