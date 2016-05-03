@@ -7,6 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/cleung2010/go-git2consul/config"
+	"github.com/cleung2010/go-git2consul/consul"
 	"github.com/cleung2010/go-git2consul/exit"
 	"github.com/cleung2010/go-git2consul/repository"
 )
@@ -45,16 +46,20 @@ func main() {
 		log.Fatal("No configuration file provided")
 	}
 
-	c, err := config.Load(filename)
+	cfg, err := config.Load(filename)
 	if err != nil {
 		log.Error(err)
 		close(quit)
 	}
 
-	err = repository.PollRepos(c)
+	repos, err := repository.PollRepos(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Create Consul client
+	client, err := consul.NewClient(cfg)
+	client.ListenForChanges(repos)
 
 	//Wait for shutdown signal
 	<-quit

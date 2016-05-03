@@ -6,7 +6,7 @@ import "github.com/libgit2/git2go"
 func (r *Repository) Clone() error {
 	// Use temp dir for now
 
-	raw_repo, err := git.Clone(r.repoConfig.Url, r.store, &git.CloneOptions{})
+	raw_repo, err := git.Clone(r.RepoConfig.Url, r.Store, &git.CloneOptions{})
 	if err != nil {
 		return err
 	}

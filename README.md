@@ -1,10 +1,10 @@
 # go-git2consul
 
-# Defaults
+## Defaults
 
-git2consul will attempt to deduce sane defaults for configuration. However, as git2consul needs to know which repository to pull from, minimal configuration is necessary.
+git2consul will attempt to deduce sane defaults for configuration. However, since git2consul needs to know which repository to pull from, minimal configuration is necessary.
 
-## Repository-level configuration
+### Repository-level configuration
 
 | configuration  | default |
 |----------------|---------|

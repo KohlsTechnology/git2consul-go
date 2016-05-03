@@ -62,7 +62,7 @@ func Load(file string) (*Config, error) {
 	return config, nil
 }
 
-// TODO: Improve on checks
+// TODO: Improve/add more checks
 // Check for the validitiy of the configuration file
 func (c *Config) checkConfig() error {
 	for _, repo := range c.Repos {

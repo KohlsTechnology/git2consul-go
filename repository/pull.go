@@ -71,15 +71,15 @@ func (r *Repository) Pull(branchName string) error {
 
 	// Action on analysis
 	if analysis&git.MergeAnalysisUpToDate != 0 { // On up-to-date merge
-		log.Debugf("Skipping pull on repository %s, branch %s. Already up to date", r.repoConfig.Name, branchName)
+		log.Debugf("Skipping pull on repository %s, branch %s. Already up to date", r.RepoConfig.Name, branchName)
 	} else if analysis&git.MergeAnalysisFastForward != 0 { // On fast-forward merge
-		log.Infof("Changes detected on repository %s branch %s, Fast-forwarding", r.repoConfig.Name, branchName)
+		log.Infof("Changes detected on repository %s branch %s, Fast-forwarding", r.RepoConfig.Name, branchName)
 
 		if err := r.Merge(mergeHeads, nil, nil); err != nil {
 			return err
 		}
 	} else if analysis&git.MergeAnalysisNormal != 0 { // On normal merge
-		log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, branchName)
+		log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.RepoConfig.Name, branchName)
 
 		if err := r.Merge(mergeHeads, nil, nil); err != nil {
 			return err

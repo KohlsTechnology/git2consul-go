@@ -2,6 +2,7 @@ package repository
 
 import (
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -10,19 +11,20 @@ import (
 	"github.com/libgit2/git2go"
 )
 
+// TODO: Probably needs a lock on the repo for push/pull
 type Repository struct {
 	*git.Repository
-	repoConfig *config.Repo
-	store      string
+	RepoConfig *config.Repo
+	Store      string
 }
 
-func PollRepos(cfg *config.Config) error {
+func PollRepos(cfg *config.Config) ([]Repository, error) {
+	repos := []Repository{}
 	for _, repo := range cfg.Repos {
 		// Create Repository object for each repo
 		store := filepath.Join(cfg.LocalStore, repo.Name)
 		raw_repo, err := git.OpenRepository(store)
 		if err != nil {
-			// If cannot open/find repo, clone it
 			log.Debugf("Cannot open repository: %s", err)
 		}
 		r := &Repository{
@@ -31,20 +33,23 @@ func PollRepos(cfg *config.Config) error {
 			store,
 		}
 
+		// TODO: Fix this
+		repos = append(repos, *r)
+
 		// Poll repository by interval, or webhook
 		go r.pollRepoByInterval()
 		// go r.PollRepoByWebhook()
 	}
 
-	return nil
+	return repos, nil
 }
 
 func (r *Repository) poll() error {
-	if _, err := os.Stat(r.store); err != nil {
+	if _, err := os.Stat(r.Store); err != nil {
 		// If there is no repo, create and clone
 		if os.IsNotExist(err) {
-			log.Infof("Repository %s not cached, cloning to %s", r.repoConfig.Name, r.store)
-			err := os.Mkdir(r.store, 0755)
+			log.Infof("Repository %s not cached, cloning to %s", r.RepoConfig.Name, r.Store)
+			err := os.Mkdir(r.Store, 0755)
 			if err != nil {
 				return err
 			}
@@ -58,7 +63,7 @@ func (r *Repository) poll() error {
 		}
 	} else {
 		// Pull the repository, all specified branches
-		for _, branch := range r.repoConfig.Branches {
+		for _, branch := range r.RepoConfig.Branches {
 			r.Pull(branch)
 		}
 	}
@@ -67,7 +72,7 @@ func (r *Repository) poll() error {
 }
 
 func (r *Repository) pollRepoByInterval() {
-	hooks := r.repoConfig.Hooks
+	hooks := r.RepoConfig.Hooks
 	interval := time.Second
 
 	// Find polling hook
@@ -102,5 +107,10 @@ func (r *Repository) pollRepoByInterval() {
 }
 
 func (r *Repository) pollRepoByWebhook() {
+
+}
+
+func (r *Repository) GetBranchKVPath(branchName) (string, error) {
+	path := path.Join(r.RepoConfig.Name, r.)
 
 }
