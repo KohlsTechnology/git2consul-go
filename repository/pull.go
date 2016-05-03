@@ -48,9 +48,9 @@ func (r *Repository) Pull(branchName string) error {
 
 	// If the ref on the branch doesn't exist locally, create it
 	// This also creates the branch
-	localBranchRef, err := r.References.Lookup(rawLocalBranchRef)
+	_, err = r.References.Lookup(rawLocalBranchRef)
 	if err != nil {
-		localBranchRef, err = r.References.Create(rawLocalBranchRef, remoteBranchRef.Target(), true, "")
+		_, err = r.References.Create(rawLocalBranchRef, remoteBranchRef.Target(), true, "")
 		if err != nil {
 			return err
 		}
@@ -78,7 +78,6 @@ func (r *Repository) Pull(branchName string) error {
 		if err := r.Merge(mergeHeads, nil, nil); err != nil {
 			return err
 		}
-		log.Debugf("lbr: %s, rbr:%s", localBranchRef.Target(), remoteBranchRef.Target())
 	} else if analysis&git.MergeAnalysisNormal != 0 { // On normal merge
 		log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, branchName)
 
