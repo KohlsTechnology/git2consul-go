@@ -38,3 +38,15 @@ func LoadRepos(cfg *config.Config) (Repositories, error) {
 
 	return repos, nil
 }
+
+func (r *Repository) Name() string {
+	return r.repoConfig.Name
+}
+
+func (r *Repository) Store() string {
+	return r.store
+}
+
+func (r *Repository) Branches() []string {
+	return r.repoConfig.Branches
+}

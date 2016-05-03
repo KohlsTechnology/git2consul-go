@@ -7,6 +7,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+// Watch for changes on the remotes
 func (rs Repositories) WatchRepos() error {
 	// Poll repository by interval, or webhook
 	for _, repo := range rs {

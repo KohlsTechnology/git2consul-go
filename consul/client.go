@@ -9,6 +9,7 @@ type Client struct {
 	*api.Client
 }
 
+// Use the provided config to set up the Consul API client
 func NewClient(cfg *config.Config) (*Client, error) {
 	// TODO: Use git2consul defaults for the client
 	raw_client, err := api.NewClient(api.DefaultConfig())
