@@ -18,6 +18,21 @@ func (r *Repository) Pull(branchName string) error {
 	rawLocalBranchRef := fmt.Sprintf("refs/heads/%s", branchName)
 	rawRemoteBranchRef := fmt.Sprintf("refs/remotes/origin/%s", branchName)
 
+	remoteBranchRef, err := r.References.Lookup(rawRemoteBranchRef)
+	if err != nil {
+		return err
+	}
+
+	// If the ref on the branch doesn't exist locally, create it
+	// This also creates the branch
+	_, err = r.References.Lookup(rawLocalBranchRef)
+	if err != nil {
+		_, err = r.References.Create(rawLocalBranchRef, remoteBranchRef.Target(), true, "")
+		if err != nil {
+			return err
+		}
+	}
+
 	// Fetch
 	err = origin.Fetch([]string{rawLocalBranchRef}, nil, "")
 	if err != nil {
@@ -41,21 +56,6 @@ func (r *Repository) Pull(branchName string) error {
 		return err
 	}
 
-	remoteBranchRef, err := r.References.Lookup(rawRemoteBranchRef)
-	if err != nil {
-		return err
-	}
-
-	// If the ref on the branch doesn't exist locally, create it
-	// This also creates the branch
-	_, err = r.References.Lookup(rawLocalBranchRef)
-	if err != nil {
-		_, err = r.References.Create(rawLocalBranchRef, remoteBranchRef.Target(), true, "")
-		if err != nil {
-			return err
-		}
-	}
-
 	// Create annotated commit
 	annotatedCommit, err := r.AnnotatedCommitFromRef(remoteBranchRef)
 	if err != nil {
@@ -71,15 +71,15 @@ func (r *Repository) Pull(branchName string) error {
 
 	// Action on analysis
 	if analysis&git.MergeAnalysisUpToDate != 0 { // On up-to-date merge
-		log.Debugf("Skipping pull on repository %s, branch %s. Already up to date", r.RepoConfig.Name, branchName)
+		log.Debugf("Skipping pull on repository %s, branch %s. Already up to date", r.repoConfig.Name, branchName)
 	} else if analysis&git.MergeAnalysisFastForward != 0 { // On fast-forward merge
-		log.Infof("Changes detected on repository %s branch %s, Fast-forwarding", r.RepoConfig.Name, branchName)
+		log.Infof("Changes detected on repository %s branch %s, Fast-forwarding", r.repoConfig.Name, branchName)
 
 		if err := r.Merge(mergeHeads, nil, nil); err != nil {
 			return err
 		}
 	} else if analysis&git.MergeAnalysisNormal != 0 { // On normal merge
-		log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.RepoConfig.Name, branchName)
+		log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, branchName)
 
 		if err := r.Merge(mergeHeads, nil, nil); err != nil {
 			return err
