@@ -57,7 +57,8 @@ func (r *Repository) poll() error {
 			return err
 		}
 	} else {
-		// Pull the repository
+		// Pull the repository, all specified branches
+		log.Debugf("Tracking branches: %q", r.repoConfig.Branches)
 		for _, branch := range r.repoConfig.Branches {
 			r.Pull(branch)
 		}

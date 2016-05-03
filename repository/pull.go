@@ -7,24 +7,6 @@ import (
 	"github.com/libgit2/git2go"
 )
 
-func buildRefs(branches []string) ([]string, []string) {
-	headBranchRef := []string{}
-	remoteBranchRef := []string{}
-
-	for _, branch := range branches {
-		hbr := fmt.Sprintf("refs/heads/%s", branch)
-		headBranchRef = append(headBranchRef, hbr)
-		rbr := fmt.Sprintf("refs/remotes/origin/%s", branch)
-		remoteBranchRef = append(remoteBranchRef, rbr)
-	}
-
-	return headBranchRef, remoteBranchRef
-}
-
-func mergeBranch() {
-
-}
-
 // Pull a repository branch
 func (r *Repository) Pull(branchName string) error {
 	origin, err := r.Remotes.Lookup("origin")
@@ -38,6 +20,23 @@ func (r *Repository) Pull(branchName string) error {
 
 	// Fetch
 	err = origin.Fetch([]string{rawLocalBranchRef}, nil, "")
+	if err != nil {
+		return err
+	}
+
+	// Change the HEAD to current branch and checkout
+	err = r.SetHead(rawLocalBranchRef)
+	if err != nil {
+		return err
+	}
+	err = r.CheckoutHead(&git.CheckoutOpts{
+		Strategy: git.CheckoutForce,
+	})
+	if err != nil {
+		return err
+	}
+
+	head, err := r.Head()
 	if err != nil {
 		return err
 	}
@@ -57,15 +56,6 @@ func (r *Repository) Pull(branchName string) error {
 		}
 	}
 
-	err = r.SetHead(rawLocalBranchRef)
-	if err != nil {
-		return err
-	}
-	err = r.CheckoutHead(&git.CheckoutOpts{})
-	if err != nil {
-		return err
-	}
-
 	// Create annotated commit
 	annotatedCommit, err := r.AnnotatedCommitFromRef(remoteBranchRef)
 	if err != nil {
@@ -81,26 +71,27 @@ func (r *Repository) Pull(branchName string) error {
 
 	// Action on analysis
 	if analysis&git.MergeAnalysisUpToDate != 0 { // On up-to-date merge
-		log.Infof("Skipping pull on repository %s, branch %s. Already up to date", r.repoConfig.Name, branchName)
+		log.Debugf("Skipping pull on repository %s, branch %s. Already up to date", r.repoConfig.Name, branchName)
 	} else if analysis&git.MergeAnalysisFastForward != 0 { // On fast-forward merge
 		log.Infof("Changes detected on repository %s branch %s, Fast-forwarding", r.repoConfig.Name, branchName)
 
-		err := r.Merge(mergeHeads, nil, nil)
-		if err != nil {
+		if err := r.Merge(mergeHeads, nil, nil); err != nil {
 			return err
 		}
-
-		localBranchRef.SetTarget(remoteBranchRef.Target(), "")
+		log.Debugf("lbr: %s, rbr:%s", localBranchRef.Target(), remoteBranchRef.Target())
 	} else if analysis&git.MergeAnalysisNormal != 0 { // On normal merge
 		log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, branchName)
 
 		if err := r.Merge(mergeHeads, nil, nil); err != nil {
 			return err
 		}
-
-		localBranchRef.SetTarget(remoteBranchRef.Target(), "")
 	}
 
-	r.StateCleanup()
+	// Update refs on heads (local) from remotes
+	if _, err := head.SetTarget(remoteBranchRef.Target(), ""); err != nil {
+		return err
+	}
+
+	defer r.StateCleanup()
 	return nil
 }
