@@ -1,10 +1,13 @@
 package repository
 
-import "github.com/libgit2/git2go"
+import (
+	"path"
+
+	"github.com/libgit2/git2go"
+)
 
 // Clone the repository
 func (r *Repository) Clone() error {
-	// Use temp dir for now
 
 	raw_repo, err := git.Clone(r.repoConfig.Url, r.store, &git.CloneOptions{})
 	if err != nil {
@@ -13,7 +16,29 @@ func (r *Repository) Clone() error {
 
 	r.Repository = raw_repo
 
-	// TODO: Clone needs to include all branches as well
+	// Pulls all remote branches as well
+	itr, err := r.NewBranchIterator(git.BranchRemote)
+	if err != nil {
+		return err
+	}
+
+	var checkoutBranchFn = func(b *git.Branch, _ git.BranchType) error {
+		bn, err := b.Name()
+		if err != nil {
+			return err
+		}
+		_, err = r.References.Lookup("refs/heads/" + path.Base(bn))
+		if err != nil {
+			_, err = r.References.Create("refs/heads/"+path.Base(bn), b.Reference.Target(), true, "")
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	itr.ForEach(checkoutBranchFn)
 
 	r.signal <- Signal{
 		Type: "clone",

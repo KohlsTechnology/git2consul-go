@@ -32,19 +32,26 @@ func (c *Client) watchRepo(repo *repository.Repository) {
 			log.Error(err)
 		}
 
-		var branchFn = func(b *git.Branch, _ git.BranchType) error {
+		var updateBranchFn = func(b *git.Branch, _ git.BranchType) error {
 			bn, err := b.Name()
 			if err != nil {
 				return err
 			}
-			// c.getKVRef(repo, bn)
-			log.Debugf("Branch name: %s", bn)
+			// log.Debugf("Updating for branch: %s", bn)
+			ref, err := c.getKVRef(repo, bn)
+			if err != nil {
+				return err
+			}
+
+			if ref == nil || string(ref) != b.Reference.Target().String() {
+				c.putKVRef(repo, bn)
+			}
 
 			return nil
 		}
 
 		// Update KV
-		itr.ForEach(branchFn)
+		itr.ForEach(updateBranchFn)
 	}
 }
 
@@ -61,8 +68,9 @@ func (c *Client) getKVRef(repo *repository.Repository, branchName string) ([]byt
 		return nil, err
 	}
 
+	// If error on get, return empty value
 	if pair == nil {
-		return nil, fmt.Errorf("Cannot find KV")
+		return nil, nil
 	}
 
 	return pair.Value, nil
