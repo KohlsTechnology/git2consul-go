@@ -12,8 +12,8 @@ func (r *Repository) Clone() error {
 	}
 
 	r.Repository = raw_repo
-	// ref, _ := raw_repo.References.Lookup("refs/heads/master")
-	// log.Debugf("=== References %v", ref)
+
+	// TODO: Clone needs to include all branches as well
 
 	r.signal <- Signal{
 		Type: "clone",

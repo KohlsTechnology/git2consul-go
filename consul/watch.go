@@ -22,39 +22,29 @@ func (c *Client) WatchChanges(repos []*repository.Repository) {
 }
 
 func (c *Client) watchRepo(repo *repository.Repository) {
+	// Continuously watch changes on repo
 	for {
-		// Listen for changes
-		signal := repo.GetSignal()
-		switch signal.Type {
-		case "clone":
-			// On a clone, GET all branch refs
-			itr, err := repo.NewBranchIterator(git.BranchLocal)
-			if err != nil {
-				log.Error(err)
-			}
+		// Block until signal is received
+		repo.GetSignal()
 
-			var branchFn = func(b *git.Branch, _ git.BranchType) error {
-				bn, err := b.Name()
-				if err != nil {
-					return err
-				}
-				log.Debugf("On branch: %s", bn)
-				ref, err := c.getKVRef(repo, bn)
-				if err != nil {
-					c.putKVRef(repo, bn)
-					return err
-				}
-				if ref == nil || string(ref) != b.Target().String() {
-					c.putKVRef(repo, bn)
-				}
-
-				return nil
-			}
-
-			itr.ForEach(branchFn)
-		case "pull":
-			// On a pull,  GET branch ref and take action
+		itr, err := repo.NewBranchIterator(git.BranchLocal)
+		if err != nil {
+			log.Error(err)
 		}
+
+		var branchFn = func(b *git.Branch, _ git.BranchType) error {
+			bn, err := b.Name()
+			if err != nil {
+				return err
+			}
+			// c.getKVRef(repo, bn)
+			log.Debugf("Branch name: %s", bn)
+
+			return nil
+		}
+
+		// Update KV
+		itr.ForEach(branchFn)
 	}
 }
 
