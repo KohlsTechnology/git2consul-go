@@ -12,6 +12,8 @@ type Repository struct {
 	*git.Repository
 	repoConfig *config.Repo
 	store      string
+
+	UpdateCh chan bool
 }
 
 type Repositories []*Repository
@@ -31,6 +33,7 @@ func LoadRepos(cfg *config.Config) (Repositories, error) {
 			raw_repo,
 			repo,
 			store,
+			make(chan bool, 1),
 		}
 
 		repos = append(repos, r)

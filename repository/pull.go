@@ -78,6 +78,8 @@ func (r *Repository) Pull(branchName string) error {
 		if err := r.Merge(mergeHeads, nil, nil); err != nil {
 			return err
 		}
+
+		r.UpdateCh <- true
 	} else if analysis&git.MergeAnalysisNormal != 0 { // On normal merge
 		log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, branchName)
 

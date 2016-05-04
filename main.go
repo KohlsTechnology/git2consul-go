@@ -7,6 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/cleung2010/go-git2consul/config"
+	"github.com/cleung2010/go-git2consul/consul"
 	"github.com/cleung2010/go-git2consul/exit"
 	"github.com/cleung2010/go-git2consul/repository"
 )
@@ -62,8 +63,8 @@ func main() {
 	}
 
 	// Create Consul client
-	// client, err := consul.NewClient(cfg)
-	// client.WatchChanges(repos)
+	client, err := consul.NewClient(cfg)
+	client.WatchChanges(repos)
 
 	//Wait for shutdown signal
 	<-quit

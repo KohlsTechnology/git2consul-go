@@ -15,24 +15,21 @@ import (
 func (c *Client) WatchChanges(repos []*repository.Repository) {
 	// If there changes, push to KV
 	for _, r := range repos {
-		go c.watchRepo(&r)
+		go c.watchRepo(r)
 	}
 }
 
 func (c *Client) watchRepo(repo *repository.Repository) {
 	// If change is detected, push repository to the KV
 	for {
-		// Check the ref for the branch
-		branch, err := repo.Head().Branch().Name()
-		if err != nil {
-			return err
+		// Block on channel until change is detected
+		updated := <-repo.UpdateCh
+		log.Debugf("Channel value: %s", updated)
+		if updated {
+			c.pushRepo(repo)
 		}
-		kv := c.KV()
-		kv.Get(, nil)
-
 	}
 }
-
 
 // TODO: Optimize for PUT only on changes instead of the entire repo
 // TODO: Need to also push if key is absent
@@ -69,7 +66,7 @@ func (c *Client) pushRepo(repo *repository.Repository) {
 		if err != nil {
 			return err
 		}
-		kvPath := path.Join(repo.RepoConfig.Name, branch, path.Base(fullpath))
+		kvPath := path.Join(repo.Name(), branch, path.Base(fullpath))
 
 		p := &api.KVPair{
 			Key:   kvPath,
@@ -84,7 +81,7 @@ func (c *Client) pushRepo(repo *repository.Repository) {
 		return nil
 	}
 
-	err := filepath.Walk(repo.Store, pushFile)
+	err := filepath.Walk(repo.Store(), pushFile)
 	if err != nil {
 		log.Debug(err)
 	}
