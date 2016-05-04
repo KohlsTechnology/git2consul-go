@@ -1,6 +1,7 @@
 package consul
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -9,6 +10,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/cleung2010/go-git2consul/repository"
 	"github.com/hashicorp/consul/api"
+	"github.com/libgit2/git2go"
 )
 
 // Listen for changes on all registered repos
@@ -20,15 +22,86 @@ func (c *Client) WatchChanges(repos []*repository.Repository) {
 }
 
 func (c *Client) watchRepo(repo *repository.Repository) {
-	// If change is detected, push repository to the KV
 	for {
-		// Block on channel until change is detected
-		updated := <-repo.UpdateCh
-		log.Debugf("Channel value: %s", updated)
-		if updated {
-			c.pushRepo(repo)
+		// Listen for changes
+		signal := repo.GetSignal()
+		switch signal.Type {
+		case "clone":
+			// On a clone, GET all branch refs
+			itr, err := repo.NewBranchIterator(git.BranchLocal)
+			if err != nil {
+				log.Error(err)
+			}
+
+			var branchFn = func(b *git.Branch, _ git.BranchType) error {
+				bn, err := b.Name()
+				if err != nil {
+					return err
+				}
+				log.Debugf("On branch: %s", bn)
+				ref, err := c.getKVRef(repo, bn)
+				if err != nil {
+					c.putKVRef(repo, bn)
+					return err
+				}
+				if ref == nil || string(ref) != b.Target().String() {
+					c.putKVRef(repo, bn)
+				}
+
+				return nil
+			}
+
+			itr.ForEach(branchFn)
+		case "pull":
+			// On a pull,  GET branch ref and take action
 		}
 	}
+}
+
+// Get local branch ref from the KV
+func (c *Client) getKVRef(repo *repository.Repository, branchName string) ([]byte, error) {
+	refFile := fmt.Sprintf("%s.ref", branchName)
+	key := path.Join(repo.Name(), refFile)
+
+	kv := c.KV()
+
+	log.Debugf("Key: %s", key)
+	pair, _, err := kv.Get(key, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if pair == nil {
+		return nil, fmt.Errorf("Cannot find KV")
+	}
+
+	return pair.Value, nil
+}
+
+// Put the local branch ref to the KV
+func (c *Client) putKVRef(repo *repository.Repository, branchName string) error {
+	refFile := fmt.Sprintf("%s.ref", branchName)
+	key := path.Join(repo.Name(), refFile)
+
+	rawRef, err := repo.References.Lookup("refs/heads/" + branchName)
+	if err != nil {
+		return err
+	}
+	ref := rawRef.Target().String()
+
+	kv := c.KV()
+
+	p := &api.KVPair{
+		Key:   key,
+		Value: []byte(ref),
+	}
+
+	_, err = kv.Put(p, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // TODO: Optimize for PUT only on changes instead of the entire repo

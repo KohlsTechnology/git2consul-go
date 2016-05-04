@@ -13,7 +13,7 @@ type Repository struct {
 	repoConfig *config.Repo
 	store      string
 
-	UpdateCh chan bool
+	signal chan Signal
 }
 
 type Repositories []*Repository
@@ -33,7 +33,7 @@ func LoadRepos(cfg *config.Config) (Repositories, error) {
 			raw_repo,
 			repo,
 			store,
-			make(chan bool, 1),
+			make(chan Signal),
 		}
 
 		repos = append(repos, r)
