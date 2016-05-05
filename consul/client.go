@@ -23,3 +23,5 @@ func NewClient(cfg *config.Config) (*Client, error) {
 
 	return client, nil
 }
+
+// TODO: Check for client availability

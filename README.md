@@ -11,3 +11,16 @@ git2consul will attempt to deduce sane defaults for configuration. However, sinc
 | branches       | master  |
 | hooks:type     | polling |
 | hooks:interval | 60      |
+
+
+## TODO
+
+### Initial version requirements:
+* Better error handling of goroutines through errCh
+* Possible usage of a runner to abstract git operations from the consul package
+* Test coverage
+* Better CI pipeline
+* Webhook polling
+
+### Future additions:
+* File format backend

@@ -39,7 +39,6 @@ func (c *Client) watchRepo(repo *repository.Repository) {
 			if err != nil {
 				return err
 			}
-			// log.Debugf("Updating for branch: %s", bn)
 			log.Debugf("KV GET ref for %s/%s", repo.Name(), bn)
 			ref, err := c.getKVRef(repo, bn)
 			if err != nil {

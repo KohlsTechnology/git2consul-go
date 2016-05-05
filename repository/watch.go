@@ -10,6 +10,12 @@ import (
 func (rs Repositories) WatchRepos() error {
 	// Poll repository by interval, or webhook
 	for _, repo := range rs {
+		// Initial poll
+		err := repo.poll()
+		if err != nil {
+			log.Error(err)
+		}
+
 		go repo.pollRepoByInterval()
 		// go r.PollRepoByWebhook()
 	}
@@ -41,12 +47,6 @@ func (r *Repository) pollRepoByInterval() {
 	// If no polling found, don't poll
 	if interval == 0 {
 		return
-	}
-
-	// Initial poll
-	err := r.poll()
-	if err != nil {
-		log.Error(err)
 	}
 
 	ticker := time.NewTicker(interval * time.Second)
