@@ -64,6 +64,9 @@ func main() {
 
 	// Create Consul client
 	client, err := consul.NewClient(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 	client.WatchChanges(repos)
 
 	//Wait for shutdown signal

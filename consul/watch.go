@@ -22,6 +22,8 @@ func (c *Client) WatchChanges(repos []*repository.Repository) {
 }
 
 func (c *Client) watchRepo(repo *repository.Repository) {
+	// TODO: Initial GET on refs
+
 	// Continuously watch changes on repo
 	for {
 		// Block until signal is received
@@ -43,10 +45,14 @@ func (c *Client) watchRepo(repo *repository.Repository) {
 				return err
 			}
 
+			// If ref doesn't exist or is not the same, push files to KV
 			if ref == nil || string(ref) != b.Reference.Target().String() {
+				c.pushBranch(repo, bn)
 				c.putKVRef(repo, bn)
 			}
 
+			// Send done signal to repo
+			repo.Done()
 			return nil
 		}
 
@@ -105,7 +111,7 @@ func (c *Client) putKVRef(repo *repository.Repository, branchName string) error 
 // TODO: Optimize for PUT only on changes instead of the entire repo
 // TODO: Need to also push if key is absent
 // Push a repository to the KV
-func (c *Client) pushRepo(repo *repository.Repository) {
+func (c *Client) pushBranch(repo *repository.Repository, branchName string) {
 	var pushFile = func(fullpath string, info os.FileInfo, err error) error {
 		// Walk error
 		if err != nil {
@@ -122,22 +128,23 @@ func (c *Client) pushRepo(repo *repository.Repository) {
 			return nil
 		}
 
+		// KV path, is repo/branch/file
+		b, err := repo.LookupBranch(branchName, git.BranchLocal)
+		if err != nil {
+			return err
+		}
+		branch, err := b.Name()
+		if err != nil {
+			return err
+		}
+
+		kvPath := path.Join(repo.Name(), branch, path.Base(fullpath))
+
 		kv := c.KV()
 		data, err := ioutil.ReadFile(fullpath)
 		if err != nil {
 			return err
 		}
-
-		// KV path, is repo/branch/file
-		h, err := repo.Head()
-		if err != nil {
-			return err
-		}
-		branch, err := h.Branch().Name()
-		if err != nil {
-			return err
-		}
-		kvPath := path.Join(repo.Name(), branch, path.Base(fullpath))
 
 		p := &api.KVPair{
 			Key:   kvPath,

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/libgit2/git2go"
 )
 
 // Watch for changes on the remotes
@@ -18,28 +19,23 @@ func (rs Repositories) WatchRepos() error {
 	return nil
 }
 
+// Poll repository once. Polling can either clone or update
 func (r *Repository) poll() error {
-	if _, err := os.Stat(r.store); err != nil {
-		// If there is no repo, create and clone
-		if os.IsNotExist(err) {
-			log.Infof("Repository %s not cached, cloning to %s", r.repoConfig.Name, r.store)
-			err := os.Mkdir(r.store, 0755)
-			if err != nil {
-				return err
-			}
-
-			err = r.Clone()
-			if err != nil {
-				return err
-			}
-		} else {
+	if _, err := git.OpenRepository(r.store); err != nil {
+		log.Infof("Repository %s not cached, cloning to %s", r.repoConfig.Name, r.store)
+		err := os.Mkdir(r.store, 0755)
+		if err != nil {
 			return err
 		}
-	} else {
-		// Pull the repository, all specified branches
-		for _, branch := range r.repoConfig.Branches {
-			r.Pull(branch)
+
+		err = r.Clone()
+		if err != nil {
+			return err
 		}
+	}
+
+	for _, branch := range r.repoConfig.Branches {
+		r.Pull(branch)
 	}
 
 	return nil

@@ -13,7 +13,12 @@ type Repository struct {
 	repoConfig *config.Repo
 	store      string
 
+	//
 	signal chan Signal
+
+	// recvDoneCh is used received once Consul
+	// done updating the repository branch
+	recvDoneCh chan bool
 }
 
 type Repositories []*Repository
@@ -34,6 +39,7 @@ func LoadRepos(cfg *config.Config) (Repositories, error) {
 			repo,
 			store,
 			make(chan Signal),
+			make(chan bool, 1),
 		}
 
 		repos = append(repos, r)
@@ -52,4 +58,8 @@ func (r *Repository) Store() string {
 
 func (r *Repository) Branches() []string {
 	return r.repoConfig.Branches
+}
+
+func (r *Repository) Done() {
+	r.recvDoneCh <- true
 }
