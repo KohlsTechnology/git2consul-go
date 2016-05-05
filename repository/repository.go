@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"os"
 	"path/filepath"
 	"sync"
 
@@ -14,30 +15,39 @@ type Repository struct {
 	repoConfig *config.Repo
 	store      string
 
-	// Signal channel for signaling
-	signal chan Signal
-
-	Mutex sync.Mutex
+	// Channel to notify repo change
+	changeCh chan struct{}
+	sync.Mutex
 }
 
 type Repositories []*Repository
 
 func LoadRepos(cfg *config.Config) (Repositories, error) {
 	repos := []*Repository{}
+
+	// Create Repository object for each repo
 	for _, repo := range cfg.Repos {
-		// Create Repository object for each repo
 		store := filepath.Join(cfg.LocalStore, repo.Name)
 
-		raw_repo, err := git.OpenRepository(store)
-		if err != nil {
-			log.Warnf("Cannot load repository: %s", err)
-		}
-
 		r := &Repository{
-			Repository: raw_repo,
 			repoConfig: repo,
 			store:      store,
-			signal:     make(chan Signal, 1),
+			changeCh:   make(chan struct{}, 1),
+		}
+
+		repo, err := git.OpenRepository(store)
+		if err != nil {
+			log.Infof("Repository %s not cached, cloning to %s", r.repoConfig.Name, r.store)
+			err := os.Mkdir(r.store, 0755)
+			if err != nil {
+				return nil, err
+			}
+			err = r.Clone()
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			r.Repository = repo
 		}
 
 		repos = append(repos, r)
@@ -56,4 +66,8 @@ func (r *Repository) Store() string {
 
 func (r *Repository) Branches() []string {
 	return r.repoConfig.Branches
+}
+
+func (r *Repository) ChangeLock() <-chan struct{} {
+	return r.changeCh
 }

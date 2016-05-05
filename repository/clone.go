@@ -40,9 +40,7 @@ func (r *Repository) Clone() error {
 
 	itr.ForEach(checkoutBranchFn)
 
-	r.signal <- Signal{
-		Type: "clone",
-	}
+	r.changeCh <- struct{}{}
 
 	return nil
 }

@@ -26,8 +26,8 @@ func (c *Client) watchRepo(repo *repository.Repository) {
 
 	// Continuously watch changes on repo
 	for {
-		// Block until signal is received
-		repo.GetSignal()
+		// Block until change is received
+		<-repo.ChangeLock()
 
 		itr, err := repo.NewBranchIterator(git.BranchLocal)
 		if err != nil {
@@ -40,6 +40,7 @@ func (c *Client) watchRepo(repo *repository.Repository) {
 				return err
 			}
 			// log.Debugf("Updating for branch: %s", bn)
+			log.Debugf("KV GET ref for %s/%s", repo.Name(), bn)
 			ref, err := c.getKVRef(repo, bn)
 			if err != nil {
 				return err
@@ -47,10 +48,12 @@ func (c *Client) watchRepo(repo *repository.Repository) {
 
 			// If ref doesn't exist or is not the same, push files to KV
 			if ref == nil || string(ref) != b.Reference.Target().String() {
-				repo.Mutex.Lock()
+				repo.Lock()
+				log.Debugf("KV PUT changes for %s/%s", repo.Name(), bn)
 				c.pushBranch(repo, bn)
+				log.Debugf("KV PUT ref for %s/%s", repo.Name(), bn)
 				c.putKVRef(repo, bn)
-				repo.Mutex.Unlock()
+				repo.Unlock()
 			}
 
 			return nil
@@ -67,8 +70,6 @@ func (c *Client) getKVRef(repo *repository.Repository, branchName string) ([]byt
 	key := path.Join(repo.Name(), refFile)
 
 	kv := c.KV()
-
-	log.Debugf("Key: %s", key)
 	pair, _, err := kv.Get(key, nil)
 	if err != nil {
 		return nil, err

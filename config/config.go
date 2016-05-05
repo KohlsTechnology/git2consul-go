@@ -109,3 +109,7 @@ func (c *Config) setDefaultConfig() error {
 	}
 	return nil
 }
+
+func (r *Repo) String() string {
+	return r.Name
+}

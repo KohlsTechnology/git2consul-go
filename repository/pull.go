@@ -79,9 +79,7 @@ func (r *Repository) Pull(branchName string) error {
 			return err
 		}
 
-		r.signal <- Signal{
-			Type: "update",
-		}
+		r.changeCh <- struct{}{}
 
 	} else if analysis&git.MergeAnalysisNormal != 0 { // On normal merge
 		log.Infof("Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, branchName)
