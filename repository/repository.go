@@ -2,6 +2,7 @@ package repository
 
 import (
 	"path/filepath"
+	"sync"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/cleung2010/go-git2consul/config"
@@ -13,12 +14,10 @@ type Repository struct {
 	repoConfig *config.Repo
 	store      string
 
-	//
+	// Signal channel for signaling
 	signal chan Signal
 
-	// recvDoneCh is used received once Consul
-	// done updating the repository branch
-	recvDoneCh chan bool
+	Mutex sync.Mutex
 }
 
 type Repositories []*Repository
@@ -35,11 +34,10 @@ func LoadRepos(cfg *config.Config) (Repositories, error) {
 		}
 
 		r := &Repository{
-			raw_repo,
-			repo,
-			store,
-			make(chan Signal),
-			make(chan bool, 1),
+			Repository: raw_repo,
+			repoConfig: repo,
+			store:      store,
+			signal:     make(chan Signal, 1),
 		}
 
 		repos = append(repos, r)
@@ -58,8 +56,4 @@ func (r *Repository) Store() string {
 
 func (r *Repository) Branches() []string {
 	return r.repoConfig.Branches
-}
-
-func (r *Repository) Done() {
-	r.recvDoneCh <- true
 }

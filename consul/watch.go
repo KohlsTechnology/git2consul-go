@@ -47,12 +47,12 @@ func (c *Client) watchRepo(repo *repository.Repository) {
 
 			// If ref doesn't exist or is not the same, push files to KV
 			if ref == nil || string(ref) != b.Reference.Target().String() {
+				repo.Mutex.Lock()
 				c.pushBranch(repo, bn)
 				c.putKVRef(repo, bn)
+				repo.Mutex.Unlock()
 			}
 
-			// Send done signal to repo
-			repo.Done()
 			return nil
 		}
 
