@@ -46,28 +46,31 @@ func main() {
 		log.Fatal("No configuration file provided")
 	}
 
+	// Load configuration from file
 	cfg, err := config.Load(filename)
 	if err != nil {
 		log.Error(err)
 		close(quit)
 	}
 
+	// Create repos from configuration
 	repos, err := repository.LoadRepos(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = repos.WatchRepos()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Create Consul client
+	// Watch for local changes
 	client, err := consul.NewClient(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 	client.WatchChanges(repos)
+
+	// Watch for remote changes
+	err = repos.WatchRepos()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	//Wait for shutdown signal
 	<-quit

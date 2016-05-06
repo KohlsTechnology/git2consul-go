@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"os"
 	"path/filepath"
 	"sync"
 
@@ -15,6 +14,9 @@ type Repository struct {
 	repoConfig *config.Repo
 	store      string
 
+	// Channel to notify repo Clone
+	cloneCh chan struct{}
+
 	// Channel to notify repo change
 	changeCh chan struct{}
 	sync.Mutex
@@ -22,6 +24,8 @@ type Repository struct {
 
 type Repositories []*Repository
 
+// Populates Repository slice from configuration
+// Handles cloning of the repository if not present
 func LoadRepos(cfg *config.Config) (Repositories, error) {
 	repos := []*Repository{}
 
@@ -32,16 +36,13 @@ func LoadRepos(cfg *config.Config) (Repositories, error) {
 		r := &Repository{
 			repoConfig: repo,
 			store:      store,
+			cloneCh:    make(chan struct{}, 1),
 			changeCh:   make(chan struct{}, 1),
 		}
 
 		repo, err := git.OpenRepository(store)
 		if err != nil {
 			log.Infof("Repository %s not cached, cloning to %s", r.repoConfig.Name, r.store)
-			err := os.Mkdir(r.store, 0755)
-			if err != nil {
-				return nil, err
-			}
 			err = r.Clone()
 			if err != nil {
 				return nil, err
@@ -70,4 +71,8 @@ func (r *Repository) Branches() []string {
 
 func (r *Repository) ChangeLock() <-chan struct{} {
 	return r.changeCh
+}
+
+func (r *Repository) CloneCh() <-chan struct{} {
+	return r.cloneCh
 }

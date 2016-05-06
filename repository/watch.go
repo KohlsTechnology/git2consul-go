@@ -11,7 +11,7 @@ func (rs Repositories) WatchRepos() error {
 	// Poll repository by interval, or webhook
 	for _, repo := range rs {
 		// Initial poll
-		err := repo.poll()
+		err := repo.pollBranches()
 		if err != nil {
 			log.Error(err)
 		}
@@ -24,7 +24,7 @@ func (rs Repositories) WatchRepos() error {
 }
 
 // Poll repository once. Polling can either clone or update
-func (r *Repository) poll() error {
+func (r *Repository) pollBranches() error {
 	for _, branch := range r.repoConfig.Branches {
 		r.Pull(branch)
 	}
@@ -53,7 +53,7 @@ func (r *Repository) pollRepoByInterval() {
 	for {
 		select {
 		case <-ticker.C:
-			err := r.poll()
+			err := r.pollBranches()
 			if err != nil {
 				log.Error(err)
 			}

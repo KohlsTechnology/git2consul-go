@@ -21,65 +21,61 @@ func (c *Client) WatchChanges(repos []*repository.Repository) {
 	}
 }
 
-func (c *Client) watchRepo(repo *repository.Repository) {
+// Watch for changes on a repository
+// TODO: Handle errors through channel
+func (c *Client) watchRepo(repo *repository.Repository) error {
 	// TODO: Initial GET on refs
 
-	// Continuously watch changes on repo
 	for {
 		// Block until change is received
 		<-repo.ChangeLock()
-
-		itr, err := repo.NewBranchIterator(git.BranchLocal)
+		repo.Lock()
+		h, err := repo.Head()
 		if err != nil {
-			log.Error(err)
+			return err
+		}
+		b, err := h.Branch().Name()
+		if err != nil {
+			return err
 		}
 
-		var updateBranchFn = func(b *git.Branch, _ git.BranchType) error {
-			bn, err := b.Name()
-			if err != nil {
-				return err
-			}
-			log.Debugf("KV GET ref for %s/%s", repo.Name(), bn)
-			ref, err := c.getKVRef(repo, bn)
-			if err != nil {
-				return err
-			}
-
-			// If ref doesn't exist or is not the same, push files to KV
-			if ref == nil || string(ref) != b.Reference.Target().String() {
-				repo.Lock()
-				log.Debugf("KV PUT changes for %s/%s", repo.Name(), bn)
-				c.pushBranch(repo, bn)
-				log.Debugf("KV PUT ref for %s/%s", repo.Name(), bn)
-				c.putKVRef(repo, bn)
-				repo.Unlock()
-			}
-
-			return nil
+		log.Debugf("KV GET ref for %s/%s", repo.Name(), b)
+		kvRef, err := c.getKVRef(repo, b)
+		if err != nil {
+			return err
 		}
 
-		// Update KV
-		itr.ForEach(updateBranchFn)
+		// Local ref
+		localRef := h.Target().String()
+
+		if len(kvRef) == 0 || kvRef != localRef {
+			log.Debugf("KV PUT changes for %s/%s", repo.Name(), b)
+			c.pushBranch(repo, b)
+			log.Debugf("KV PUT ref for %s/%s", repo.Name(), b)
+			c.putKVRef(repo, b)
+		}
+
+		repo.Unlock()
 	}
 }
 
 // Get local branch ref from the KV
-func (c *Client) getKVRef(repo *repository.Repository, branchName string) ([]byte, error) {
+func (c *Client) getKVRef(repo *repository.Repository, branchName string) (string, error) {
 	refFile := fmt.Sprintf("%s.ref", branchName)
 	key := path.Join(repo.Name(), refFile)
 
 	kv := c.KV()
 	pair, _, err := kv.Get(key, nil)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// If error on get, return empty value
 	if pair == nil {
-		return nil, nil
+		return "", nil
 	}
 
-	return pair.Value, nil
+	return string(pair.Value), nil
 }
 
 // Put the local branch ref to the KV
