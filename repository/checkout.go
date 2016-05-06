@@ -48,3 +48,17 @@ func (r *Repository) checkoutRemoteBranches() error {
 
 	return nil
 }
+
+func (r *Repository) CheckoutBranch(branch *git.Branch, opts *git.CheckoutOpts) error {
+	err := r.SetHead(branch.Reference.Name())
+	if err != nil {
+		return err
+	}
+
+	err = r.CheckoutHead(opts)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

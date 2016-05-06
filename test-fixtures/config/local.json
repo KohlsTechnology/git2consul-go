@@ -7,7 +7,7 @@
       "hooks": [
         {
           "type": "polling",
-          "interval": 5
+          "interval": 10
         }
       ]
     }
