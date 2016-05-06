@@ -69,7 +69,7 @@ func (r *Repository) Branches() []string {
 	return r.repoConfig.Branches
 }
 
-func (r *Repository) ChangeLock() <-chan struct{} {
+func (r *Repository) ChangeCh() <-chan struct{} {
 	return r.changeCh
 }
 

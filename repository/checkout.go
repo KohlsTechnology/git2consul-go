@@ -12,6 +12,7 @@ func (r *Repository) checkoutRemoteBranches() error {
 	if err != nil {
 		return err
 	}
+	defer itr.Free()
 
 	var checkoutBranchFn = func(b *git.Branch, _ git.BranchType) error {
 		bn, err := b.Name()

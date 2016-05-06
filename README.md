@@ -24,3 +24,4 @@ git2consul will attempt to deduce sane defaults for configuration. However, sinc
 
 ### Future additions:
 * File format backend
+* Update on KV should be for modified and deleted files only
