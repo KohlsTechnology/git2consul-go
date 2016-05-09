@@ -1,22 +1,20 @@
 package repository
 
-import (
-	"time"
-
-	log "github.com/Sirupsen/logrus"
-)
+import "time"
 
 // Watch for changes on the remotes
 func (rs Repositories) WatchRepos() error {
+	errCh := make(chan error, 1)
+
 	// Poll repository by interval, or webhook
 	for _, repo := range rs {
 		// Initial poll
 		err := repo.pollBranches()
 		if err != nil {
-			log.Error(err)
+			return err
 		}
 
-		go repo.pollRepoByInterval()
+		go repo.pollRepoByInterval(errCh)
 		// go r.PollRepoByWebhook()
 	}
 
@@ -32,7 +30,7 @@ func (r *Repository) pollBranches() error {
 	return nil
 }
 
-func (r *Repository) pollRepoByInterval() {
+func (r *Repository) pollRepoByInterval(errCh chan error) {
 	hooks := r.repoConfig.Hooks
 	interval := time.Second
 
@@ -55,7 +53,8 @@ func (r *Repository) pollRepoByInterval() {
 		case <-ticker.C:
 			err := r.pollBranches()
 			if err != nil {
-				log.Error(err)
+				errCh <- err
+				//return
 			}
 		}
 	}
