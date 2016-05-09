@@ -3,11 +3,20 @@ package repository
 import (
 	"path"
 
-	"github.com/libgit2/git2go"
+	"gopkg.in/libgit2/git2go.v23"
 )
 
-// Checkout all remote branches
-func (r *Repository) checkoutRemoteBranches() error {
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+// Checkout branches specified in the config
+func (r *Repository) checkoutConfigBranches() error {
 	itr, err := r.NewBranchIterator(git.BranchRemote)
 	if err != nil {
 		return err
@@ -19,6 +28,13 @@ func (r *Repository) checkoutRemoteBranches() error {
 		if err != nil {
 			return err
 		}
+
+		// Only checkout tracked branches
+		// TODO: optimize this O(n^2)
+		if stringInSlice(path.Base(bn), r.repoConfig.Branches) == false {
+			return nil
+		}
+
 		_, err = r.References.Lookup("refs/heads/" + path.Base(bn))
 		if err != nil {
 			localRef, err := r.References.Create("refs/heads/"+path.Base(bn), b.Reference.Target(), true, "")
@@ -37,8 +53,6 @@ func (r *Repository) checkoutRemoteBranches() error {
 			if err != nil {
 				return err
 			}
-
-			// r.changeCh <- struct{}{}
 		}
 
 		return nil

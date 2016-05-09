@@ -4,11 +4,14 @@ import (
 	"fmt"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/libgit2/git2go"
+	"gopkg.in/libgit2/git2go.v23"
 )
 
 // Pull a repository branch
-func (r *Repository) Pull(branchName string) error {
+func (r *Repository) pull(branchName string) error {
+	r.Lock()
+	defer r.Unlock()
+
 	origin, err := r.Remotes.Lookup("origin")
 	if err != nil {
 		return err
@@ -93,6 +96,12 @@ func (r *Repository) Pull(branchName string) error {
 	if _, err := head.SetTarget(remoteBranchRef.Target(), ""); err != nil {
 		return err
 	}
+
+	log.Debugf("(test) before: %s", head.Name())
+
+	head.Free()
+
+	log.Debugf("(test) after: %s", head.Name())
 
 	defer r.StateCleanup()
 	return nil

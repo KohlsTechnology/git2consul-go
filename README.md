@@ -25,3 +25,8 @@ git2consul will attempt to deduce sane defaults for configuration. However, sinc
 ### Future additions:
 * File format backend
 * Update on KV should be for modified and deleted files only
+
+## Bugs/Issues
+* Changes get pulled twice
+* Clone performs checkout on all remote branches, not just the one specified
+* consul/watch.go does not GET the ref for initial comparison

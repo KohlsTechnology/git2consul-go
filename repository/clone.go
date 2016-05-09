@@ -3,24 +3,31 @@ package repository
 import (
 	"os"
 
-	"github.com/libgit2/git2go"
+	"gopkg.in/libgit2/git2go.v23"
 )
 
 // Clone the repository
 func (r *Repository) Clone() error {
+	r.Lock()
+	defer r.Unlock()
+
 	err := os.Mkdir(r.store, 0755)
 	if err != nil {
 		return err
 	}
 
-	raw_repo, err := git.Clone(r.repoConfig.Url, r.store, &git.CloneOptions{})
+	raw_repo, err := git.Clone(r.repoConfig.Url, r.store, &git.CloneOptions{
+		CheckoutOpts: &git.CheckoutOpts{
+			Strategy: git.CheckoutNone,
+		},
+	})
 	if err != nil {
 		return err
 	}
 
 	r.Repository = raw_repo
 
-	err = r.checkoutRemoteBranches()
+	err = r.checkoutConfigBranches()
 	if err != nil {
 		return err
 	}

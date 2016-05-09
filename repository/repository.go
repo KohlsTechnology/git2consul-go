@@ -6,7 +6,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/cleung2010/go-git2consul/config"
-	"github.com/libgit2/git2go"
+	"gopkg.in/libgit2/git2go.v23"
 )
 
 type Repository struct {
@@ -63,10 +63,6 @@ func (r *Repository) Name() string {
 
 func (r *Repository) Store() string {
 	return r.store
-}
-
-func (r *Repository) Branches() []string {
-	return r.repoConfig.Branches
 }
 
 func (r *Repository) ChangeCh() <-chan struct{} {
