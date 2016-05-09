@@ -12,9 +12,12 @@ git2consul will attempt to deduce sane defaults for configuration. However, sinc
 | hooks:type     | polling |
 | hooks:interval | 60      |
 
-### Development
+## Development
 
-go-git2consul is built with libgit2 v23, and therefore uses the matching git2go.v23 library.
+### Build dependencies:
+* Go 1.6
+* libgit2 v0.23.x
+* git2go.v23
 
 
 ## TODO
@@ -29,7 +32,7 @@ go-git2consul is built with libgit2 v23, and therefore uses the matching git2go.
 ### Future additions:
 * File format backend
 * Update on KV should be for modified and deleted files only
+* Improve on mutex locks
 
 ## Bugs/Issues
 * Clone performs checkout on all remote branches, not just the one specified
-* consul/watch.go does not GET the ref for initial comparison

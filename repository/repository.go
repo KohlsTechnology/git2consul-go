@@ -14,7 +14,7 @@ type Repository struct {
 	repoConfig *config.Repo
 	store      string
 
-	// Channel to notify repo Clone
+	// Channel to notify repo clone
 	cloneCh chan struct{}
 
 	// Channel to notify repo change

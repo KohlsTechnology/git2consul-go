@@ -14,11 +14,12 @@ func (c *Client) WatchChanges(repos []*repository.Repository) {
 // TODO: Handle errors through channel
 func (c *Client) watchRepo(repo *repository.Repository) error {
 	// Initial GET on refs
+	c.handleClone(repo)
 
 	for {
 		select {
-		case <-repo.CloneCh():
-			c.handleClone(repo)
+		// case <-repo.CloneCh():
+		// 	c.handleClone(repo)
 		case <-repo.ChangeCh():
 			c.handleChange(repo)
 		}
