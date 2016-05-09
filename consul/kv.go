@@ -17,10 +17,13 @@ import (
 // TODO: Optimize for PUT only on changes instead of the entire repo
 func (c *Client) pushBranch(repo *repository.Repository, branch *git.Branch) error {
 	// Checkout branch
-	repo.CheckoutBranch(branch, &git.CheckoutOpts{})
+	repo.CheckoutBranch(branch, &git.CheckoutOpts{
+		Strategy: git.CheckoutForce,
+	})
 
 	h, _ := repo.Head()
 	bn, _ := h.Branch().Name()
+
 	log.Debugf("(consul) pushBranch(): Branch: %s Head: %s", bn, h.Target().String())
 
 	var pushFile = func(fullpath string, info os.FileInfo, err error) error {
@@ -45,7 +48,7 @@ func (c *Client) pushBranch(repo *repository.Repository, branch *git.Branch) err
 			return err
 		}
 
-		log.Debugf("(consul) pushBranch(): Path: %s Key: %s", fullpath, strings.TrimLeft(fullpath, repo.Store()))
+		log.Debugf("(consul) pushBranch(): Path: %s Key: %s", fullpath, strings.TrimPrefix(fullpath, repo.Store()))
 		kvPath := path.Join(repo.Name(), branchName, strings.TrimPrefix(fullpath, repo.Store()))
 
 		kv := c.KV()

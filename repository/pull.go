@@ -97,11 +97,7 @@ func (r *Repository) pull(branchName string) error {
 		return err
 	}
 
-	log.Debugf("(test) before: %s", head.Name())
-
 	head.Free()
-
-	log.Debugf("(test) after: %s", head.Name())
 
 	defer r.StateCleanup()
 	return nil

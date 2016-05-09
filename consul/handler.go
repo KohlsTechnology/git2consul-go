@@ -21,7 +21,6 @@ func (c *Client) handleClone(repo *repository.Repository) error {
 		if err != nil {
 			break
 		}
-		//defer ref.Free()
 
 		b, err := ref.Branch().Name()
 		if err != nil {
