@@ -1,7 +1,10 @@
 package repository
 
 import (
+	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	log "github.com/Sirupsen/logrus"
@@ -24,31 +27,44 @@ type Repository struct {
 
 type Repositories []*Repository
 
-// Populates Repository slice from configuration
-// Handles cloning of the repository if not present
+// Populates Repository slice from configuration. It also
+// handles cloning of the repository if not present
 func LoadRepos(cfg *config.Config) (Repositories, error) {
 	repos := []*Repository{}
 
 	// Create Repository object for each repo
-	for _, repo := range cfg.Repos {
-		store := filepath.Join(cfg.LocalStore, repo.Name)
+	for _, cRepo := range cfg.Repos {
+		store := filepath.Join(cfg.LocalStore, cRepo.Name)
 
 		r := &Repository{
-			repoConfig: repo,
+			repoConfig: cRepo,
 			store:      store,
 			cloneCh:    make(chan struct{}, 1),
 			changeCh:   make(chan struct{}, 1),
 		}
 
+		// Check if repository can be opened
 		repo, err := git.OpenRepository(store)
 		if err != nil {
-			log.Infof("Repository %s not cached, cloning to %s", r.repoConfig.Name, r.store)
+			// If path does not exist or is not directory clone
+			if f, err := os.Stat(store); os.IsNotExist(err) || f.IsDir() == false {
+				err := os.Mkdir(r.store, 0755)
+				if err != nil {
+					return nil, err
+				}
+			}
+
 			err = r.Clone()
 			if err != nil {
 				return nil, err
 			}
+			log.Infof("(git): Repository %s not cached, cloned to %s", r.repoConfig.Name, r.store)
 		} else {
 			r.Repository = repo
+			// Check on Url
+			if r.checkUrl(cRepo.Url) == false {
+				return nil, fmt.Errorf("Repository %s exists locally on %s", r.repoConfig.Name, r.store)
+			}
 		}
 
 		repos = append(repos, r)
@@ -71,4 +87,21 @@ func (r *Repository) ChangeCh() <-chan struct{} {
 
 func (r *Repository) CloneCh() <-chan struct{} {
 	return r.cloneCh
+}
+
+func (r *Repository) checkUrl(url string) bool {
+	rm, err := r.Remotes.Lookup("origin")
+	if err != nil {
+		return false
+	}
+
+	absPath, err := filepath.Abs(url)
+	if err != nil {
+		return false
+	}
+	if strings.Compare(rm.Url(), absPath) == 0 {
+		return true
+	}
+
+	return false
 }

@@ -17,7 +17,11 @@
 
 ### Bugs/Issues:
 * Clone performs checkout on all remote branches, not just the one specified
+* OpenRepository() needs to check on repo.Url as well
+* If repositories slice is empty, stop the program
 
 ### Error handling:
 * Should error on client connection be fatal/exit or should it just log an error?
   * Leaning towards logging and retry
+* Better error handling on Loadrepos()
+  * Bad configuration should be ignored

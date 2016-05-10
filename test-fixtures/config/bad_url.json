@@ -2,7 +2,7 @@
   "repos": [
     {
       "name": "example",
-      "url": "github.com/Cimpress-MCP/go-git2consul",
+      "url": "./test-fixtures/no_exist",
       "branches": [
         "test"
       ],

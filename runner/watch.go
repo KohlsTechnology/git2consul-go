@@ -1,7 +1,12 @@
 package runner
 
-import "github.com/cleung2010/go-git2consul/repository"
+import (
+	"github.com/apex/log"
+	"github.com/cleung2010/go-git2consul/repository"
+)
 
+// Method that watches for changes in local repositories and performs
+// Consul operations to update the KV
 func (r *Runner) watchKVUpdate() {
 	// If there changes, push to KV
 	for _, repo := range r.repos {
@@ -9,6 +14,9 @@ func (r *Runner) watchKVUpdate() {
 	}
 }
 
+// Helper fuction for watchKVUpdate() to watch a specific
+// local repository. This should be ran as a goroutine since it blocks and
+// waits for the changeCh
 func (r *Runner) watchLocalRepo(repo *repository.Repository) {
 	// Initial update to the KV
 	err := r.initHandler(repo)
@@ -29,6 +37,32 @@ func (r *Runner) watchLocalRepo(repo *repository.Repository) {
 	}
 }
 
+// Method that watches for changes in remote repositories and performs
+// git operations to update local copy
 func (r *Runner) watchReposUpdate() {
-	r.repos.WatchRepos()
+	for _, repo := range r.repos {
+		go r.watchRemoteRepo(repo)
+	}
+}
+
+// Helper function for watchReposUpdate() to watch a specific
+// remote repository changes. This should be ran as a goroutine
+func (r *Runner) watchRemoteRepo(repo *repository.Repository) {
+	// Initial poll
+	errCh := make(chan error)
+	err := repo.PollBranches()
+	if err != nil {
+		log.Debugf("(git): %s", err)
+	}
+
+	go repo.PollRepoByInterval(errCh)
+	// go r.PollRepoByWebhook()
+
+	// Only returns on error
+	for {
+		select {
+		case err := <-errCh:
+			log.Debugf("(git): %s", err)
+		}
+	}
 }

@@ -12,14 +12,13 @@ import (
 	"github.com/cleung2010/go-git2consul/runner"
 )
 
-// var quit = make(chan bool)
-//
-// func init() {
-// 	exit.Listen(func(os.Signal) {
-// 		log.Info("Caught interrupt signal, terminating git2consul")
-// 		close(quit)
-// 	})
-// }
+const (
+	ExitCodeError = 10 + iota
+	ExitCodeFlagError
+	ExitCodeConfigError
+
+	ExitCodeOk int = 0
+)
 
 func main() {
 	var filename string
@@ -43,17 +42,23 @@ func main() {
 	log.Infof("Starting git2consul version: %s", Version)
 
 	if len(filename) == 0 {
-		log.Fatal("No configuration file provided")
+		log.Error("No configuration file provided")
+		os.Exit(ExitCodeFlagError)
 	}
 
 	// Load configuration from file
 	cfg, err := config.Load(filename)
 	if err != nil {
-		log.Fatal(err)
+		log.Errorf("(config): %s", err)
+		os.Exit(ExitCodeConfigError)
 	}
 
 	//////////// NOTE: This is new
 	runner, err := runner.NewRunner(cfg)
+	if err != nil {
+		log.Errorf("(runner): %s", err)
+		os.Exit(ExitCodeConfigError)
+	}
 	go runner.Start()
 
 	signalCh := make(chan os.Signal, 1)
@@ -70,7 +75,7 @@ func main() {
 			log.Fatal(err)
 		case <-signalCh:
 			log.Info("Received interrupt. Terminating git2consul")
-			os.Exit(0)
+			os.Exit(ExitCodeOk)
 		}
 	}
 

@@ -51,13 +51,13 @@ func Load(file string) (*Config, error) {
 		return nil, err
 	}
 
-	log.Info("Setting configuration with sane defaults")
+	log.Info("(config): Setting configuration with sane defaults")
 	err = config.setDefaultConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	log.Debugf("Using configuration: %+v", config)
+	log.Debugf("(config): Using configuration: %+v", config)
 
 	return config, nil
 }

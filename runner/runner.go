@@ -1,6 +1,8 @@
 package runner
 
 import (
+	"fmt"
+
 	"github.com/cleung2010/go-git2consul/config"
 	"github.com/cleung2010/go-git2consul/repository"
 	"github.com/hashicorp/consul/api"
@@ -24,7 +26,7 @@ func NewRunner(config *config.Config) (*Runner, error) {
 	// Create repos from configuration
 	rs, err := repository.LoadRepos(config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Cannot load repositories from configuration: %s", err)
 	}
 
 	runner := &Runner{
@@ -38,8 +40,8 @@ func NewRunner(config *config.Config) (*Runner, error) {
 
 func (r *Runner) Start() {
 	// Watch for local changes to push to KV
-	go r.watchKVUpdate()
+	r.watchKVUpdate()
 
 	// Watch for remote changes to pull locally
-	go r.watchReposUpdate()
+	r.watchReposUpdate()
 }
