@@ -2,9 +2,9 @@
   "repos": [
     {
       "name": "example",
-      "url": "./test-fixtures/git",
+      "url": "https://github.com/ryanbreen/git2consul_data",
       "branches": [
-        "test"
+        "master"
       ],
       "hooks": [
         {

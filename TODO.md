@@ -16,8 +16,9 @@
 * Support for tags as branches
 
 ### Bugs/Issues:
-* Clone performs checkout on all remote branches, not just the one specified
-* OpenRepository() needs to check on repo.Url as well
+* Need to update diffs on the KV side
+  * This includes only updating changed files
+  * Delete untracked files
 * If repositories slice is empty, stop the program
 
 ### Error handling:

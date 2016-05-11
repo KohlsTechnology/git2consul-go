@@ -38,6 +38,7 @@ func (r *Runner) initHandler(repo *repository.Repository) error {
 			localRef := ref.Target().String()
 
 			if len(kvRef) == 0 || kvRef != localRef {
+				// TODO: Handle modified and deleted files
 				log.Debugf("(consul) KV PUT changes for %s/%s", repo.Name(), b)
 				r.putBranch(repo, ref.Branch())
 				log.Debugf("(consul) KV PUT ref for %s/%s", repo.Name(), b)
@@ -73,6 +74,8 @@ func (r *Runner) updateHandler(repo *repository.Repository) error {
 	log.Debugf("(consul) kvRef: %s | localRef: %s", kvRef, localRef)
 
 	if len(kvRef) == 0 || kvRef != localRef {
+		// TODO: Handle modified and deleted files
+
 		log.Debugf("(consul) KV PUT changes for %s/%s", repo.Name(), b)
 		err := r.putBranch(repo, h.Branch())
 		if err != nil {
