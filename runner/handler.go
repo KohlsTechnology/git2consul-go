@@ -37,8 +37,25 @@ func (r *Runner) initHandler(repo *repository.Repository) error {
 
 			localRef := ref.Target().String()
 
+			// FIXME: Handle case wher ref comes from entirely different repo
+			if len(kvRef) != 0 && kvRef != localRef {
+				// Handle modified and deleted files
+				deltas, err := repo.DiffStatus(kvRef)
+				if err != nil {
+					return err
+				}
+				for _, d := range deltas {
+					log.Debugf(" === Status: %s File: %s", d.Status, d.NewFile.Path)
+					// switch d.Status {
+					// case git.DeltaDeleted:
+					// 	log.Debugf(" === Deleted file: %s", d.NewFile.Path)
+					// case git.DeltaModified:
+					// 	log.Debugf(" === Modified file: %s", d.NewFile.Path)
+					// }
+				}
+			}
+
 			if len(kvRef) == 0 || kvRef != localRef {
-				// TODO: Handle modified and deleted files
 				log.Debugf("(consul) KV PUT changes for %s/%s", repo.Name(), b)
 				r.putBranch(repo, ref.Branch())
 				log.Debugf("(consul) KV PUT ref for %s/%s", repo.Name(), b)

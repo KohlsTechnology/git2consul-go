@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	log "github.com/Sirupsen/logrus"
-	"gopkg.in/libgit2/git2go.v23"
+	"gopkg.in/libgit2/git2go.v24"
 )
 
 // Pull a repository branch

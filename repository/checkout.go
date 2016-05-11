@@ -3,7 +3,7 @@ package repository
 import (
 	"path"
 
-	"gopkg.in/libgit2/git2go.v23"
+	"gopkg.in/libgit2/git2go.v24"
 )
 
 func stringInSlice(a string, list []string) bool {

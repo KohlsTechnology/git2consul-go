@@ -7,7 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/cleung2010/go-git2consul/config"
-	"gopkg.in/libgit2/git2go.v23"
+	"gopkg.in/libgit2/git2go.v24"
 )
 
 func loadRepos(cfg *config.Config) (Repositories, error) {

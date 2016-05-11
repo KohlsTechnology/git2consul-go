@@ -11,7 +11,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/cleung2010/go-git2consul/repository"
 	"github.com/hashicorp/consul/api"
-	"gopkg.in/libgit2/git2go.v23"
+	"gopkg.in/libgit2/git2go.v24"
 )
 
 // Get local branch ref from the KV

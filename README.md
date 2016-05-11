@@ -16,5 +16,5 @@ git2consul will attempt to deduce sane defaults for configuration. However, sinc
 
 ### Build dependencies:
 * Go 1.6
-* libgit2 v0.23.x
-* git2go.v23
+* libgit2 v0.24.0
+* git2go.v24

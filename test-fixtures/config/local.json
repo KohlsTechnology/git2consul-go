@@ -4,6 +4,7 @@
       "name": "example",
       "url": "./test-fixtures/git",
       "branches": [
+        "master",
         "test"
       ],
       "hooks": [

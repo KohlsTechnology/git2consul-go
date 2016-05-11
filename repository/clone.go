@@ -1,6 +1,6 @@
 package repository
 
-import "gopkg.in/libgit2/git2go.v23"
+import "gopkg.in/libgit2/git2go.v24"
 
 // Clone the repository
 func (r *Repository) Clone() error {
