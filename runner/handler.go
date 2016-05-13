@@ -3,6 +3,7 @@ package runner
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/cleung2010/go-git2consul/repository"
+	"gopkg.in/libgit2/git2go.v24"
 )
 
 func (r *Runner) initHandler(repo *repository.Repository) error {
@@ -97,15 +98,16 @@ func (r *Runner) updateHandler(repo *repository.Repository) error {
 		if err != nil {
 			return err
 		}
-		log.Debugf("(runner)(trace) Deltas: %+v", deltas)
+		// log.Debugf("(runner)(trace) Deltas: %+v", deltas)
 		for _, d := range deltas {
-			log.Debugf("(runner)(trace) Status: %s File: %s", d.Status, d.NewFile.Path)
-			// switch d.Status {
-			// case git.DeltaDeleted:
-			// 	log.Debugf(" === Deleted file: %s", d.NewFile.Path)
-			// case git.DeltaModified:
-			// 	log.Debugf(" === Modified file: %s", d.NewFile.Path)
-			// }
+			switch d.Status {
+			case git.DeltaAdded, git.DeltaModified:
+				log.Debugf("(runner)(trace) Added/Modified file: %s", d.NewFile.Path)
+			case git.DeltaDeleted:
+				log.Debugf("(runner)(trace) Deleted file: %s", d.NewFile.Path)
+			case git.DeltaRenamed:
+				log.Debugf("(runner)(trace) Renamed file: %s", d.NewFile.Path)
+			}
 		}
 	}
 

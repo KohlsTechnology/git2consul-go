@@ -1,7 +1,7 @@
 package runner
 
 import (
-	"github.com/apex/log"
+	log "github.com/Sirupsen/logrus"
 	"github.com/cleung2010/go-git2consul/repository"
 )
 

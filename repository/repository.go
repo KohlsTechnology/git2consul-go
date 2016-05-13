@@ -1,9 +1,6 @@
 package repository
 
 import (
-	"fmt"
-	"path/filepath"
-	"strings"
 	"sync"
 
 	"github.com/cleung2010/go-git2consul/config"
@@ -50,21 +47,4 @@ func (r *Repository) ChangeCh() <-chan struct{} {
 
 func (r *Repository) CloneCh() <-chan struct{} {
 	return r.cloneCh
-}
-
-func checkUrl(repo *git.Repository, url string) error {
-	rm, err := repo.Remotes.Lookup("origin")
-	if err != nil {
-		return fmt.Errorf("checkUrl error: %s", err)
-	}
-
-	absPath, err := filepath.Abs(url)
-	if err != nil {
-		return fmt.Errorf("checkUrl error: %s", err)
-	}
-	if strings.Compare(rm.Url(), absPath) != 0 {
-		return fmt.Errorf("Mismatch in tracking and cached repositories")
-	}
-
-	return nil
 }

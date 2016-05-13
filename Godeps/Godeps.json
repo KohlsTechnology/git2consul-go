@@ -27,8 +27,8 @@
 			"Rev": "f64b50fbea64174967a8882830d621a18ee1548e"
 		},
 		{
-			"ImportPath": "gopkg.in/libgit2/git2go.v23",
-			"Rev": "fa644d2fc9efa3baee93b525212d76dfa17a5db5"
+			"ImportPath": "gopkg.in/libgit2/git2go.v24",
+			"Rev": "8eaae73f85dd3df78df80d2dac066eb0866444ae"
 		}
 	]
 }

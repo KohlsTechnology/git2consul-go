@@ -3,9 +3,9 @@ package config
 import (
 	"encoding/json"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -13,19 +13,23 @@ func TestLoad(t *testing.T) {
 	file := filepath.Join("test-fixtures", "default.json")
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		os.Exit(1)
+		t.Fatal(err)
 	}
 
 	config := &Config{}
 
 	json.Unmarshal(content, config)
 
-	got, err := json.MarshalIndent(config, "", "  ")
+	jsonFromType, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if !reflect.DeepEqual(content, got) {
-		t.Fatalf("JSON mistatch. file:\n%s\ngot:\n%s\n", content, got)
+	//Clean strings from trailing newlines
+	want := strings.TrimSpace(string(content))
+	got := strings.TrimSpace(string(jsonFromType))
+
+	if !reflect.DeepEqual(want, got) {
+		t.Fatalf("JSON mistatch. \nfile:\n%s\ngot:\n%s\n", want, got)
 	}
 }

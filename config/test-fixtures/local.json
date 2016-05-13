@@ -2,7 +2,7 @@
   "repos": [
     {
       "name": "example",
-      "url": "./test-fixtures/git",
+      "url": "./test-fixtures/example",
       "branches": [
         "master",
         "test"

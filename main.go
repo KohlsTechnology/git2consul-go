@@ -53,7 +53,6 @@ func main() {
 		os.Exit(ExitCodeConfigError)
 	}
 
-	//////////// NOTE: This is new
 	runner, err := runner.NewRunner(cfg)
 	if err != nil {
 		log.Errorf("(runner): %s", err)
@@ -78,31 +77,4 @@ func main() {
 			os.Exit(ExitCodeOk)
 		}
 	}
-
-	////////////
-
-	// Create repos from configuration
-	// repos, err := repository.LoadRepos(cfg)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	//
-	// // Watch for local changes to push to KV
-	// client, err := consul.NewClient(cfg)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// err = client.WatchChanges(repos)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	//
-	// // Watch for remote changes to pull locally
-	// err = repos.WatchRepos()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	//
-	// //Wait for shutdown signal
-	// <-quit
 }
