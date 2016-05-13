@@ -19,6 +19,13 @@ func (r *Repository) pull(branchName string) error {
 	defer origin.Free()
 
 	rawLocalBranchRef := fmt.Sprintf("refs/heads/%s", branchName)
+
+	// Fetch
+	err = origin.Fetch([]string{rawLocalBranchRef}, nil, "")
+	if err != nil {
+		return err
+	}
+
 	rawRemoteBranchRef := fmt.Sprintf("refs/remotes/origin/%s", branchName)
 
 	remoteBranchRef, err := r.References.Lookup(rawRemoteBranchRef)
@@ -34,12 +41,6 @@ func (r *Repository) pull(branchName string) error {
 		if err != nil {
 			return err
 		}
-	}
-
-	// Fetch
-	err = origin.Fetch([]string{rawLocalBranchRef}, nil, "")
-	if err != nil {
-		return err
 	}
 
 	// Change the HEAD to current branch and checkout
@@ -82,7 +83,7 @@ func (r *Repository) pull(branchName string) error {
 			return err
 		}
 
-		r.changeCh <- struct{}{}
+		defer func() { r.changeCh <- struct{}{} }()
 
 	} else if analysis&git.MergeAnalysisNormal != 0 { // On normal merge
 		log.Infof("(git) Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, branchName)
@@ -97,7 +98,7 @@ func (r *Repository) pull(branchName string) error {
 		return err
 	}
 
-	head.Free()
+	defer head.Free()
 
 	defer r.StateCleanup()
 	return nil

@@ -45,7 +45,7 @@ func (r *Runner) initHandler(repo *repository.Repository) error {
 					return err
 				}
 				for _, d := range deltas {
-					log.Debugf(" === Status: %s File: %s", d.Status, d.NewFile.Path)
+					log.Debugf(" (consul)(trace) Status: %s File: %s", d.Status, d.NewFile.Path)
 					// switch d.Status {
 					// case git.DeltaDeleted:
 					// 	log.Debugf(" === Deleted file: %s", d.NewFile.Path)
@@ -89,6 +89,25 @@ func (r *Runner) updateHandler(repo *repository.Repository) error {
 	// Local ref
 	localRef := h.Target().String()
 	log.Debugf("(consul) kvRef: %s | localRef: %s", kvRef, localRef)
+
+	// FIXME: Handle case wher ref comes from entirely different repo
+	if len(kvRef) != 0 && kvRef != localRef {
+		// Handle modified and deleted files
+		deltas, err := repo.DiffStatus(kvRef)
+		if err != nil {
+			return err
+		}
+		log.Debugf("(runner)(trace) Deltas: %+v", deltas)
+		for _, d := range deltas {
+			log.Debugf("(runner)(trace) Status: %s File: %s", d.Status, d.NewFile.Path)
+			// switch d.Status {
+			// case git.DeltaDeleted:
+			// 	log.Debugf(" === Deleted file: %s", d.NewFile.Path)
+			// case git.DeltaModified:
+			// 	log.Debugf(" === Modified file: %s", d.NewFile.Path)
+			// }
+		}
+	}
 
 	if len(kvRef) == 0 || kvRef != localRef {
 		// TODO: Handle modified and deleted files
