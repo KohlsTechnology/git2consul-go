@@ -10,7 +10,7 @@ import (
 )
 
 func TestLoad(t *testing.T) {
-	file := filepath.Join("test-fixtures", "default.json")
+	file := filepath.Join("test-fixtures", "local.json")
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
 		t.Fatal(err)

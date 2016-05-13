@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/cleung2010/go-git2consul/config"
@@ -9,10 +8,26 @@ import (
 )
 
 func TestLoadRepos(t *testing.T) {
-	repoPath := filepath.Join("test-fixtures", "example")
-	cleanup := test.TempGitInitPath(repoPath)
+	cleanup := test.TempGitInitPath(test.TestRepo(), t)
 	defer cleanup()
 
-	cfg := config.Load("../config/test-fixtures/local.json")
-	repos, err := LoadRepo(cfg)
+	cfg, err := config.Load(test.TestConfig())
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = LoadRepos(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
+
+// func TestLoadRepos_invalidRepo(t *testing.T) {
+// 	cfg, err := config.Load(path.Join(test.ConfigPath, "local.json"))
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	_, err = LoadRepos(cfg)
+// 	if err == nil {
+// 		t.Fail()
+// 	}
+// }

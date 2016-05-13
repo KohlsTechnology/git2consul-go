@@ -2,7 +2,7 @@
   "repos": [
     {
       "name": "example",
-      "url": "https://github.com/ryanbreen/git2consul_data",
+      "url": "https://github.com/cleung2010/git2consul-sample=data",
       "branches": [
         "master"
       ],
