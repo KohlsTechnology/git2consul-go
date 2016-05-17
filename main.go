@@ -71,7 +71,8 @@ func main() {
 	for {
 		select {
 		case err := <-runner.ErrCh:
-			log.Fatal(err)
+			log.Error(err)
+			os.Exit(ExitCodeError)
 		case <-signalCh:
 			log.Info("Received interrupt. Terminating git2consul")
 			os.Exit(ExitCodeOk)

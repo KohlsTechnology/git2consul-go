@@ -6,10 +6,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cleung2010/go-git2consul/config"
 	"gopkg.in/libgit2/git2go.v24"
 )
 
-func TempGitInitPath(path string, t *testing.T) func() {
+// Helper function that temporarily inits repository/test-fixtures/example
+func TempGitInitPath(path string, t *testing.T) (*git.Repository, func()) {
 	fi, err := os.Stat(path)
 	if err != nil {
 		t.Fatal(err)
@@ -80,9 +82,21 @@ func TempGitInitPath(path string, t *testing.T) func() {
 			Strategy: git.CheckoutForce,
 		})
 
+		repo.StateCleanup()
+
 		dotgit := filepath.Join(repo.Path())
 		os.RemoveAll(dotgit)
 	}
 
-	return cleanup
+	return repo, cleanup
+}
+
+// Helper function that returns a default configuration
+func DefaultConfig(t *testing.T) *config.Config {
+	cfg, err := config.Load(TestConfig())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return cfg
 }

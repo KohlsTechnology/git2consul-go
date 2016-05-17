@@ -20,6 +20,7 @@
   * This includes only updating changed files
   * Delete untracked files
 * If repositories slice is empty, stop the program
+* Directory check has to check if it's a repository first
 
 ## Error handling:
 * Should error on client connection be fatal/exit or should it just log an error?

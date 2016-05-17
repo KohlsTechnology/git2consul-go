@@ -1,15 +1,15 @@
 {
   "repos": [
     {
-      "name": "example",
-      "url": "./test-fixtures/no_exist",
+      "name": "test-example",
+      "url": "./test-fixtures/example",
       "branches": [
-        "test"
+        "master"
       ],
       "hooks": [
         {
           "type": "polling",
-          "interval": 60
+          "interval": 5
         }
       ]
     }

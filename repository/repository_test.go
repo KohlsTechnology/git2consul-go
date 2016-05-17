@@ -8,7 +8,7 @@ import (
 )
 
 func TestLoadRepos(t *testing.T) {
-	cleanup := test.TempGitInitPath(test.TestRepo(), t)
+	_, cleanup := test.TempGitInitPath(test.TestRepo(), t)
 	defer cleanup()
 
 	cfg, err := config.Load(test.TestConfig())

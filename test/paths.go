@@ -7,10 +7,10 @@ const (
 	TestRepoConst   = "../repository/test-fixtures/example"
 )
 
-func TestConfig() string {
+func DefaultConfigPath() string {
 	return path.Clean(TestConfigConst)
 }
 
-func TestRepo() string {
+func DefaultRepoPath() string {
 	return path.Clean(TestRepoConst)
 }
