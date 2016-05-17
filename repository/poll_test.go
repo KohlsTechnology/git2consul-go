@@ -1,24 +1,36 @@
 package repository
 
 import (
-	"io/ioutil"
-	"path"
+	"os"
 	"testing"
-	"time"
-
-	"github.com/cleung2010/go-git2consul/test"
 )
 
 func TestPollBranches(t *testing.T) {
-	_, cleanup := test.TempGitInitPath(test.TestRepo(), t)
+
+	r, cleanup := tempGitInitPath(t)
 	defer cleanup()
 
-	file := path.Join(test.TestRepo(), "foo")
-	err := ioutil.WriteFile(file, []byte(time.Now().String()), 0644)
+	cfg := loadConfig(t)
+
+	repos, err := loadRepos(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	repo := repos[0]
+
+	tempCommitRepo(r, t)
+
+	err = repo.PollBranches()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Commit changes
-	// Poll for changes
+	// Cleanup
+	defer func() {
+		repos[0].CloneCh()
+		err = os.RemoveAll(repo.store)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}()
 }
