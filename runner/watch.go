@@ -19,11 +19,11 @@ func (r *Runner) watchKVUpdate() {
 // waits for the changeCh
 func (r *Runner) watchLocalRepo(repo *repository.Repository) {
 	// Initial update to the KV
-	// err := r.initHandler(repo)
-	// if err != nil {
-	// 	r.ErrCh <- err
-	// 	return
-	// }
+	err := r.initHandler(repo)
+	if err != nil {
+		r.ErrCh <- err
+		return
+	}
 
 	for {
 		err := r.updateHandler(repo)

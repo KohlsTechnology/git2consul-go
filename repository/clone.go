@@ -7,10 +7,14 @@ func (r *Repository) Clone() error {
 	r.Lock()
 	defer r.Unlock()
 
+	// Clone the first tracked branch instead of the default branch
+	checkoutBranch := r.repoConfig.Branches[0]
+
 	raw_repo, err := git.Clone(r.repoConfig.Url, r.store, &git.CloneOptions{
 		CheckoutOpts: &git.CheckoutOpts{
 			Strategy: git.CheckoutNone,
 		},
+		CheckoutBranch: checkoutBranch,
 	})
 	if err != nil {
 		return err

@@ -3,10 +3,11 @@
 ## Initial version requirements:
 * [x] Better error handling of goroutines through errCh
 * [x] Possible usage of a runner to abstract git operations from the consul package
-* [] Update on KV should be for modified and deleted files only
+* [x] Update on KV should be for modified and deleted files only
 * [] Test coverage
 * [] Better CI pipeline
 * [] Webhook polling
+* [] Switch from godep to glide
 
 ## Future additions:
 * File format backend

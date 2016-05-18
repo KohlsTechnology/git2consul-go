@@ -67,10 +67,9 @@ func (r *Runner) putBranch(repo *repository.Repository, branch *git.Branch) erro
 		Strategy: git.CheckoutForce,
 	})
 
-	h, _ := repo.Head()
-	bn, _ := h.Branch().Name()
-
-	log.Debugf("(consul) pushBranch(): Branch: %s Head: %s", bn, h.Target().String())
+	// h, _ := repo.Head()
+	// bn, _ := h.Branch().Name()
+	// log.Debugf("(consul) pushBranch(): Branch: %s Head: %s", bn, h.Target().String())
 
 	var pushFile = func(fullpath string, info os.FileInfo, err error) error {
 		// Walk error
@@ -94,7 +93,7 @@ func (r *Runner) putBranch(repo *repository.Repository, branch *git.Branch) erro
 			return err
 		}
 
-		log.Debugf("(consul) pushBranch(): Path: %s Key: %s", fullpath, strings.TrimPrefix(fullpath, repo.Store()))
+		// log.Debugf("(consul) pushBranch(): Path: %s Key: %s", fullpath, strings.TrimPrefix(fullpath, repo.Store()))
 		kvPath := path.Join(repo.Name(), branchName, strings.TrimPrefix(fullpath, repo.Store()))
 
 		kv := r.client.KV()
@@ -103,7 +102,7 @@ func (r *Runner) putBranch(repo *repository.Repository, branch *git.Branch) erro
 			return err
 		}
 
-		log.Debugf("(consul) pushBranch(): Data: %s", data)
+		// log.Debugf("(consul) pushBranch(): Data: %s", data)
 
 		p := &api.KVPair{
 			Key:   kvPath,
@@ -114,6 +113,8 @@ func (r *Runner) putBranch(repo *repository.Repository, branch *git.Branch) erro
 		if err != nil {
 			return err
 		}
+
+		log.Debugf("(consul)(trace): PUT KV Path: %s Key: %s", fullpath, strings.TrimPrefix(fullpath, repo.Store()))
 
 		return nil
 	}
