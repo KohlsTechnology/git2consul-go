@@ -125,3 +125,7 @@ func (r *Runner) putBranch(repo *repository.Repository, branch *git.Branch) erro
 
 	return nil
 }
+
+func (r *Runner) putKV(repo *repository.Repository, path string) {
+
+}

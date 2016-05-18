@@ -14,7 +14,7 @@ import (
 func Load(file string) (*Config, error) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
-		os.Exit(1)
+		return nil, err
 	}
 
 	// Create Config object pointer and unmashal JSON into it

@@ -136,10 +136,11 @@ func tempGitInitPath(t *testing.T) (*git.Repository, func()) {
 
 // Make a commit to the repository in test-fixtures, and return
 // the change for test verification
-func tempCommitRepo(r *git.Repository, t *testing.T) {
+func tempCommitRepo(r *git.Repository, t *testing.T) []byte {
 	// Make changes
+	date := []byte(time.Now().String())
 	file := path.Join("test-fixtures", "example", "foo")
-	err := ioutil.WriteFile(file, []byte(time.Now().String()), 0644)
+	err := ioutil.WriteFile(file, date, 0644)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -177,6 +178,8 @@ func tempCommitRepo(r *git.Repository, t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	return date
 }
 
 func loadConfig(t *testing.T) *config.Config {

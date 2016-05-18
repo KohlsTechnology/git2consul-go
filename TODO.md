@@ -1,11 +1,11 @@
 # TODO
 
 ## Initial version requirements:
-* Better error handling of goroutines through errCh
-* Possible usage of a runner to abstract git operations from the consul package
-* Test coverage
-* Better CI pipeline
-* Webhook polling
+* [x] Better error handling of goroutines through errCh
+* [x] Possible usage of a runner to abstract git operations from the consul package
+* [] Test coverage
+* [] Better CI pipeline
+* [] Webhook polling
 
 ## Future additions:
 * File format backend
@@ -23,8 +23,6 @@
 * Directory check has to check if it's a repository first
 
 ## Error handling:
-* Should error on client connection be fatal/exit or should it just log an error?
-  * Leaning towards logging and retry
 * Better error handling on Loadrepos()
   * Bad configuration should be ignored
 

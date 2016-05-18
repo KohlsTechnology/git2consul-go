@@ -22,19 +22,21 @@ const (
 
 func main() {
 	var filename string
-	var v bool
-	var d bool
+	var version bool
+	var debug bool
+	var once bool
 
 	flag.StringVar(&filename, "config", "", "path to config file")
-	flag.BoolVar(&v, "v", false, "show version")
-	flag.BoolVar(&d, "d", false, "enable debugging mode")
+	flag.BoolVar(&version, "version", false, "show version")
+	flag.BoolVar(&debug, "debug", false, "enable debugging mode")
+	flag.BoolVar(&once, "once", false, "run git2consul once and exit")
 	flag.Parse()
 
-	if d {
+	if debug {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if v {
+	if version {
 		fmt.Println(Version)
 		return
 	}
@@ -53,7 +55,7 @@ func main() {
 		os.Exit(ExitCodeConfigError)
 	}
 
-	runner, err := runner.NewRunner(cfg)
+	runner, err := runner.NewRunner(cfg, once)
 	if err != nil {
 		log.Errorf("(runner): %s", err)
 		os.Exit(ExitCodeConfigError)
@@ -70,6 +72,9 @@ func main() {
 
 	for {
 		select {
+		case <-runner.DoneCh:
+			log.Info("Finished execution of git2consul")
+			os.Exit(ExitCodeOk)
 		case err := <-runner.ErrCh:
 			log.Error(err)
 			os.Exit(ExitCodeError)

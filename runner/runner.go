@@ -9,14 +9,17 @@ import (
 )
 
 type Runner struct {
-	ErrCh chan error
+	ErrCh  chan error
+	DoneCh chan struct{}
+
+	once bool
 
 	client *api.Client
 
 	repos repository.Repositories
 }
 
-func NewRunner(config *config.Config) (*Runner, error) {
+func NewRunner(config *config.Config, once bool) (*Runner, error) {
 	// TODO: Use git2consul configs for the client
 	consulClient, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
@@ -31,6 +34,8 @@ func NewRunner(config *config.Config) (*Runner, error) {
 
 	runner := &Runner{
 		ErrCh:  make(chan error),
+		DoneCh: make(chan struct{}, 1),
+		once:   once,
 		client: consulClient,
 		repos:  rs,
 	}
@@ -44,4 +49,8 @@ func (r *Runner) Start() {
 
 	// Watch for remote changes to pull locally
 	r.watchReposUpdate()
+
+	if r.once {
+		r.DoneCh <- struct{}{}
+	}
 }

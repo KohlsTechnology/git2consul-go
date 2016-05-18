@@ -58,7 +58,7 @@ func (r *Runner) watchRemoteRepo(repo *repository.Repository) {
 	go repo.PollRepoByInterval(errCh)
 	// go r.PollRepoByWebhook()
 
-	// Only returns on error
+	// FIXME: Handle errors better
 	for {
 		select {
 		case err := <-errCh:

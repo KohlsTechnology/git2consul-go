@@ -25,6 +25,7 @@ func loadRepos(cfg *config.Config) (Repositories, error) {
 		}
 
 		// Check if directory exists
+		// FIXME: Better conditional and check if dir is already git-init
 		fi, err := os.Stat(store)
 		if os.IsNotExist(err) || fi.IsDir() == false {
 			err := os.Mkdir(r.store, 0755)
