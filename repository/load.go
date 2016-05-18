@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -75,6 +76,10 @@ func loadRepos(cfg *config.Config) (Repositories, error) {
 		}
 
 		repos = append(repos, r)
+	}
+
+	if len(repos) == 0 {
+		return repos, fmt.Errorf("No repositories provided in the configuration")
 	}
 
 	return repos, nil

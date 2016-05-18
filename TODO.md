@@ -16,17 +16,17 @@
 * Support for tags as branches
 
 ## Bugs/Issues:
-* Need to update diffs on the KV side
+* [x] Need to update diffs on the KV side
   * This includes only updating changed files
   * Delete untracked files
-* If repositories slice is empty, stop the program
-* Directory check has to check if it's a repository first
+* [x] If repositories slice is empty, stop the program
+* [] Directory check has to check if it's a repository first
 
 ## Error handling:
 * Better error handling on Loadrepos()
   * Bad configuration should be ignored
 
 ## Repo delta KV handling:
-* On added, modified: PUT KV
-* On delete: DEL KV
-* On rename: DEL old KV followed by PUT new KV
+* [x] On added, modified: PUT KV
+* [x] On delete: DEL KV
+* [x] On rename: DEL old KV followed by PUT new KV
