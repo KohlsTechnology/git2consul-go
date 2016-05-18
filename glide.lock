@@ -1,0 +1,22 @@
+hash: 680cbffbc29d1d391d43266e3be4fbd5faf5bfe40b22f2790a82ea06bed80710
+updated: 2016-05-18T17:30:52.072590196-04:00
+imports:
+- name: github.com/hashicorp/consul
+  version: ""
+  subpackages:
+  - api
+- name: github.com/hashicorp/go-cleanhttp
+  version: ""
+- name: github.com/hashicorp/serf
+  version: ""
+  subpackages:
+  - coordinate
+- name: github.com/Sirupsen/logrus
+  version: ""
+- name: golang.org/x/sys
+  version: ""
+  subpackages:
+  - unix
+- name: gopkg.in/libgit2/git2go.v24
+  version: ""
+devImports: []

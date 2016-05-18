@@ -1,0 +1,20 @@
+package: github.com/cleung2010/go-git2consul
+import:
+- package: github.com/Sirupsen/logrus
+  version: a26f43589d737684363ff856c5a0f9f24b946510
+- package: github.com/hashicorp/consul
+  version: 763711686ae954b603d58a0980180ab5a910655d
+  subpackages:
+  - api
+- package: github.com/hashicorp/go-cleanhttp
+  version: ad28ea4487f05916463e2423a55166280e8254b5
+- package: github.com/hashicorp/serf
+  version: defb069b1bad9f7cdebc647810cb6ae398a1b617
+  subpackages:
+  - coordinate
+- package: golang.org/x/sys
+  version: f64b50fbea64174967a8882830d621a18ee1548e
+  subpackages:
+  - unix
+- package: gopkg.in/libgit2/git2go.v24
+  version: 8eaae73f85dd3df78df80d2dac066eb0866444ae
