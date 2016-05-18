@@ -48,12 +48,6 @@ func (r *Runner) watchReposUpdate() {
 // Helper function for watchReposUpdate() to watch a specific
 // remote repository changes. This should be ran as a goroutine
 func (r *Runner) watchRemoteRepo(repo *repository.Repository) {
-	// Initial poll
-	err := repo.PollBranches()
-	if err != nil {
-		log.Debugf("(git): %s", err)
-	}
-
 	errCh := make(chan error)
 	go repo.PollRepoByInterval(errCh)
 	// go r.PollRepoByWebhook()
