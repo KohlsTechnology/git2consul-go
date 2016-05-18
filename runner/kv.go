@@ -126,6 +126,58 @@ func (r *Runner) putBranch(repo *repository.Repository, branch *git.Branch) erro
 	return nil
 }
 
-func (r *Runner) putKV(repo *repository.Repository, path string) {
+func (r *Runner) putKV(repo *repository.Repository, prefix string) error {
+	h, err := repo.Head()
+	if err != nil {
+		return err
+	}
 
+	branchName, err := h.Branch().Name()
+	if err != nil {
+		return err
+	}
+
+	kv := r.client.KV()
+
+	key := path.Join(repo.Name(), branchName, prefix)
+	filePath := filepath.Join(repo.Store(), prefix)
+	value, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	p := &api.KVPair{
+		Key:   key,
+		Value: value,
+	}
+
+	_, err = kv.Put(p, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *Runner) deleteKV(repo *repository.Repository, prefix string) error {
+	h, err := repo.Head()
+	if err != nil {
+		return err
+	}
+
+	branchName, err := h.Branch().Name()
+	if err != nil {
+		return err
+	}
+
+	kv := r.client.KV()
+
+	key := path.Join(repo.Name(), branchName, prefix)
+
+	_, err = kv.Delete(key, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

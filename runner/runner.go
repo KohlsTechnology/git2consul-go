@@ -50,6 +50,8 @@ func (r *Runner) Start() {
 	// Watch for remote changes to pull locally
 	r.watchReposUpdate()
 
+	// FIXME: This doesn't work atm. Probably needs donCh on watches to block
+	// until underlying goroutines are done before we can report back to r.DoneCh
 	if r.once {
 		r.DoneCh <- struct{}{}
 	}

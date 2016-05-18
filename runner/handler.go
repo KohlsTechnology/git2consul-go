@@ -98,15 +98,30 @@ func (r *Runner) updateHandler(repo *repository.Repository) error {
 		if err != nil {
 			return err
 		}
-		// log.Debugf("(runner)(trace) Deltas: %+v", deltas)
 		for _, d := range deltas {
 			switch d.Status {
-			case git.DeltaAdded, git.DeltaModified:
-				log.Debugf("(runner)(trace) Added/Modified file: %s", d.NewFile.Path)
-			case git.DeltaDeleted:
-				log.Debugf("(runner)(trace) Deleted file: %s", d.NewFile.Path)
 			case git.DeltaRenamed:
 				log.Debugf("(runner)(trace) Renamed file: %s", d.NewFile.Path)
+				err := r.deleteKV(repo, d.OldFile.Path)
+				if err != nil {
+					return err
+				}
+				err = r.putKV(repo, d.NewFile.Path)
+				if err != nil {
+					return err
+				}
+			case git.DeltaAdded, git.DeltaModified:
+				log.Debugf("(runner)(trace) Added/Modified file: %s", d.NewFile.Path)
+				err := r.putKV(repo, d.NewFile.Path)
+				if err != nil {
+					return err
+				}
+			case git.DeltaDeleted:
+				log.Debugf("(runner)(trace) Deleted file: %s", d.OldFile.Path)
+				err := r.deleteKV(repo, d.OldFile.Path)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -114,11 +129,11 @@ func (r *Runner) updateHandler(repo *repository.Repository) error {
 	if len(kvRef) == 0 || kvRef != localRef {
 		// TODO: Handle modified and deleted files
 
-		log.Debugf("(consul) KV PUT changes for %s/%s", repo.Name(), b)
-		err := r.putBranch(repo, h.Branch())
-		if err != nil {
-			return err
-		}
+		// log.Debugf("(consul) KV PUT changes for %s/%s", repo.Name(), b)
+		// err := r.putBranch(repo, h.Branch())
+		// if err != nil {
+		// 	return err
+		// }
 		log.Debugf("(consul) KV PUT ref for %s/%s", repo.Name(), b)
 		r.putKVRef(repo, b)
 	}

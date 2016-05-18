@@ -55,7 +55,7 @@ func (r *Repository) DiffStatus(ref string) ([]git.DiffDelta, error) {
 		return nil, err
 	}
 
-	diffs, err := r.DiffTreeToTree(tree2, tree, &do)
+	diffs, err := r.DiffTreeToTree(tree, tree2, &do)
 	if err != nil {
 		return nil, err
 	}
