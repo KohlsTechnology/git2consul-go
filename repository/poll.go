@@ -33,8 +33,6 @@ func (r *Repository) PollRepoByInterval(errCh chan error) {
 		return
 	}
 
-	// TODO: Defer ticket.Stop(), and place PollBranches() outside of ticker.C
-	// case to include initial poll
 	ticker := time.NewTicker(interval * time.Second)
 	defer ticker.Stop()
 
