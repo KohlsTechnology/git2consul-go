@@ -39,20 +39,13 @@ func (r *Runner) initHandler(repo *repository.Repository) error {
 			localRef := ref.Target().String()
 
 			if len(kvRef) == 0 {
+				// There is no ref in the KV, push the entire branch
 				log.Debugf("(consul)(trace) KV PUT changes for %s/%s", repo.Name(), b)
 				r.putBranch(repo, ref.Branch())
 
 				log.Debugf("(consul) KV PUT ref for %s/%s", repo.Name(), b)
 				r.putKVRef(repo, b)
-
-				// Set kvRef once again
-				kvRef, err = r.getKVRef(repo, b)
-				if err != nil {
-					return err
-				}
-			}
-
-			if kvRef != localRef {
+			} else if kvRef != localRef {
 				// Check if the ref belongs to that repo
 				err := repo.CheckRef(kvRef)
 				if err != nil {
@@ -113,15 +106,7 @@ func (r *Runner) updateHandler(repo *repository.Repository) error {
 			return err
 		}
 		log.Debugf("(consul) KV PUT ref for %s/%s", repo.Name(), b)
-
-		// Set kvRef once again
-		kvRef, err = r.getKVRef(repo, b)
-		if err != nil {
-			return err
-		}
-	}
-
-	if kvRef != localRef {
+	} else if kvRef != localRef {
 		// Check if the ref belongs to that repo
 		err := repo.CheckRef(kvRef)
 		if err != nil {

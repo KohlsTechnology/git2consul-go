@@ -16,5 +16,4 @@ git2consul will attempt to use sane defaults for configuration. However, since g
 ## Development dependencies:
 * Go 1.6
 * libgit2 v0.24.0
-* git2go.v24
 * [glide](https://github.com/Masterminds/glide)
