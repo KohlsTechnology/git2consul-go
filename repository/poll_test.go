@@ -15,7 +15,7 @@ func TestPollBranches(t *testing.T) {
 
 	cfg := loadConfig(t)
 
-	repos, err := loadRepos(cfg)
+	repos, err := LoadRepos(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +41,6 @@ func TestPollBranches(t *testing.T) {
 
 	// Cleanup
 	defer func() {
-		repos[0].CloneCh()
 		err = os.RemoveAll(repo.store)
 		if err != nil {
 			t.Fatal(err)

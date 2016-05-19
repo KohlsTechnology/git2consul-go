@@ -11,7 +11,9 @@ import (
 	"gopkg.in/libgit2/git2go.v24"
 )
 
-func loadRepos(cfg *config.Config) (Repositories, error) {
+// Populates Repository slice from configuration. It also
+// handles cloning of the repository if not present
+func LoadRepos(cfg *config.Config) (Repositories, error) {
 	repos := []*Repository{}
 
 	// Create Repository object for each repo
@@ -21,15 +23,13 @@ func loadRepos(cfg *config.Config) (Repositories, error) {
 		r := &Repository{
 			repoConfig: cRepo,
 			store:      store,
-			cloneCh:    make(chan struct{}, 1),
 			changeCh:   make(chan struct{}, 1),
 		}
 
-		// Check if directory exists
-		// FIXME: Better conditional and check if dir is already git-init
 		fi, err := os.Stat(store)
 		if os.IsNotExist(err) || fi.IsDir() == false {
-			err := os.Mkdir(r.store, 0755)
+			log.Infof("(git): Repository %s not cached, cloning to %s", cRepo.Name, store)
+			err := os.Mkdir(store, 0755)
 			if err != nil {
 				return nil, err
 			}
@@ -38,10 +38,33 @@ func loadRepos(cfg *config.Config) (Repositories, error) {
 			if err != nil {
 				return nil, err
 			}
-			log.Infof("(git): Repository %s not cached, cloned to %s", r.repoConfig.Name, r.store)
 		} else if err != nil {
+			// Some other stat error
 			return nil, err
 		} else {
+			// The directory exists
+
+			// Not a git repository, remove directory and clone
+			_, err := os.Stat(filepath.Join(store, ".git"))
+			if os.IsNotExist(err) {
+				log.Warnf("(git): %s exists locally, overwritting", cRepo.Name)
+				err := os.RemoveAll(store)
+				if err != nil {
+					return nil, err
+				}
+
+				err = os.Mkdir(store, 0755)
+				if err != nil {
+					return nil, err
+				}
+
+				err = r.Clone()
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			// Open repository otherwise
 			repo, err := git.OpenRepository(store)
 			if err != nil {
 				return nil, err
@@ -59,9 +82,9 @@ func loadRepos(cfg *config.Config) (Repositories, error) {
 			}
 			// If not equal attempt to recreate the repo
 			if strings.Compare(rm.Url(), absPath) != 0 {
-				log.Warnf("Diffrent %s repository exists locally, overwritting", cRepo.Name)
+				log.Warnf("(git): Diffrent %s repository exists locally, overwritting", cRepo.Name)
 				os.RemoveAll(store) // Potentially dangerous?
-				err := os.Mkdir(r.store, 0755)
+				err := os.Mkdir(store, 0755)
 				if err != nil {
 					return nil, err
 				}

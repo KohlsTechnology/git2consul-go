@@ -27,7 +27,5 @@ func (r *Repository) Clone() error {
 		return err
 	}
 
-	r.cloneCh <- struct{}{}
-
 	return nil
 }

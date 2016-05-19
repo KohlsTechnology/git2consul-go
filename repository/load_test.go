@@ -32,6 +32,34 @@ func TestLoadRepos(t *testing.T) {
 	}()
 }
 
+func TestLoadRepos_bareDir(t *testing.T) {
+	_, cleanup := tempGitInitPath(t)
+	defer cleanup()
+
+	cfgPath := filepath.Join("test-fixtures", "example.json")
+	cfg, err := config.Load(cfgPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = os.Mkdir(filepath.Join(cfg.LocalStore, cfg.Repos[0].Name), 0755)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = LoadRepos(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Cleanup cloning
+	defer func() {
+		for _, repo := range cfg.Repos {
+			os.RemoveAll(filepath.Join(cfg.LocalStore, repo.Name))
+		}
+	}()
+}
+
 func TestLoadRepos_invalidRepo(t *testing.T) {
 	cfgPath := filepath.Join("test-fixtures", "example.json")
 	cfg, err := config.Load(cfgPath)
@@ -40,7 +68,41 @@ func TestLoadRepos_invalidRepo(t *testing.T) {
 	}
 	_, err = LoadRepos(cfg)
 	if err == nil {
-		t.Fatal("Expected failure from LoadRepos()")
+		t.Fatal("Expected failure for invalid repository url")
+	}
+
+	// Cleanup cloning
+	defer func() {
+		for _, repo := range cfg.Repos {
+			os.RemoveAll(filepath.Join(cfg.LocalStore, repo.Name))
+		}
+	}()
+}
+
+func TestLoadRepos_existingRepo(t *testing.T) {
+	_, cleanup := tempGitInitPath(t)
+	defer cleanup()
+
+	cfg := loadConfig(t)
+
+	// Init a repo in the store:project
+	err := os.Mkdir(filepath.Join(cfg.LocalStore, cfg.Repos[0].Name), 0755)
+	if err != nil {
+		t.Fatal(err)
+	}
+	repo, err := git.InitRepository(filepath.Join(cfg.LocalStore, cfg.Repos[0].Name), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = repo.Remotes.Create("origin", "/foo/bar")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = LoadRepos(cfg)
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	// Cleanup cloning

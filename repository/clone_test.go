@@ -16,7 +16,6 @@ func TestClone(t *testing.T) {
 		Repository: repo,
 		repoConfig: cfg.Repos[0],
 		store:      path.Join(cfg.LocalStore, cfg.Repos[0].Name),
-		cloneCh:    make(chan struct{}, 1),
 		changeCh:   make(chan struct{}, 1),
 	}
 
@@ -27,7 +26,6 @@ func TestClone(t *testing.T) {
 
 	//Cleanup cloned repo
 	defer func() {
-		r.CloneCh()
 		err = os.RemoveAll(r.store)
 		if err != nil {
 			t.Fatal(err)
