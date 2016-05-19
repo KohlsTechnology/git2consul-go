@@ -41,7 +41,7 @@ func TestPollBranches(t *testing.T) {
 
 	// Cleanup
 	defer func() {
-		err = os.RemoveAll(repo.store)
+		err = os.RemoveAll(repo.Workdir())
 		if err != nil {
 			t.Fatal(err)
 		}
