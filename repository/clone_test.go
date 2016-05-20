@@ -16,7 +16,6 @@ func TestClone(t *testing.T) {
 		Repository: repo,
 		repoConfig: cfg.Repos[0],
 		store:      path.Join(cfg.LocalStore, cfg.Repos[0].Name),
-		changeCh:   make(chan struct{}, 1),
 	}
 
 	err := r.Clone()

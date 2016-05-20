@@ -33,9 +33,9 @@ func (r *Runner) watchLocalRepo(repo *repository.Repository) {
 		}
 
 		// Block until changes
-		select {
-		case <-repo.ChangeCh():
-		}
+		// select {
+		// case <-repo.ChangeCh():
+		// }
 	}
 }
 

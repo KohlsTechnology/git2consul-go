@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/apex/log"
 	"github.com/cleung2010/go-git2consul/config"
 )
 
@@ -14,22 +13,19 @@ func LoadRepos(cfg *config.Config) ([]*Repository, error) {
 	repos := []*Repository{}
 
 	// Create Repository object for each repo
-	for _, cRepo := range cfg.Repos {
-		store := filepath.Join(cfg.LocalStore, cRepo.Name)
+	for _, repoConfig := range cfg.Repos {
+		repoPath := filepath.Join(cfg.LocalStore, repoConfig.Name)
 
-		r := &Repository{
-			repoConfig: cRepo,
-			basePath:   cfg.LocalStore,
-		}
-		repoStatus, err := r.init(store)
+		r, state, err := New(repoPath, repoConfig)
 		if err != nil {
-			return nil, err
+			return repos, err
 		}
-		switch repoStatus {
+
+		switch state {
 		case RepositoryCloned:
-			log.Info("Cloned")
+			//log.Infof("Cloned repository %s", r.Name())
 		case RepositoryOpened:
-			log.Info("Opened")
+			//log.Infof("Loaded repository %s", r.Name())
 		}
 
 		repos = append(repos, r)

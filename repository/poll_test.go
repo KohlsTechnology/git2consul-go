@@ -28,7 +28,7 @@ func TestPollBranches(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	//Verify that the file changed
+	// Verify that the file changed
 	filePath := filepath.Join("test-fixtures", "example", "foo")
 	actual, err := ioutil.ReadFile(filePath)
 	if err != nil {

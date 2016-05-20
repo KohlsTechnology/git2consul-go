@@ -1,66 +1,21 @@
-package runner
+package kv
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/apex/log"
 	"github.com/cleung2010/go-git2consul/repository"
 	"github.com/hashicorp/consul/api"
 	"gopkg.in/libgit2/git2go.v24"
 )
 
-// Get local branch ref from the KV
-func (r *Runner) getKVRef(repo *repository.Repository, branchName string) (string, error) {
-	refFile := fmt.Sprintf("%s.ref", branchName)
-	key := path.Join(repo.Name(), refFile)
-
-	kv := r.client.KV()
-	pair, _, err := kv.Get(key, nil)
-	if err != nil {
-		return "", err
-	}
-
-	// If error on get, return empty value
-	if pair == nil {
-		return "", nil
-	}
-
-	return string(pair.Value), nil
-}
-
-// Put the local branch ref to the KV
-func (r *Runner) putKVRef(repo *repository.Repository, branchName string) error {
-	refFile := fmt.Sprintf("%s.ref", branchName)
-	key := path.Join(repo.Name(), refFile)
-
-	rawRef, err := repo.References.Lookup("refs/heads/" + branchName)
-	if err != nil {
-		return err
-	}
-	ref := rawRef.Target().String()
-
-	kv := r.client.KV()
-
-	p := &api.KVPair{
-		Key:   key,
-		Value: []byte(ref),
-	}
-
-	_, err = kv.Put(p, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // Push a repository branch to the KV
 // TODO: Optimize for PUT only on changes instead of the entire repo
-func (r *Runner) putBranch(repo *repository.Repository, branch *git.Branch) error {
+func (h *KVHandler) putBranch(repo *repository.Repository, branch *git.Branch) error {
 	// Checkout branch
 	repo.CheckoutBranch(branch, &git.CheckoutOpts{
 		Strategy: git.CheckoutForce,
@@ -93,9 +48,9 @@ func (r *Runner) putBranch(repo *repository.Repository, branch *git.Branch) erro
 		}
 
 		// log.Debugf("(consul) pushBranch(): Path: %s Key: %s", fullpath, strings.TrimPrefix(fullpath, repo.Store()))
-		kvPath := path.Join(repo.Name(), branchName, filepath.Base(repo.Workdir()))
+		key := strings.TrimPrefix(fullpath, repo.Workdir())
+		kvPath := path.Join(repo.Name(), branchName, key)
 
-		kv := r.client.KV()
 		data, err := ioutil.ReadFile(fullpath)
 		if err != nil {
 			return err
@@ -108,7 +63,7 @@ func (r *Runner) putBranch(repo *repository.Repository, branch *git.Branch) erro
 			Value: data,
 		}
 
-		_, err = kv.Put(p, nil)
+		_, err = h.Put(p, nil)
 		if err != nil {
 			return err
 		}
@@ -120,24 +75,22 @@ func (r *Runner) putBranch(repo *repository.Repository, branch *git.Branch) erro
 
 	err := filepath.Walk(repo.Workdir(), pushFile)
 	if err != nil {
-		log.Debug(err)
+		log.WithError(err).Debug("PUT branch error")
 	}
 
 	return nil
 }
 
-func (r *Runner) putKV(repo *repository.Repository, prefix string) error {
-	h, err := repo.Head()
+func (h *KVHandler) putKV(repo *repository.Repository, prefix string) error {
+	head, err := repo.Head()
 	if err != nil {
 		return err
 	}
 
-	branchName, err := h.Branch().Name()
+	branchName, err := head.Branch().Name()
 	if err != nil {
 		return err
 	}
-
-	kv := r.client.KV()
 
 	key := path.Join(repo.Name(), branchName, prefix)
 	filePath := filepath.Join(repo.Workdir(), prefix)
@@ -151,30 +104,7 @@ func (r *Runner) putKV(repo *repository.Repository, prefix string) error {
 		Value: value,
 	}
 
-	_, err = kv.Put(p, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (r *Runner) deleteKV(repo *repository.Repository, prefix string) error {
-	h, err := repo.Head()
-	if err != nil {
-		return err
-	}
-
-	branchName, err := h.Branch().Name()
-	if err != nil {
-		return err
-	}
-
-	kv := r.client.KV()
-
-	key := path.Join(repo.Name(), branchName, prefix)
-
-	_, err = kv.Delete(key, nil)
+	_, err = h.Put(p, nil)
 	if err != nil {
 		return err
 	}

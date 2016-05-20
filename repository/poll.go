@@ -5,7 +5,7 @@ import "time"
 // Poll repository once. Polling can either clone or update
 func (r *Repository) PollBranches() error {
 	for _, branch := range r.repoConfig.Branches {
-		err := r.pull(branch)
+		_, err := r.Pull(branch)
 		if err != nil {
 			return err
 		}

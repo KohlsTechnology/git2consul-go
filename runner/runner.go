@@ -4,7 +4,9 @@ import (
 	"fmt"
 
 	"github.com/cleung2010/go-git2consul/config"
+	"github.com/cleung2010/go-git2consul/kv"
 	"github.com/cleung2010/go-git2consul/repository"
+	"github.com/cleung2010/go-git2consul/repository/watch"
 	"github.com/hashicorp/consul/api"
 )
 
@@ -16,7 +18,7 @@ type Runner struct {
 
 	client *api.Client
 
-	repos repository.Repositories
+	repos []*repository.Repository
 }
 
 func NewRunner(config *config.Config, once bool) (*Runner, error) {
@@ -45,10 +47,37 @@ func NewRunner(config *config.Config, once bool) (*Runner, error) {
 
 func (r *Runner) Start() {
 	// Watch for local changes to push to KV
-	r.watchKVUpdate()
+	// r.watchKVUpdate()
 
 	// Watch for remote changes to pull locally
-	r.watchReposUpdate()
+	// r.watchReposUpdate()
+
+	handler, err := kv.New(api.DefaultConfig())
+	if err != nil {
+		fmt.Println("Runner start error")
+	}
+
+	handler.HandleInit(r.repos)
+
+	fmt.Println("Here 1")
+
+	rw := watch.New(r.repos)
+	rw.Watch()
+
+	fmt.Println("Here 2")
+
+	// Grab changed repos
+	for {
+		select {
+		case err := <-rw.ErrCh:
+			fmt.Println("Here ERROR")
+			fmt.Println(err)
+		case repo := <-rw.RepoChangeCh:
+			// Handle change
+			handler.HandleUpdate(repo)
+			fmt.Println("Here 3")
+		}
+	}
 
 	// FIXME: This doesn't work atm. Probably needs donCh on watches to block
 	// until underlying goroutines are done before we can report back to r.DoneCh

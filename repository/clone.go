@@ -7,7 +7,7 @@ import (
 )
 
 // Clone the repository. Cloning will only checkout tracked branches
-func (r *Repository) Clone(path string) error {
+func (r *Repository) Clone() error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -17,7 +17,7 @@ func (r *Repository) Clone(path string) error {
 	}
 	checkoutBranch := r.repoConfig.Branches[0]
 
-	raw_repo, err := git.Clone(r.repoConfig.Url, path, &git.CloneOptions{
+	raw_repo, err := git.Clone(r.repoConfig.Url, r.store, &git.CloneOptions{
 		CheckoutOpts: &git.CheckoutOpts{
 			Strategy: git.CheckoutNone,
 		},

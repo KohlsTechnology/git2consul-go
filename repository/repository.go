@@ -14,102 +14,118 @@ type Repository struct {
 	sync.Mutex
 
 	*git.Repository
+	Hooks []*config.Hook
 
 	repoConfig *config.Repo
-	basePath   string
+	store      string
 }
 
 const (
-	RepositoryUnchanged = 0 + iota
+	RepositoryError = iota
 	RepositoryCloned
 	RepositoryOpened
 )
 
 func (r *Repository) Name() string {
-	name := filepath.Base(r.Workdir())
-	return name
+	return filepath.Base(r.Workdir())
 }
 
-// Create repository object, whether by cloning or opening
-func (r *Repository) init(store string) (int, error) {
-	fi, err := os.Stat(store)
+func New(repoPath string, repoConfig *config.Repo) (*Repository, int, error) {
+	r := &Repository{
+		Hooks:      repoConfig.Hooks,
+		repoConfig: repoConfig,
+		store:      repoPath,
+	}
+
+	state, err := r.init()
+	if err != nil {
+		return nil, RepositoryError, err
+	}
+
+	return r, state, nil
+}
+
+// Attempt to create *git.Repository object, whether by cloning or opening.
+// This method also returns the state of the repository creation for loggging
+func (r *Repository) init() (int, error) {
+	fi, err := os.Stat(r.store)
 
 	// Case: Directory doesn't exist
 	if os.IsNotExist(err) || fi.IsDir() == false {
 		// log.Infof("(git): Repository %s not cached, cloning to %s", cRepo.Name, store)
-		err := os.Mkdir(store, 0755)
+		err := os.Mkdir(r.store, 0755)
 		if err != nil {
-			return RepositoryUnchanged, err
+			return RepositoryError, err
 		}
 
 		err = r.Clone()
 		if err != nil {
-			return RepositoryUnchanged, err
+			return RepositoryError, err
 		}
 
 		return RepositoryCloned, nil
 	} else if err != nil {
 		// Some other stat error
-		return RepositoryUnchanged, err
+		return RepositoryError, err
 	}
 
 	// Case: Not a git repository, remove directory and clone
-	_, err = os.Stat(filepath.Join(store, ".git"))
+	_, err = os.Stat(filepath.Join(r.store, ".git"))
 	if os.IsNotExist(err) {
 		// log.Warnf("(git): %s exists locally, overwritting", cRepo.Name)
-		err := os.RemoveAll(store)
+		err := os.RemoveAll(r.store)
 		if err != nil {
-			return RepositoryUnchanged, err
+			return RepositoryError, err
 		}
 
-		err = os.Mkdir(store, 0755)
+		err = os.Mkdir(r.store, 0755)
 		if err != nil {
-			return RepositoryUnchanged, err
+			return RepositoryError, err
 		}
 
 		err = r.Clone()
 		if err != nil {
-			return RepositoryUnchanged, err
+			return RepositoryError, err
 		}
 
 		return RepositoryCloned, nil
 	} else if err != nil {
 		// Some other stat error
-		return RepositoryUnchanged, err
+		return RepositoryError, err
 	}
 
 	// Open repository otherwise
-	repo, err := git.OpenRepository(store)
+	repo, err := git.OpenRepository(r.store)
 	if err != nil {
-		return RepositoryUnchanged, err
+		return RepositoryError, err
 	}
 
 	// Check if config repo and cached repo matches
 	rm, err := repo.Remotes.Lookup("origin")
 	if err != nil {
-		return RepositoryUnchanged, err
+		return RepositoryError, err
 	}
 
 	absPath, err := filepath.Abs(r.repoConfig.Url)
 	if err != nil {
-		return RepositoryUnchanged, err
+		return RepositoryError, err
 	}
 	// If not equal attempt to recreate the repo
 	if strings.Compare(rm.Url(), absPath) != 0 {
 		// log.Warnf("(git): Diffrent %s repository exists locally, overwritting", cRepo.Name)
-		os.RemoveAll(store) // Potentially dangerous?
-		err := os.Mkdir(store, 0755)
+		os.RemoveAll(r.store) // Potentially dangerous?
+		err := os.Mkdir(r.store, 0755)
 		if err != nil {
-			return RepositoryUnchanged, err
+			return RepositoryError, err
 		}
 
 		err = r.Clone()
 		if err != nil {
-			return RepositoryUnchanged, err
+			return RepositoryError, err
 		}
 	} else {
 		r.Repository = repo
-
-		return r, nil
 	}
+
+	return RepositoryOpened, nil
 }

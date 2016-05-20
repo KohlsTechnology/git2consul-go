@@ -73,8 +73,8 @@ func (r *Repository) Pull(branchName string) (git.MergeAnalysis, error) {
 	}
 
 	// Action on analysis
-	switch analysis {
-	case git.MergeAnalysisFastForward, git.MergeAnalysisNormal:
+	switch {
+	case analysis&git.MergeAnalysisFastForward != 0, analysis&git.MergeAnalysisNormal != 0:
 		if err := r.Merge(mergeHeads, nil, nil); err != nil {
 			return 0, err
 		}
