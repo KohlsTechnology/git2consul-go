@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/apex/log"
 )
 
 // Create configuration from a provided file path

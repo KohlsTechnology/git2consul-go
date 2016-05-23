@@ -3,6 +3,7 @@ package runner
 import (
 	"fmt"
 
+	"github.com/apex/log"
 	"github.com/cleung2010/go-git2consul/config"
 	"github.com/cleung2010/go-git2consul/kv"
 	"github.com/cleung2010/go-git2consul/repository"
@@ -45,6 +46,7 @@ func NewRunner(config *config.Config, once bool) (*Runner, error) {
 	return runner, nil
 }
 
+// Start the runner
 func (r *Runner) Start() {
 	// Watch for local changes to push to KV
 	// r.watchKVUpdate()
@@ -54,28 +56,32 @@ func (r *Runner) Start() {
 
 	handler, err := kv.New(api.DefaultConfig())
 	if err != nil {
-		fmt.Println("Runner start error")
+		r.ErrCh <- err
+		return
 	}
 
-	handler.HandleInit(r.repos)
-
-	fmt.Println("Here 1")
+	err = handler.HandleInit(r.repos)
+	if err != nil {
+		r.ErrCh <- err
+		return // Return for now
+	}
 
 	rw := watch.New(r.repos)
 	rw.Watch()
 
-	fmt.Println("Here 2")
-
-	// Grab changed repos
+	// Grab changes from repositories. Do no stop the runner if there
+	// are errors on the repo watcher
 	for {
 		select {
 		case err := <-rw.ErrCh:
-			fmt.Println("Here ERROR")
-			fmt.Println(err)
+			log.WithError(err).Error("Watcher error")
 		case repo := <-rw.RepoChangeCh:
-			// Handle change
-			handler.HandleUpdate(repo)
-			fmt.Println("Here 3")
+			// Handle change, and return if error on handler
+			err = handler.HandleUpdate(repo)
+			if err != nil {
+				r.ErrCh <- err
+				return
+			}
 		}
 	}
 

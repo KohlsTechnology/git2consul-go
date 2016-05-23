@@ -7,7 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/text"
 	"github.com/cleung2010/go-git2consul/config"
 	"github.com/cleung2010/go-git2consul/runner"
 )
@@ -40,6 +41,9 @@ func main() {
 		fmt.Println(Version)
 		return
 	}
+
+	// TODO: Accept other logger inputs
+	log.SetHandler(text.New(os.Stderr))
 
 	log.Infof("Starting git2consul version: %s", Version)
 
@@ -76,7 +80,7 @@ func main() {
 			log.Info("Finished execution of git2consul")
 			os.Exit(ExitCodeOk)
 		case err := <-runner.ErrCh:
-			log.Error(err)
+			log.WithError(err).Error("Runner error")
 			os.Exit(ExitCodeError)
 		case <-signalCh:
 			log.Info("Received interrupt. Terminating git2consul")

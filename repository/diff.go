@@ -1,9 +1,6 @@
 package repository
 
-import (
-	log "github.com/Sirupsen/logrus"
-	"gopkg.in/libgit2/git2go.v24"
-)
+import "gopkg.in/libgit2/git2go.v24"
 
 // Compares the current workdir with a target ref and return the modified files
 func (r *Repository) DiffStatus(ref string) ([]git.DiffDelta, error) {
@@ -60,16 +57,16 @@ func (r *Repository) DiffStatus(ref string) ([]git.DiffDelta, error) {
 		return nil, err
 	}
 
-	log.Debugf("(git)(trace) Diffs from func: %+v | Repo ref: %s | Diff ref: %s", diffs, h.Target().String(), ref)
+	// log.Debugf("(git)(trace) Diffs from func: %+v | Repo ref: %s | Diff ref: %s", diffs, h.Target().String(), ref)
 
-	stats, err := diffs.Stats()
-	if err != nil {
-		return nil, err
-	}
-	log.Debugf("(git)(trace) Diffs files changed from func: %d", stats.FilesChanged())
+	// stats, err := diffs.Stats()
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// log.Debugf("(git)(trace) Diffs files changed from func: %d", stats.FilesChanged())
 
 	n, err := diffs.NumDeltas()
-	log.Debugf("(git)(trace) Diffs num from func: %d", n)
+	// log.Debugf("(git)(trace) Diffs num from func: %d", n)
 
 	for i := 0; i < n; i++ {
 		diff, err := diffs.GetDelta(i)

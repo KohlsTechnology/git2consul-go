@@ -18,6 +18,8 @@ func (h *KVHandler) HandleInit(repos []*repository.Repository) error {
 	return nil
 }
 
+// Handles differences on all branches of a repository, comparing the ref
+// of the branch against the one in the KV
 func (h *KVHandler) handleRepoInit(repo *repository.Repository) error {
 	repo.Lock()
 	defer repo.Unlock()
@@ -83,6 +85,7 @@ func (h *KVHandler) handleRepoInit(repo *repository.Repository) error {
 	return nil
 }
 
+// Helper function that handles deltas
 func (h *KVHandler) handleDeltas(repo *repository.Repository, deltas []git.DiffDelta) error {
 	// Handle modified and deleted files
 	for _, d := range deltas {
