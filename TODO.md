@@ -5,7 +5,7 @@
 * [x] Possible usage of a runner to abstract git operations from the consul package
 * [x] Update on KV should be for modified and deleted files only
 * [x] Switch from godep to glide
-* [ ] Switch to apex/log
+* [x] Switch to apex/log
 * [ ] Accept consul configuration for the client
 * [ ] Webhook polling
 * [ ] Better CI pipeline
