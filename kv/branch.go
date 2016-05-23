@@ -47,9 +47,9 @@ func (h *KVHandler) putBranch(repo *repository.Repository, branch *git.Branch) e
 			return err
 		}
 
-		// log.Debugf("(consul) pushBranch(): Path: %s Key: %s", fullpath, strings.TrimPrefix(fullpath, repo.Store()))
 		key := strings.TrimPrefix(fullpath, repo.Workdir())
 		kvPath := path.Join(repo.Name(), branchName, key)
+		h.logger.Debugf("KV PUT changes: %s/%s: %s", repo.Name(), branchName, kvPath)
 
 		data, err := ioutil.ReadFile(fullpath)
 		if err != nil {
@@ -68,45 +68,12 @@ func (h *KVHandler) putBranch(repo *repository.Repository, branch *git.Branch) e
 			return err
 		}
 
-		log.Debugf("(consul)(trace): PUT KV Path: %s Key: %s", fullpath, filepath.Base(repo.Workdir()))
-
 		return nil
 	}
 
 	err := filepath.Walk(repo.Workdir(), pushFile)
 	if err != nil {
 		log.WithError(err).Debug("PUT branch error")
-	}
-
-	return nil
-}
-
-func (h *KVHandler) putKV(repo *repository.Repository, prefix string) error {
-	head, err := repo.Head()
-	if err != nil {
-		return err
-	}
-
-	branchName, err := head.Branch().Name()
-	if err != nil {
-		return err
-	}
-
-	key := path.Join(repo.Name(), branchName, prefix)
-	filePath := filepath.Join(repo.Workdir(), prefix)
-	value, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return err
-	}
-
-	p := &api.KVPair{
-		Key:   key,
-		Value: value,
-	}
-
-	_, err = h.Put(p, nil)
-	if err != nil {
-		return err
 	}
 
 	return nil

@@ -1,6 +1,9 @@
 package kv
 
-import "github.com/cleung2010/go-git2consul/repository"
+import (
+	"github.com/apex/log"
+	"github.com/cleung2010/go-git2consul/repository"
+)
 
 // Handles the update of a particular repository by comparing diffs against
 // the KV
@@ -17,7 +20,7 @@ func (h *KVHandler) HandleUpdate(repo *repository.Repository) error {
 		return err
 	}
 
-	// log.Debugf("(consul) KV GET ref for %s/%s", repo.Name(), b)
+	h.logger.Infof("KV GET ref: %s/%s", repo.Name(), b)
 	kvRef, err := h.getKVRef(repo, b)
 	if err != nil {
 		return err
@@ -28,7 +31,7 @@ func (h *KVHandler) HandleUpdate(repo *repository.Repository) error {
 	// log.Debugf("(consul) kvRef: %s | localRef: %s", kvRef, localRef)
 
 	if len(kvRef) == 0 {
-		// log.Debugf("(consul) KV PUT changes for %s/%s", repo.Name(), b)
+		log.Infof("KV PUT changes: %s/%s", repo.Name(), b)
 		err := h.putBranch(repo, head.Branch())
 		if err != nil {
 			return err
@@ -38,7 +41,7 @@ func (h *KVHandler) HandleUpdate(repo *repository.Repository) error {
 		if err != nil {
 			return err
 		}
-		// log.Debugf("(consul) KV PUT ref for %s/%s", repo.Name(), b)
+		h.logger.Infof("KV PUT ref: %s/%s", repo.Name(), b)
 	} else if kvRef != localRef {
 		// Check if the ref belongs to that repo
 		err := repo.CheckRef(kvRef)
@@ -57,7 +60,7 @@ func (h *KVHandler) HandleUpdate(repo *repository.Repository) error {
 		if err != nil {
 			return err
 		}
-		// log.Debugf("(consul) KV PUT ref for %s/%s", repo.Name(), b)
+		h.logger.Infof("KV PUT ref: %s/%s", repo.Name(), b)
 	}
 
 	return nil

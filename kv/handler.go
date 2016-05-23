@@ -7,7 +7,7 @@ import (
 
 type KVHandler struct {
 	*api.KV
-	logger log.Interface
+	logger *log.Entry
 }
 
 func New(config *api.Config) (*KVHandler, error) {
@@ -16,8 +16,9 @@ func New(config *api.Config) (*KVHandler, error) {
 		return nil, err
 	}
 
-	logger := log.Log
-	logger.WithField("caller", "kv-client")
+	logger := log.WithFields(log.Fields{
+		"caller": "consul",
+	})
 
 	kv := client.KV()
 

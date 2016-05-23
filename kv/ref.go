@@ -49,24 +49,3 @@ func (h *KVHandler) putKVRef(repo *repository.Repository, branchName string) err
 
 	return nil
 }
-
-func (h *KVHandler) deleteKV(repo *repository.Repository, prefix string) error {
-	head, err := repo.Head()
-	if err != nil {
-		return err
-	}
-
-	branchName, err := head.Branch().Name()
-	if err != nil {
-		return err
-	}
-
-	key := path.Join(repo.Name(), branchName, prefix)
-
-	_, err = h.Delete(key, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}

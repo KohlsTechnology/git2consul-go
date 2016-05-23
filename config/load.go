@@ -12,6 +12,11 @@ import (
 
 // Create configuration from a provided file path
 func Load(file string) (*Config, error) {
+	// log context
+	logger := log.WithFields(log.Fields{
+		"caller": "config",
+	})
+
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -24,7 +29,7 @@ func Load(file string) (*Config, error) {
 		return nil, err
 	}
 
-	log.Info("(config): Setting configuration with sane defaults")
+	logger.Info("Setting configuration with sane defaults")
 	err = config.setDefaultConfig()
 	if err != nil {
 		return nil, err
@@ -35,7 +40,7 @@ func Load(file string) (*Config, error) {
 		return nil, err
 	}
 
-	log.Debugf("(config): Using configuration: %+v", config)
+	logger.Debugf("Using configuration: %+v", config)
 	return config, nil
 }
 

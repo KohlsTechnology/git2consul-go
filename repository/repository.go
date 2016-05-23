@@ -26,8 +26,23 @@ const (
 	RepositoryOpened
 )
 
+// Returns the repository name
 func (r *Repository) Name() string {
 	return filepath.Base(r.Workdir())
+}
+
+// Returns the branch name
+func (r *Repository) Branch() string {
+	head, err := r.Head()
+	if err != nil {
+		return ""
+	}
+	bn, err := head.Branch().Name()
+	if err != nil {
+		return ""
+	}
+
+	return bn
 }
 
 func New(repoPath string, repoConfig *config.Repo) (*Repository, int, error) {

@@ -48,12 +48,6 @@ func NewRunner(config *config.Config, once bool) (*Runner, error) {
 
 // Start the runner
 func (r *Runner) Start() {
-	// Watch for local changes to push to KV
-	// r.watchKVUpdate()
-
-	// Watch for remote changes to pull locally
-	// r.watchReposUpdate()
-
 	handler, err := kv.New(api.DefaultConfig())
 	if err != nil {
 		r.ErrCh <- err

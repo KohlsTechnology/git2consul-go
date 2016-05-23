@@ -15,15 +15,14 @@ type Watcher struct {
 	RepoChangeCh chan *repository.Repository
 	ErrCh        chan error
 
-	logger log.Interface
+	logger *log.Entry
 }
 
 func New(repos []*repository.Repository) *Watcher {
 	repoChangeCh := make(chan *repository.Repository, len(repos))
 	errCh := make(chan error)
 
-	logger := log.Log
-	logger.WithField("caller", "repo-watcher")
+	logger := log.WithField("caller", "git")
 
 	return &Watcher{
 		Repositories: repos,

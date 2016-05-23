@@ -64,7 +64,10 @@ func (w *Watcher) pollBranches(repo *repository.Repository) error {
 
 		// If there is a change, send the repo RepoChangeCh
 		switch {
+		case analysis&git.MergeAnalysisUpToDate != 0:
+			w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
 		case analysis&git.MergeAnalysisNormal != 0, analysis&git.MergeAnalysisFastForward != 0:
+			w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
 			w.RepoChangeCh <- repo
 		}
 

@@ -1,7 +1,6 @@
 package kv
 
 import (
-	"github.com/apex/log"
 	"github.com/cleung2010/go-git2consul/repository"
 	"gopkg.in/libgit2/git2go.v24"
 )
@@ -44,7 +43,7 @@ func (h *KVHandler) handleRepoInit(repo *repository.Repository) error {
 
 		// Get only local refs
 		if ref.IsRemote() == false {
-			log.Debugf("(consul) KV GET ref for %s/%s", repo.Name(), b)
+			h.logger.Infof("KV GET ref: %s/%s", repo.Name(), b)
 			kvRef, err := h.getKVRef(repo, b)
 			if err != nil {
 				return err
@@ -54,10 +53,10 @@ func (h *KVHandler) handleRepoInit(repo *repository.Repository) error {
 
 			if len(kvRef) == 0 {
 				// There is no ref in the KV, push the entire branch
-				log.Debugf("(consul)(trace) KV PUT changes for %s/%s", repo.Name(), b)
+				h.logger.Infof("KV PUT changes: %s/%s", repo.Name(), b)
 				h.putBranch(repo, ref.Branch())
 
-				log.Debugf("(consul) KV PUT ref for %s/%s", repo.Name(), b)
+				h.logger.Infof("KV PUT ref: %s/%s", repo.Name(), b)
 				h.putKVRef(repo, b)
 			} else if kvRef != localRef {
 				// Check if the ref belongs to that repo
@@ -77,7 +76,7 @@ func (h *KVHandler) handleRepoInit(repo *repository.Repository) error {
 				if err != nil {
 					return err
 				}
-				log.Debugf("(consul) KV PUT ref for %s/%s", repo.Name(), b)
+				h.logger.Debugf("KV PUT ref: %s/%s", repo.Name(), b)
 			}
 		}
 	}
@@ -91,23 +90,27 @@ func (h *KVHandler) handleDeltas(repo *repository.Repository, deltas []git.DiffD
 	for _, d := range deltas {
 		switch d.Status {
 		case git.DeltaRenamed:
-			log.Debugf("(runner)(trace) Renamed file: %s", d.NewFile.Path)
+			h.logger.Debugf("Detected renamed file: %s", d.NewFile.Path)
+			h.logger.Infof("KV DEL %s/%s/%s", repo.Name(), repo.Branch(), d.OldFile.Path)
 			err := h.deleteKV(repo, d.OldFile.Path)
 			if err != nil {
 				return err
 			}
+			h.logger.Infof("KV PUT %s/%s/%s", repo.Name(), repo.Branch(), d.NewFile.Path)
 			err = h.putKV(repo, d.NewFile.Path)
 			if err != nil {
 				return err
 			}
 		case git.DeltaAdded, git.DeltaModified:
-			log.Debugf("(runner)(trace) Added/Modified file: %s", d.NewFile.Path)
+			h.logger.Debugf("Detected added/modified file: %s", d.NewFile.Path)
+			h.logger.Infof("KV PUT %s/%s/%s", repo.Name(), repo.Branch(), d.NewFile.Path)
 			err := h.putKV(repo, d.NewFile.Path)
 			if err != nil {
 				return err
 			}
 		case git.DeltaDeleted:
-			log.Debugf("(runner)(trace) Deleted file: %s", d.OldFile.Path)
+			h.logger.Debugf("Detected deleted file: %s", d.OldFile.Path)
+			h.logger.Infof("KV DEL %s/%s/%s", repo.Name(), repo.Branch(), d.OldFile.Path)
 			err := h.deleteKV(repo, d.OldFile.Path)
 			if err != nil {
 				return err
