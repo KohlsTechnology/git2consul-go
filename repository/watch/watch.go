@@ -10,9 +10,9 @@ func (w *Watcher) watchRepo(repo *repository.Repository, errCh chan<- error) {
 func (w *Watcher) Watch() {
 	//errsCh := make(chan error, len(w.Repositories)) // Error channel for all watching repos
 
-	// for _, repo := range w.Repositories {
-	// 	go w.watchRepo(repo, w.ErrCh)
-	// }
+	for _, repo := range w.Repositories {
+		go w.watchRepo(repo, w.ErrCh)
+	}
 
 	go w.pollByWebhook(w.ErrCh)
 

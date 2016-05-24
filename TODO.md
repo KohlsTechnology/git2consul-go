@@ -20,6 +20,7 @@
 * Run -once flag
 * Support for source_root and mountpoint
 * Support for tags as branches
+* Support for Consul HTTP Basic Auth
 
 ## Bugs/Issues:
 * [x] Need to update diffs on the KV side

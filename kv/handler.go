@@ -1,7 +1,11 @@
 package kv
 
 import (
+	"crypto/tls"
+	"net/http"
+
 	"github.com/apex/log"
+	"github.com/cleung2010/go-git2consul/config"
 	"github.com/hashicorp/consul/api"
 )
 
@@ -10,8 +14,8 @@ type KVHandler struct {
 	logger *log.Entry
 }
 
-func New(config *api.Config) (*KVHandler, error) {
-	client, err := api.NewClient(config)
+func New(config *config.ConsulConfig) (*KVHandler, error) {
+	client, err := newAPIClient(config)
 	if err != nil {
 		return nil, err
 	}
@@ -28,4 +32,35 @@ func New(config *api.Config) (*KVHandler, error) {
 	}
 
 	return handler, nil
+}
+
+func newAPIClient(config *config.ConsulConfig) (*api.Client, error) {
+	consulConfig := api.DefaultConfig()
+
+	if config.Address != "" {
+		consulConfig.Address = config.Address
+	}
+
+	if config.Token != "" {
+		consulConfig.Token = config.Token
+	}
+
+	if config.SSLEnable {
+		consulConfig.Scheme = "https"
+	}
+
+	if !config.SSLVerify {
+		consulConfig.HttpClient.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		}
+	}
+
+	client, err := api.NewClient(consulConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/cleung2010/go-git2consul/kv"
 	"github.com/cleung2010/go-git2consul/repository"
 	"github.com/cleung2010/go-git2consul/repository/watch"
-	"github.com/hashicorp/consul/api"
 )
 
 type Runner struct {
@@ -17,30 +16,30 @@ type Runner struct {
 
 	once bool
 
-	client *api.Client
+	kvHandler *kv.KVHandler
 
 	repos []*repository.Repository
 }
 
 func NewRunner(config *config.Config, once bool) (*Runner, error) {
-	// TODO: Use git2consul configs for the client
-	consulClient, err := api.NewClient(api.DefaultConfig())
-	if err != nil {
-		return nil, err
-	}
-
 	// Create repos from configuration
 	rs, err := repository.LoadRepos(config)
 	if err != nil {
 		return nil, fmt.Errorf("Cannot load repositories from configuration: %s", err)
 	}
 
+	// Create the handler
+	handler, err := kv.New(config.Consul)
+	if err != nil {
+		return nil, err
+	}
+
 	runner := &Runner{
-		ErrCh:  make(chan error),
-		DoneCh: make(chan struct{}, 1),
-		once:   once,
-		client: consulClient,
-		repos:  rs,
+		ErrCh:     make(chan error),
+		DoneCh:    make(chan struct{}, 1),
+		once:      once,
+		kvHandler: handler,
+		repos:     rs,
 	}
 
 	return runner, nil
@@ -48,18 +47,6 @@ func NewRunner(config *config.Config, once bool) (*Runner, error) {
 
 // Start the runner
 func (r *Runner) Start() {
-	handler, err := kv.New(api.DefaultConfig())
-	if err != nil {
-		r.ErrCh <- err
-		return
-	}
-
-	err = handler.HandleInit(r.repos)
-	if err != nil {
-		r.ErrCh <- err
-		return // Return for now
-	}
-
 	rw := watch.New(r.repos)
 	rw.Watch()
 
@@ -71,7 +58,7 @@ func (r *Runner) Start() {
 			log.WithError(err).Error("Watcher error")
 		case repo := <-rw.RepoChangeCh:
 			// Handle change, and return if error on handler
-			err = handler.HandleUpdate(repo)
+			err := r.kvHandler.HandleUpdate(repo)
 			if err != nil {
 				r.ErrCh <- err
 				return

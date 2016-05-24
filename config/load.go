@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/apex/log"
+	"github.com/hashicorp/consul/api"
 )
 
 // Create configuration from a provided file path
@@ -23,24 +24,29 @@ func Load(file string) (*Config, error) {
 	}
 
 	// Create Config object pointer and unmashal JSON into it
-	config := &Config{}
+	config := &Config{
+		Consul: &ConsulConfig{},
+	}
 	err = json.Unmarshal(content, config)
 	if err != nil {
 		return nil, err
 	}
 
 	logger.Info("Setting configuration with sane defaults")
-	err = config.setDefaultConfig()
-	if err != nil {
-		return nil, err
-	}
+	config.setDefaultConfig()
+	config.setDefaultConsulConfig()
 
 	err = config.checkConfig()
 	if err != nil {
 		return nil, err
 	}
 
-	logger.Debugf("Using configuration: %+v", config)
+	jsonConfig, err := json.Marshal(config)
+	if err != nil {
+		return nil, err
+	}
+	logger.Debugf("Using configuration: %s", jsonConfig)
+
 	return config, nil
 }
 
@@ -73,11 +79,16 @@ func (c *Config) checkConfig() error {
 }
 
 // Return a configuration with sane defaults
-func (c *Config) setDefaultConfig() error {
+func (c *Config) setDefaultConfig() {
 
 	// Set the default cache store to be the OS' temp dir
 	if len(c.LocalStore) == 0 {
 		c.LocalStore = os.TempDir()
+	}
+
+	// Set the default webhook port
+	if c.WebhookPort == 0 {
+		c.WebhookPort = 8000
 	}
 
 	//For each repo, set default branch and hook
@@ -98,5 +109,13 @@ func (c *Config) setDefaultConfig() error {
 			repo.Hooks = append(repo.Hooks, hook)
 		}
 	}
-	return nil
+}
+
+// This is to return default values so that the returned JSON is correctly populated
+func (c *Config) setDefaultConsulConfig() {
+	defConfig := api.DefaultConfig()
+
+	if c.Consul.Address == "" {
+		c.Consul.Address = defConfig.Address
+	}
 }

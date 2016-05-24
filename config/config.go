@@ -25,10 +25,22 @@ type Repo struct {
 type Repos []*Repo
 
 type Config struct {
-	Repos      []*Repo `json:"repos"`
-	LocalStore string  `json:"local_store,omitempty"`
+	LocalStore  string        `json:"local_store"`
+	WebhookPort int           `json:"webhook_port"`
+	Repos       []*Repo       `json:"repos"`
+	Consul      *ConsulConfig `json:"consul"`
+}
+
+type ConsulConfig struct {
+	Address   string `json:"address"`
+	Token     string `json:"token,omitempty"`
+	SSLEnable bool   `json:"ssl"`
+	SSLVerify bool   `json:"ssl_verify,omitempty"`
 }
 
 func (r *Repo) String() string {
-	return r.Name
+	if r != nil {
+		return r.Name
+	}
+	return ""
 }

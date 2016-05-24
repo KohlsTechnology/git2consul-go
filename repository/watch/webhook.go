@@ -11,27 +11,27 @@ import (
 )
 
 type GithubPayload struct {
-	Ref string `json:ref`
+	Ref string `json:"ref"`
 }
 
 type StashPayload struct {
 	RefChanges []struct {
-		RefId string `json:refId`
-	} `json:refChanges`
+		RefId string `json:"refId"`
+	} `json:"refChanges"`
 }
 
 type BitbucketPayload struct {
 	Push struct {
 		Changes []struct {
 			New struct {
-				Name string `json:name`
-			} `json:new`
-		} `json:changes`
-	} `json:push`
+				Name string `json:"name"`
+			} `json:"new"`
+		} `json:"changes"`
+	} `json:"push"`
 }
 
 type GitLabPayload struct {
-	Ref string `json:ref`
+	Ref string `json:"ref"`
 }
 
 func (w *Watcher) pollByWebhook(errCh chan<- error) {
@@ -39,7 +39,7 @@ func (w *Watcher) pollByWebhook(errCh chan<- error) {
 	r.HandleFunc("/{repository}/github", w.githubHandler)
 	r.HandleFunc("/{repository}/stash", w.stashHandler)
 	r.HandleFunc("/{repository}/bitbucket", w.bitbucketHandler)
-	r.HandleFunc("/{repository/gitlab}", w.gitlabHandler)
+	r.HandleFunc("/{repository}/gitlab", w.gitlabHandler)
 
 	errCh <- http.ListenAndServe(":8000", r)
 }
