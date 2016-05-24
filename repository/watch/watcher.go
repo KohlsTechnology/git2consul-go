@@ -9,13 +9,12 @@ import (
 
 type Watcher struct {
 	sync.Mutex
+	logger *log.Entry
 
 	Repositories []*repository.Repository
 
 	RepoChangeCh chan *repository.Repository
 	ErrCh        chan error
-
-	logger *log.Entry
 }
 
 func New(repos []*repository.Repository) *Watcher {

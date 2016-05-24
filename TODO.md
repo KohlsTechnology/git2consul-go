@@ -6,8 +6,12 @@
 * [x] Update on KV should be for modified and deleted files only
 * [x] Switch from godep to glide
 * [x] Switch to apex/log
+* [x] Webhook polling
+  * [x] GitHub
+  * [x] Stash
+  * [x] Bitbucket
+  * [x] Gitlab
 * [ ] Accept consul configuration for the client
-* [ ] Webhook polling
 * [ ] Better CI pipeline
 
 ## Future additions:
