@@ -2,6 +2,7 @@ package watch
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"sort"
@@ -34,14 +35,32 @@ type GitLabPayload struct {
 	Ref string `json:"ref"`
 }
 
-func (w *Watcher) pollByWebhook(errCh chan<- error) {
+func (w *Watcher) pollByWebhook() {
+	errCh := make(chan error, 1)
+	// Passing errCh instead of w.ErrCh to better handle watcher termination
+	// since the caller can't determine what type of error it receives from watcher
+	go w.ListenAndServe(errCh)
+
+	for {
+		select {
+		case err := <-errCh:
+			w.ErrCh <- err
+			w.Stop() // Stop the watcher if it's unable to serve
+		case <-w.DoneCh:
+			return
+		}
+	}
+}
+
+func (w *Watcher) ListenAndServe(errCh chan<- error) {
 	r := mux.NewRouter()
 	r.HandleFunc("/{repository}/github", w.githubHandler)
 	r.HandleFunc("/{repository}/stash", w.stashHandler)
 	r.HandleFunc("/{repository}/bitbucket", w.bitbucketHandler)
 	r.HandleFunc("/{repository}/gitlab", w.gitlabHandler)
 
-	errCh <- http.ListenAndServe(":8000", r)
+	addr := fmt.Sprintf(":%d", w.webhookPort)
+	errCh <- http.ListenAndServe(addr, r)
 }
 
 // HTTP handler for github

@@ -76,14 +76,15 @@ func main() {
 
 	for {
 		select {
-		case <-runner.DoneCh:
-			log.Info("Finished execution of git2consul")
-			os.Exit(ExitCodeOk)
+		// case <-runner.DoneCh:
+		// 	log.Info("Finished execution of git2consul")
+		// 	os.Exit(ExitCodeOk)
 		case err := <-runner.ErrCh:
 			log.WithError(err).Error("Runner error")
 			os.Exit(ExitCodeError)
 		case <-signalCh:
-			log.Info("Received interrupt. Terminating git2consul")
+			log.Info("Received interrupt. Cleaning up and terminating git2consul...")
+			runner.Stop()
 			os.Exit(ExitCodeOk)
 		}
 	}

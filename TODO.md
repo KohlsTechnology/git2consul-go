@@ -11,8 +11,10 @@
   * [x] Stash
   * [x] Bitbucket
   * [x] Gitlab
-* [ ] Accept consul configuration for the client
-* [ ] Better CI pipeline
+* [x] Accept consul configuration for the client
+* [ ] Better CD/CI pipeline
+  * [ ] Cross-platform builds
+  * [ ] Travis tests
 
 ## Future additions:
 * File format backend

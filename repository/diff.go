@@ -57,14 +57,6 @@ func (r *Repository) DiffStatus(ref string) ([]git.DiffDelta, error) {
 		return nil, err
 	}
 
-	// log.Debugf("(git)(trace) Diffs from func: %+v | Repo ref: %s | Diff ref: %s", diffs, h.Target().String(), ref)
-
-	// stats, err := diffs.Stats()
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// log.Debugf("(git)(trace) Diffs files changed from func: %d", stats.FilesChanged())
-
 	n, err := diffs.NumDeltas()
 	// log.Debugf("(git)(trace) Diffs num from func: %d", n)
 

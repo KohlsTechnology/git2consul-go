@@ -10,7 +10,7 @@ import (
 
 // Watch the repo by interval. This is called as a go routine since
 // ticker blocks
-func (w *Watcher) pollByInterval(repo *repository.Repository, errCh chan<- error) {
+func (w *Watcher) pollByInterval(repo *repository.Repository) {
 	hooks := repo.Hooks
 	interval := time.Second
 
@@ -34,12 +34,13 @@ func (w *Watcher) pollByInterval(repo *repository.Repository, errCh chan<- error
 	for {
 		err := w.pollBranches(repo)
 		if err != nil {
-			fmt.Println(err)
-			errCh <- err
+			w.ErrCh <- err
 		}
 
 		select {
 		case <-ticker.C:
+		case <-w.DoneCh:
+			return
 		}
 	}
 }
@@ -74,7 +75,12 @@ func (w *Watcher) pollBranches(repo *repository.Repository) error {
 		return nil
 	}
 
-	itr.ForEach(checkoutBranchFn)
+	// HACK: itr.ForEach() doesn't return nil, but instead an empty string
+	//       See: https://github.com/libgit2/git2go/issues/315
+	err = itr.ForEach(checkoutBranchFn)
+	if err != nil && len(err.Error()) > 0 {
+		fmt.Printf("====== itr err: %s", err.Error())
+	}
 
 	return nil
 }
