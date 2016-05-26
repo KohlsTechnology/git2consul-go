@@ -36,6 +36,9 @@ func (w *Watcher) pollByInterval(repo *repository.Repository) {
 		if err != nil {
 			w.ErrCh <- err
 		}
+		if w.once {
+			w.Stop()
+		}
 
 		select {
 		case <-ticker.C:

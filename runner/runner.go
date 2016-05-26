@@ -32,8 +32,7 @@ func NewRunner(config *config.Config, once bool) (*Runner, error) {
 	}
 
 	// Create watcher to watch for repo changes
-	port := config.WebhookPort
-	watcher := watch.New(repos, port)
+	watcher := watch.New(repos, config.HookSvr, once)
 
 	// Create the handler
 	handler, err := kv.New(config.Consul)
@@ -55,13 +54,10 @@ func NewRunner(config *config.Config, once bool) (*Runner, error) {
 
 // Start the runner
 func (r *Runner) Start() {
-	r.watcher.Watch(r.once)
+	go r.watcher.Watch()
 
 	for {
 		select {
-		case err := <-r.watcher.ErrCh:
-			log.WithError(err).Error("Watcher error")
-			// Do no stop the runner if there are errors on the repo watcher
 		case repo := <-r.watcher.RepoChangeCh:
 			// Handle change, and return if error on handler
 			err := r.kvHandler.HandleUpdate(repo)
@@ -69,22 +65,17 @@ func (r *Runner) Start() {
 				r.ErrCh <- err
 				return
 			}
-		case <-r.watcher.DoneCh:
-			log.Info("Watcher reported finish")
-			r.Stop()
 		case <-r.DoneCh:
-			log.Info("Received finish")
+			r.logger.Info("Received finish")
 			return
+		case <-r.watcher.DoneCh: // Mainly for -once, in this case we don't need to call w.Stop()
+			close(r.DoneCh)
 		}
-	}
-
-	// FIXME: This doesn't work atm. Probably needs donCh on watches to block
-	// until underlying goroutines are done before we can report back to r.DoneCh
-	if r.once {
-		r.DoneCh <- struct{}{}
 	}
 }
 
+// Stop the runner, cleaning up any routines that it's running. In this case, it will stop
+// the watcher before closing DoneCh
 func (r *Runner) Stop() {
 	r.logger.Info("Stopping runner")
 	r.watcher.Stop()

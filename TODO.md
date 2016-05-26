@@ -12,17 +12,10 @@
   * [x] Bitbucket
   * [x] Gitlab
 * [x] Accept consul configuration for the client
+* [x] Add -once flag to run git2consul once
 * [ ] Better CD/CI pipeline
   * [ ] Cross-platform builds
   * [ ] Travis tests
-
-## Future additions:
-* File format backend
-* Improve on mutex locks
-* Run -once flag
-* Support for source_root and mountpoint
-* Support for tags as branches
-* Support for Consul HTTP Basic Auth
 
 ## Bugs/Issues:
 * [x] Need to update diffs on the KV side
@@ -30,7 +23,7 @@
   * [x] Delete untracked files
 * [x] If repositories slice is empty, stop the program
 * [x] Directory check has to check if it's a repository first
-* [ ] Runner, and watchers need a Stop() to handle cleanup better
+* [x] Runner, and watchers need a Stop() to handle cleanup better
 
 ## Error handling:
 * [x] Better error handling on LoadRepos()

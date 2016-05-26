@@ -25,10 +25,15 @@ type Repo struct {
 type Repos []*Repo
 
 type Config struct {
-	LocalStore  string        `json:"local_store"`
-	WebhookPort int           `json:"webhook_port"`
-	Repos       []*Repo       `json:"repos"`
-	Consul      *ConsulConfig `json:"consul"`
+	LocalStore string         `json:"local_store"`
+	HookSvr    *HookSvrConfig `json:"webhook"`
+	Repos      []*Repo        `json:"repos"`
+	Consul     *ConsulConfig  `json:"consul"`
+}
+
+type HookSvrConfig struct {
+	Address string `json:"address,omitempty"`
+	Port    int    `json:"port"`
 }
 
 type ConsulConfig struct {

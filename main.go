@@ -76,15 +76,15 @@ func main() {
 
 	for {
 		select {
-		// case <-runner.DoneCh:
-		// 	log.Info("Finished execution of git2consul")
-		// 	os.Exit(ExitCodeOk)
 		case err := <-runner.ErrCh:
 			log.WithError(err).Error("Runner error")
 			os.Exit(ExitCodeError)
+		case <-runner.DoneCh: // Used for cases like -once
+			os.Exit(ExitCodeOk)
 		case <-signalCh:
 			log.Info("Received interrupt. Cleaning up and terminating git2consul...")
 			runner.Stop()
+			// time.Sleep(1 * time.Second) // FIXME: Somehow needs sleep or cleanup occurs too fast
 			os.Exit(ExitCodeOk)
 		}
 	}

@@ -1,15 +1,16 @@
 # go-git2consul
 
-go-git2consul is a port of [git2consul](https://github.com/Cimpress-MCP/git2consul), which had great success and adoption. go-git2consul takes on the same basic principles as its predecessor, and attempts to improve in some of it's feature sets. There are a few advantages to go-git2consul, including the use of the official Consul API, which is written in Go, and removing runtime dependencies such as node and git.
+go-git2consul is a port of [git2consul](https://github.com/Cimpress-MCP/git2consul), which had great success and adoption. go-git2consul takes on the same basic principles as its predecessor, and attempts to improve upon some of its feature sets as well as add new ones. There are a few advantages to go-git2consul, including the use of the official Consul API, which is written in Go, and removing runtime dependencies such as node and git.
 
 ## Default configuration
 
 git2consul will attempt to use sane defaults for configuration. However, since git2consul needs to know which repository to pull from, minimal configuration is necessary.
 
-| Configuration        | Required | Default Value  | Avail. Values                              | Description
+| Configuration        | Required | Default Value  | Available Values                           | Description
 |----------------------|----------|----------------|--------------------------------------------| -----------
 | local_store          | no       | `os.TempDir()` | `string`                                   | Local cache for git2consul to store its tracked repositories
-| webhook_port         | no       | 9000           | `int`                                      | Webhook port that that git2consul will be using
+| webhook:address      | no       |                | `string`                                   | Webhook listener address that that git2consul will be using
+| webhook:port         | no       | 9000           | `int`                                      | Webhook listener port that that git2consul will be using
 | repos:name           | yes      |                | `string`                                   | Name of the repository. This will match the webhook path, if any are enabled
 | repos:url            | yes      |                | `string`                                   | The URL of the repository
 | repos:branches       | no       | master         | `string`                                   | Tracking branches of the repository
@@ -22,14 +23,24 @@ git2consul will attempt to use sane defaults for configuration. However, since g
 
 ## Webhooks
 
-Webhooks will be served from a single port, and different repositories will be given different endpoints
+Webhooks will be served from a single port, and different repositories will be given different endpoints according to their name
 
 Available endpoints:
 
-* 0.0.0.0:<webhook_port>/{repository}/github
-* 0.0.0.0:<webhook_port>/{repository}/stash
-* 0.0.0.0:<webhook_port>/{repository}/bitbucket
-* 0.0.0.0:<webhook_port>/{repository}/gitlab
+* <webhook:address>:<webhook:port>/{repository}/github
+* <webhook:address>:<webhook:port>/{repository}/stash
+* <webhook:address>:<webhook:port>/{repository}/bitbucket
+* <webhook:address>:<webhook:port>/{repository}/gitlab
+
+## Future feature additions
+* File format backend
+* Run -once flag
+* Support for source_root and mountpoint
+* Support for tags as branches
+* Support for Consul HTTP Basic Auth
+* Logger support for other handlers other than text
+* Auth support for webhooks banckends
+
 
 ## Development dependencies:
 * Go 1.6

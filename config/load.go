@@ -25,7 +25,8 @@ func Load(file string) (*Config, error) {
 
 	// Create Config object pointer and unmashal JSON into it
 	config := &Config{
-		Consul: &ConsulConfig{},
+		Consul:  &ConsulConfig{},
+		HookSvr: &HookSvrConfig{},
 	}
 	err = json.Unmarshal(content, config)
 	if err != nil {
@@ -87,8 +88,8 @@ func (c *Config) setDefaultConfig() {
 	}
 
 	// Set the default webhook port
-	if c.WebhookPort == 0 {
-		c.WebhookPort = 8000
+	if c.HookSvr.Port == 0 {
+		c.HookSvr.Port = 9000
 	}
 
 	//For each repo, set default branch and hook

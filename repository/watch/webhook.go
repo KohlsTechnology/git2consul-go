@@ -59,7 +59,7 @@ func (w *Watcher) ListenAndServe(errCh chan<- error) {
 	r.HandleFunc("/{repository}/bitbucket", w.bitbucketHandler)
 	r.HandleFunc("/{repository}/gitlab", w.gitlabHandler)
 
-	addr := fmt.Sprintf(":%d", w.webhookPort)
+	addr := fmt.Sprintf("%s:%d", w.hookSvr.Address, w.hookSvr.Port)
 	errCh <- http.ListenAndServe(addr, r)
 }
 
