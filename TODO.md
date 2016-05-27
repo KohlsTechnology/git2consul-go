@@ -24,6 +24,7 @@
 * [x] If repositories slice is empty, stop the program
 * [x] Directory check has to check if it's a repository first
 * [x] Runner, and watchers need a Stop() to handle cleanup better
+* [ ] Handle DoneCh better on both the watcher and runner
 
 ## Error handling:
 * [x] Better error handling on LoadRepos()

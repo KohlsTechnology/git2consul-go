@@ -79,13 +79,12 @@ func main() {
 		case err := <-runner.ErrCh:
 			log.WithError(err).Error("Runner error")
 			os.Exit(ExitCodeError)
-		case <-runner.DoneCh: // Used for cases like -once
+		case <-runner.SndDoneCh: // Used for cases like -once, where program is not terminated by interrupt
+			log.Info("Terminating git2consul")
 			os.Exit(ExitCodeOk)
 		case <-signalCh:
-			log.Info("Received interrupt. Cleaning up and terminating git2consul...")
+			log.Info("Received interrupt. Cleaning up...")
 			runner.Stop()
-			// time.Sleep(1 * time.Second) // FIXME: Somehow needs sleep or cleanup occurs too fast
-			os.Exit(ExitCodeOk)
 		}
 	}
 }

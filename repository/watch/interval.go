@@ -2,6 +2,7 @@ package watch
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/cleung2010/go-git2consul/repository"
@@ -10,7 +11,9 @@ import (
 
 // Watch the repo by interval. This is called as a go routine since
 // ticker blocks
-func (w *Watcher) pollByInterval(repo *repository.Repository) {
+func (w *Watcher) pollByInterval(repo *repository.Repository, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	hooks := repo.Hooks
 	interval := time.Second
 
@@ -36,13 +39,14 @@ func (w *Watcher) pollByInterval(repo *repository.Repository) {
 		if err != nil {
 			w.ErrCh <- err
 		}
+
 		if w.once {
-			w.Stop()
+			return
 		}
 
 		select {
 		case <-ticker.C:
-		case <-w.DoneCh:
+		case <-w.RcvDoneCh:
 			return
 		}
 	}

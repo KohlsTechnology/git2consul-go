@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sort"
+	"sync"
 
 	"github.com/gorilla/mux"
 	"gopkg.in/libgit2/git2go.v24"
@@ -35,7 +36,13 @@ type GitLabPayload struct {
 	Ref string `json:"ref"`
 }
 
-func (w *Watcher) pollByWebhook() {
+func (w *Watcher) pollByWebhook(wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	if w.once {
+		return
+	}
+
 	errCh := make(chan error, 1)
 	// Passing errCh instead of w.ErrCh to better handle watcher termination
 	// since the caller can't determine what type of error it receives from watcher
@@ -45,8 +52,8 @@ func (w *Watcher) pollByWebhook() {
 		select {
 		case err := <-errCh:
 			w.ErrCh <- err
-			w.Stop() // Stop the watcher if it's unable to serve
-		case <-w.DoneCh:
+			close(w.RcvDoneCh) // Stop the watcher if there is a
+		case <-w.RcvDoneCh:
 			return
 		}
 	}

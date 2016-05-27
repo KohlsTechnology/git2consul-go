@@ -16,7 +16,8 @@ type Watcher struct {
 
 	RepoChangeCh chan *repository.Repository
 	ErrCh        chan error
-	DoneCh       chan struct{}
+	RcvDoneCh    chan struct{}
+	SndDoneCh    chan struct{}
 
 	hookSvr *config.HookSvrConfig
 	once    bool
@@ -26,15 +27,14 @@ type Watcher struct {
 // listener config, and optional once flag
 func New(repos []*repository.Repository, hookSvr *config.HookSvrConfig, once bool) *Watcher {
 	repoChangeCh := make(chan *repository.Repository, len(repos))
-	errCh := make(chan error)
-	doneCh := make(chan struct{}, 1)
 	logger := log.WithField("caller", "watcher")
 
 	return &Watcher{
 		Repositories: repos,
 		RepoChangeCh: repoChangeCh,
-		ErrCh:        errCh,
-		DoneCh:       doneCh,
+		ErrCh:        make(chan error),
+		RcvDoneCh:    make(chan struct{}, 1),
+		SndDoneCh:    make(chan struct{}, 1),
 		logger:       logger,
 		hookSvr:      hookSvr,
 		once:         once,
@@ -43,26 +43,42 @@ func New(repos []*repository.Repository, hookSvr *config.HookSvrConfig, once boo
 
 // Watch repositories available to the watcher
 func (w *Watcher) Watch() {
+	defer close(w.SndDoneCh)
+
+	var wg sync.WaitGroup
+
+	// WaitGroup size is equal to number of interval goroutine plus webhook goroutine
+	wg.Add(len(w.Repositories) + 1)
+
 	for _, repo := range w.Repositories {
-		go w.pollByInterval(repo)
+		go w.pollByInterval(repo, &wg)
 	}
 
-	go w.pollByWebhook()
+	go w.pollByWebhook(&wg)
+
+	go func() {
+		wg.Wait()
+		// Only exit if it's -once, otherwise there might be webhook polling
+		if w.once {
+			w.Stop()
+			return
+		}
+	}()
 
 	for {
 		select {
 		case err := <-w.ErrCh:
 			log.WithError(err).Error("Watcher error")
-		case <-w.DoneCh:
+		case <-w.RcvDoneCh:
 			w.logger.Info("Received finish")
+			wg.Wait()
 			return
 		}
 	}
-
 }
 
 // Stop watching for changes. It will stop interval and webhook polling
 func (w *Watcher) Stop() {
-	w.logger.Info("Stopping watcher")
-	close(w.DoneCh)
+	w.logger.Info("Stopping watcher...")
+	close(w.RcvDoneCh)
 }

@@ -13,7 +13,12 @@ import (
 type Runner struct {
 	logger *log.Entry
 	ErrCh  chan error
-	DoneCh chan struct{}
+
+	// Channel that receives done signal
+	RcvDoneCh chan struct{}
+
+	// Channel that sends done signal
+	SndDoneCh chan struct{}
 
 	once bool
 
@@ -43,7 +48,8 @@ func NewRunner(config *config.Config, once bool) (*Runner, error) {
 	runner := &Runner{
 		logger:    logger,
 		ErrCh:     make(chan error),
-		DoneCh:    make(chan struct{}, 1),
+		RcvDoneCh: make(chan struct{}, 1),
+		SndDoneCh: make(chan struct{}, 1),
 		once:      once,
 		kvHandler: handler,
 		watcher:   watcher,
@@ -54,6 +60,8 @@ func NewRunner(config *config.Config, once bool) (*Runner, error) {
 
 // Start the runner
 func (r *Runner) Start() {
+	defer close(r.SndDoneCh)
+
 	go r.watcher.Watch()
 
 	for {
@@ -65,11 +73,12 @@ func (r *Runner) Start() {
 				r.ErrCh <- err
 				return
 			}
-		case <-r.DoneCh:
+		case <-r.watcher.SndDoneCh: // This triggers when watcher gets an error that causes termination
+			r.logger.Info("Watcher received finish")
+			return
+		case <-r.RcvDoneCh:
 			r.logger.Info("Received finish")
 			return
-		case <-r.watcher.DoneCh: // Mainly for -once, in this case we don't need to call w.Stop()
-			close(r.DoneCh)
 		}
 	}
 }
@@ -77,7 +86,8 @@ func (r *Runner) Start() {
 // Stop the runner, cleaning up any routines that it's running. In this case, it will stop
 // the watcher before closing DoneCh
 func (r *Runner) Stop() {
-	r.logger.Info("Stopping runner")
+	r.logger.Info("Stopping runner...")
 	r.watcher.Stop()
-	close(r.DoneCh)
+	<-r.watcher.SndDoneCh // NOTE: Might need a timeout to prevent blocking forever
+	close(r.RcvDoneCh)
 }
