@@ -21,20 +21,31 @@ git2consul will attempt to use sane defaults for configuration. However, since g
 | consul:ssl_verify    | no       | false          | true, false                                | Whether to verify certificates when connecting via SSL
 | consul:token         | no       |                | `string`                                   | Consul API Token
 
+## Available command option flags
+
+### `-config`
+The path to the configuration file. This flag is *required*.
+
+### `-once`
+Runs git2consul once and exits. This essentially ignores webhook polling
+
+
+### `-v`
+Displays the version of git2consul
+
 ## Webhooks
 
 Webhooks will be served from a single port, and different repositories will be given different endpoints according to their name
 
 Available endpoints:
 
-* <webhook:address>:<webhook:port>/{repository}/github
-* <webhook:address>:<webhook:port>/{repository}/stash
-* <webhook:address>:<webhook:port>/{repository}/bitbucket
-* <webhook:address>:<webhook:port>/{repository}/gitlab
+* `<webhook:address>:<webhook:port>/{repository}/github`
+* `<webhook:address>:<webhook:port>/{repository}/stash`
+* `<webhook:address>:<webhook:port>/{repository}/bitbucket`
+* `<webhook:address>:<webhook:port>/{repository}/gitlab`
 
 ## Future feature additions
 * File format backend
-* Run -once flag
 * Support for source_root and mountpoint
 * Support for tags as branches
 * Support for Consul HTTP Basic Auth
@@ -42,7 +53,7 @@ Available endpoints:
 * Auth support for webhooks banckends
 
 
-## Development dependencies:
+## Development dependencies
 * Go 1.6
 * libgit2 v0.24.0
 * [glide](https://github.com/Masterminds/glide)
