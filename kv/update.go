@@ -2,7 +2,7 @@ package kv
 
 import (
 	"github.com/apex/log"
-	"github.com/cleung2010/go-git2consul/repository"
+	"github.com/Cimpress-MCP/go-git2consul/repository"
 )
 
 // Handles the update of a particular repository by comparing diffs against

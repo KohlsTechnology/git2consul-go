@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cleung2010/go-git2consul/repository"
+	"github.com/Cimpress-MCP/go-git2consul/repository"
 	"gopkg.in/libgit2/git2go.v24"
 )
 

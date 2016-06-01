@@ -4,8 +4,8 @@ import (
 	"sync"
 
 	"github.com/apex/log"
-	"github.com/cleung2010/go-git2consul/config"
-	"github.com/cleung2010/go-git2consul/repository"
+	"github.com/Cimpress-MCP/go-git2consul/config"
+	"github.com/Cimpress-MCP/go-git2consul/repository"
 )
 
 type Watcher struct {

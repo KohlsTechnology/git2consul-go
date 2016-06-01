@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/cleung2010/go-git2consul/config"
+	"github.com/Cimpress-MCP/go-git2consul/config"
 	"gopkg.in/libgit2/git2go.v24"
 )
 

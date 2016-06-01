@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/cleung2010/go-git2consul/repository"
+	"github.com/Cimpress-MCP/go-git2consul/repository"
 	"github.com/hashicorp/consul/api"
 )
 

@@ -9,8 +9,8 @@ import (
 
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/text"
-	"github.com/cleung2010/go-git2consul/config"
-	"github.com/cleung2010/go-git2consul/runner"
+	"github.com/Cimpress-MCP/go-git2consul/config"
+	"github.com/Cimpress-MCP/go-git2consul/runner"
 )
 
 const (

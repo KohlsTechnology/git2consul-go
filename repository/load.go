@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/cleung2010/go-git2consul/config"
+	"github.com/Cimpress-MCP/go-git2consul/config"
 )
 
 // Populates Repository slice from configuration. It also

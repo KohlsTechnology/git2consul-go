@@ -1,4 +1,4 @@
-package: github.com/cleung2010/go-git2consul
+package: github.com/Cimpress-MCP/go-git2consul
 import:
 - package: github.com/hashicorp/consul
   subpackages:
