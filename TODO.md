@@ -15,7 +15,7 @@
 * [x] Add -once flag to run git2consul once
 * [ ] Better CD/CI pipeline
   * [ ] Cross-platform builds
-  * [ ] Travis tests
+  * [ ] Travis/appveyor
 
 ## Bugs/Issues:
 * [x] Need to update diffs on the KV side
@@ -25,12 +25,13 @@
 * [x] Directory check has to check if it's a repository first
 * [x] Runner, and watchers need a Stop() to handle cleanup better
 * [x] Handle DoneCh better on both the watcher and runner
-* [ ] Handle initial load state better
-  * [ ] Watcher should handle initial changes from load state
+* [x] Handle initial load state better
+  * [x] Watcher should handle initial changes from load state
 
 ## Error handling:
 * [x] Better error handling on LoadRepos()
   * [x] Bad configuration should be ignored
+* [ ] Handle repository error with git reset or re-clone
 
 ## Repo delta KV handling:
 * [x] On added, modified: PUT KV

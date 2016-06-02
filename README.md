@@ -1,6 +1,10 @@
 # go-git2consul
 
-go-git2consul is a port of [git2consul](https://github.com/Cimpress-MCP/git2consul), which had great success and adoption. go-git2consul takes on the same basic principles as its predecessor, and attempts to improve upon some of its feature sets as well as add new ones. There are a few advantages to go-git2consul, including the use of the official Consul API, which is written in Go, and removing runtime dependencies such as node and git.
+***NOTE: go-git2consul is experimental and still under development, and therefore should not be used in production!***
+
+go-git2consul is a port of [git2consul](https://github.com/Cimpress-MCP/git2consul), which had great success and adoption. go-git2consul takes on the same basic principles as its predecessor, and attempts to improve upon some of its feature sets as well as add new ones. There are a few advantages to go-git2consul, including, but is not limited to, the use of the official Consul API and the removal of runtime dependencies such as node and git.
+
+Configuration on go-git2consul is sourced locally instead of it being fetched from the KV. This provides better isolation in cases where multiple instances of git2consul are running in order to provide high-availability, and addresses the issues mentioned in [Cimpress-MCP/git2consul#73](https://github.com/Cimpress-MCP/git2consul/issues/73).
 
 ## Default configuration
 
@@ -27,11 +31,10 @@ git2consul will attempt to use sane defaults for configuration. However, since g
 The path to the configuration file. This flag is *required*.
 
 ### `-once`
-Runs git2consul once and exits. This essentially ignores webhook polling
-
+Runs git2consul once and exits. This essentially ignores webhook polling.
 
 ### `-v`
-Displays the version of git2consul
+Displays the version of git2consul and exits. All other commands are ignored.
 
 ## Webhooks
 
