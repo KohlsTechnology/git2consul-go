@@ -3,9 +3,9 @@ package watch
 import (
 	"sync"
 
-	"github.com/apex/log"
 	"github.com/Cimpress-MCP/go-git2consul/config"
 	"github.com/Cimpress-MCP/go-git2consul/repository"
+	"github.com/apex/log"
 )
 
 type Watcher struct {
@@ -45,9 +45,13 @@ func New(repos []*repository.Repository, hookSvr *config.HookSvrConfig, once boo
 func (w *Watcher) Watch() {
 	defer close(w.SndDoneCh)
 
-	var wg sync.WaitGroup
+	// Pass repositories to RepoChangeCh for initial update to the KV
+	for _, repo := range w.Repositories {
+		w.RepoChangeCh <- repo
+	}
 
 	// WaitGroup size is equal to number of interval goroutine plus webhook goroutine
+	var wg sync.WaitGroup
 	wg.Add(len(w.Repositories) + 1)
 
 	for _, repo := range w.Repositories {

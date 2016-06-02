@@ -1,7 +1,6 @@
 package watch
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -82,11 +81,9 @@ func (w *Watcher) pollBranches(repo *repository.Repository) error {
 		return nil
 	}
 
-	// HACK: itr.ForEach() doesn't return nil, but instead an empty string
-	//       See: https://github.com/libgit2/git2go/issues/315
 	err = itr.ForEach(checkoutBranchFn)
-	if err != nil && len(err.Error()) > 0 {
-		fmt.Printf("====== itr err: %s", err.Error())
+	if err != nil && !git.IsErrorCode(err, git.ErrIterOver) {
+		return err
 	}
 
 	return nil

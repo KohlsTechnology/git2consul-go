@@ -67,7 +67,7 @@ func (r *Repository) init() (int, error) {
 
 	// Case: Directory doesn't exist
 	if os.IsNotExist(err) || fi.IsDir() == false {
-		// log.Infof("(git): Repository %s not cached, cloning to %s", cRepo.Name, store)
+		// log.Printf("(git): Repository %s not cached, cloning to %s", r.Name(), r.store)
 		err := os.Mkdir(r.store, 0755)
 		if err != nil {
 			return RepositoryError, err
@@ -87,7 +87,7 @@ func (r *Repository) init() (int, error) {
 	// Case: Not a git repository, remove directory and clone
 	_, err = os.Stat(filepath.Join(r.store, ".git"))
 	if os.IsNotExist(err) {
-		// log.Warnf("(git): %s exists locally, overwritting", cRepo.Name)
+		// log.Printf("(git): %s exists locally, overwritting", r.Name())
 		err := os.RemoveAll(r.store)
 		if err != nil {
 			return RepositoryError, err

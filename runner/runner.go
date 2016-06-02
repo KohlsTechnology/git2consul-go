@@ -3,11 +3,11 @@ package runner
 import (
 	"fmt"
 
-	"github.com/apex/log"
 	"github.com/Cimpress-MCP/go-git2consul/config"
 	"github.com/Cimpress-MCP/go-git2consul/kv"
 	"github.com/Cimpress-MCP/go-git2consul/repository"
 	"github.com/Cimpress-MCP/go-git2consul/repository/watch"
+	"github.com/apex/log"
 )
 
 type Runner struct {

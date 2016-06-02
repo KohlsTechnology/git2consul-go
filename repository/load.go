@@ -5,11 +5,15 @@ import (
 	"path/filepath"
 
 	"github.com/Cimpress-MCP/go-git2consul/config"
+	"github.com/apex/log"
 )
 
 // Populates Repository slice from configuration. It also
 // handles cloning of the repository if not present
 func LoadRepos(cfg *config.Config) ([]*Repository, error) {
+	logger := log.WithFields(log.Fields{
+		"caller": "repository",
+	})
 	repos := []*Repository{}
 
 	// Create Repository object for each repo
@@ -23,9 +27,9 @@ func LoadRepos(cfg *config.Config) ([]*Repository, error) {
 
 		switch state {
 		case RepositoryCloned:
-			//log.Infof("Cloned repository %s", r.Name())
+			logger.Infof("Cloned repository %s", r.Name())
 		case RepositoryOpened:
-			//log.Infof("Loaded repository %s", r.Name())
+			logger.Infof("Loaded repository %s", r.Name())
 		}
 
 		repos = append(repos, r)

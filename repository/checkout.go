@@ -58,7 +58,11 @@ func (r *Repository) checkoutConfigBranches() error {
 		return nil
 	}
 
-	itr.ForEach(checkoutBranchFn)
+	err = itr.ForEach(checkoutBranchFn)
+
+	if err != nil && !git.IsErrorCode(err, git.ErrIterOver) {
+		return err
+	}
 
 	return nil
 }
