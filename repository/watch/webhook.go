@@ -119,8 +119,8 @@ func (w *Watcher) githubHandler(rw http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	w.logger.Info("Received hook event from GitHub")
 	repo := w.Repositories[i]
+	w.logger.WithField("repository", repo.Name()).Info("Received hook event from GitHub")
 	analysis, err := repo.Pull(branchName)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
@@ -176,8 +176,8 @@ func (w *Watcher) stashHandler(rw http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	w.logger.Info("Received hook event from Stash")
 	repo := w.Repositories[i]
+	w.logger.WithField("repository", repo.Name()).Info("Received hook event from Stash")
 	analysis, err := repo.Pull(branchName)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
@@ -243,8 +243,8 @@ func (w *Watcher) bitbucketHandler(rw http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	w.logger.Info("Received hook event from Bitbucket")
 	repo := w.Repositories[i]
+	w.logger.WithField("repository", repo.Name()).Info("Received hook event from Bitbucket")
 	analysis, err := repo.Pull(branchName)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
@@ -309,8 +309,8 @@ func (w *Watcher) gitlabHandler(rw http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	w.logger.Info("Received hook event from GitLab")
 	repo := w.Repositories[i]
+	w.logger.WithField("repository", repo.Name()).Info("Received hook event from GitLab")
 	analysis, err := repo.Pull(branchName)
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)

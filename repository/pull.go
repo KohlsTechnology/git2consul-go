@@ -85,32 +85,7 @@ func (r *Repository) Pull(branchName string) (git.MergeAnalysis, error) {
 		}
 	}
 
-	// if analysis&git.MergeAnalysisUpToDate != 0 { // On up-to-date merge
-	// 	log.Debugf("(git) Skipping pull on repository %s/%s. Already up to date", r.repoConfig.Name, branchName)
-	// } else if analysis&git.MergeAnalysisFastForward != 0 { // On fast-forward merge
-	// 	log.Infof("(git) Changes detected on repository %s/%s, Fast-forwarding", r.repoConfig.Name, branchName)
-	//
-	// 	if err := r.Merge(mergeHeads, nil, nil); err != nil {
-	// 		return 0, err
-	// 	}
-	//
-	// 	defer func() { r.changeCh <- struct{}{} }()
-	//
-	// } else if analysis&git.MergeAnalysisNormal != 0 { // On normal merge
-	// 	log.Infof("(git) Changes detected on repository %s. Pulling commits from branch %s", r.repoConfig.Name, branchName)
-	//
-	// 	if err := r.Merge(mergeHeads, nil, nil); err != nil {
-	// 		return err
-	// 	}
-	// }
-
-	// Update refs on heads (local) from remotes
-	// if _, err = head.SetTarget(remoteBranchRef.Target(), ""); err != nil {
-	// 	return 0, err
-	// }
-
 	defer head.Free()
-
 	defer r.StateCleanup()
 	return analysis, nil
 }
