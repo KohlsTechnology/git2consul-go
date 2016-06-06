@@ -8,7 +8,7 @@ test: generate
 	@echo " ==> Running tests..."
 	@go list $(TEST) \
 		| grep -v "/vendor/" \
-		| xargs -n1 go test -timeout=60s $(TESTARGS)
+		| xargs -n1 go test -v -timeout=60s $(TESTARGS)
 
 generate:
 	@echo " ==> Generating..."

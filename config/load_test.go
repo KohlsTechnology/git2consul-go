@@ -3,7 +3,14 @@ package config
 import (
 	"path/filepath"
 	"testing"
+
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/discard"
 )
+
+func init() {
+	log.SetHandler(discard.New())
+}
 
 func TestLoad(t *testing.T) {
 	file := filepath.Join("test-fixtures", "local.json")

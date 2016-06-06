@@ -40,18 +40,30 @@
 
 ## Test coverage
 * [ ] Repository
+  * [x] New
   * [x] Clone
   * [x] Load
-  * [x] Poll
   * [ ] Pull
   * [ ] Ref
-  * [ ] Checkout
+  * [x] Checkout
 * [x] Config
   * [x] Load
 * [ ] Runner
-  * [ ] Watch
-  * [ ] KV
+* [ ] Watch
+  * [ ] Watcher
+  * [ ] Interval
+  * [ ] Webhook
+* [ ] KV
   * [ ] Handler
+  * [ ] Branch
+  * [ ] KV
+  * [ ] InitHandler
+  * [ ] UpdateHandler
+
+* [ ] git-init on repo should be done on init()
+* [ ] Setup and teardown for each test during
+  * [ ] Setup resets "remote" repo to initial commit
+  * [ ] Teardown cleans local store
 
 ## Webhook polling
 Will be served from a single port, and different repos will be given different endpoints

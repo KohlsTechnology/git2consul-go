@@ -4,16 +4,18 @@ import (
 	"os"
 	"path"
 	"testing"
+
+	"github.com/Cimpress-MCP/go-git2consul/testutil"
 )
 
 func TestClone(t *testing.T) {
-	repo, cleanup := tempGitInitPath(t)
+	gitRepo, cleanup := testutil.GitInitTestRepo(t)
 	defer cleanup()
 
-	cfg := loadConfig(t)
+	cfg := testutil.LoadTestConfig(t)
 
 	r := &Repository{
-		Repository: repo,
+		Repository: gitRepo,
 		repoConfig: cfg.Repos[0],
 		store:      path.Join(cfg.LocalStore, cfg.Repos[0].Name),
 	}
