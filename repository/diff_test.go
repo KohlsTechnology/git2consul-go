@@ -20,7 +20,7 @@ func TestDiffStatus(t *testing.T) {
 	repo := repos[0]
 
 	// Push a commit to the repository
-	cleanup = testutil.TempCommitTestRepo(t)
+	_, cleanup = testutil.TempCommitTestRepo(t)
 
 	_, err = repo.Pull("master")
 	if err != nil {

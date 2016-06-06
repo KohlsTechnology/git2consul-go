@@ -67,7 +67,7 @@ func TestLoadRepos_bareDir(t *testing.T) {
 }
 
 func TestLoadRepos_invalidRepo(t *testing.T) {
-	cfgPath := filepath.Join("test-fixtures", "example.json")
+	cfgPath := filepath.Join(testutil.FixturesPath(t), "example.json")
 	cfg, err := config.Load(cfgPath)
 	if err != nil {
 		t.Fatal(err)

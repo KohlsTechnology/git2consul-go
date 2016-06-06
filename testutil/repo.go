@@ -138,7 +138,7 @@ func LoadTestConfig(t *testing.T) *config.Config {
 	return cfg
 }
 
-func TempCommitTestRepo(t *testing.T) func() {
+func TempCommitTestRepo(t *testing.T) (*git.Oid, func()) {
 	// Save commmit ref for reset later
 	h, err := testRepo.Head()
 	if err != nil {
@@ -191,7 +191,7 @@ func TempCommitTestRepo(t *testing.T) func() {
 		When:  time.Date(2016, 01, 01, 12, 00, 00, 0, time.UTC),
 	}
 
-	_, err = testRepo.CreateCommit("HEAD", sig, sig, "Update commit", tree, commit)
+	oid, err := testRepo.CreateCommit("HEAD", sig, sig, "Update commit", tree, commit)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -205,5 +205,5 @@ func TempCommitTestRepo(t *testing.T) func() {
 		testRepo.StateCleanup()
 	}
 
-	return cleanup
+	return oid, cleanup
 }

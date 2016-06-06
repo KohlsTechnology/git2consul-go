@@ -60,6 +60,7 @@
   * [ ] InitHandler
   * [ ] UpdateHandler
 
+Test suite enhancement:
 * [ ] git-init on repo should be done on init()
 * [ ] Setup and teardown for each test during
   * [ ] Setup resets "remote" repo to initial commit
