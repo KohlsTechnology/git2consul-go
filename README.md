@@ -60,3 +60,6 @@ Available endpoints:
 * Go 1.6
 * libgit2 v0.24.0
 * [glide](https://github.com/Masterminds/glide)
+
+
+*Influenced by these awesome tools: git2consul, consul-replicate, fabio*

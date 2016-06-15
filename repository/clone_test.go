@@ -16,7 +16,7 @@ func TestClone(t *testing.T) {
 
 	r := &Repository{
 		Repository: gitRepo,
-		repoConfig: cfg.Repos[0],
+		Config:     cfg.Repos[0],
 		store:      path.Join(cfg.LocalStore, cfg.Repos[0].Name),
 	}
 

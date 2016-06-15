@@ -2,7 +2,6 @@ package repository
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/Cimpress-MCP/go-git2consul/config"
 	"github.com/apex/log"
@@ -18,9 +17,7 @@ func LoadRepos(cfg *config.Config) ([]*Repository, error) {
 
 	// Create Repository object for each repo
 	for _, repoConfig := range cfg.Repos {
-		repoPath := filepath.Join(cfg.LocalStore, repoConfig.Name)
-
-		r, state, err := New(repoPath, repoConfig)
+		r, state, err := New(cfg.LocalStore, repoConfig)
 		if err != nil {
 			return repos, err
 		}

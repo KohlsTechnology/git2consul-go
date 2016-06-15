@@ -13,7 +13,7 @@ import (
 func (w *Watcher) pollByInterval(repo *repository.Repository, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	hooks := repo.Hooks
+	hooks := repo.Config.Hooks
 	interval := time.Second
 
 	// Find polling hook

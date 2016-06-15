@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/apex/log"
 	"github.com/Cimpress-MCP/go-git2consul/repository"
+	"github.com/apex/log"
 	"github.com/hashicorp/consul/api"
 	"gopkg.in/libgit2/git2go.v24"
 )
@@ -55,8 +55,6 @@ func (h *KVHandler) putBranch(repo *repository.Repository, branch *git.Branch) e
 		if err != nil {
 			return err
 		}
-
-		// log.Debugf("(consul) pushBranch(): Data: %s", data)
 
 		p := &api.KVPair{
 			Key:   kvPath,
