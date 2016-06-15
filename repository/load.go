@@ -19,7 +19,7 @@ func LoadRepos(cfg *config.Config) ([]*Repository, error) {
 	for _, repoConfig := range cfg.Repos {
 		r, state, err := New(cfg.LocalStore, repoConfig)
 		if err != nil {
-			return repos, err
+			return nil, fmt.Errorf("Error loading %s: %s", repoConfig.Name, err)
 		}
 
 		switch state {

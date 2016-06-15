@@ -7,6 +7,7 @@ import (
 )
 
 // Clone the repository. Cloning will only checkout tracked branches
+// A destination path to clone to needs to be provided
 func (r *Repository) Clone(path string) error {
 	r.Lock()
 	defer r.Unlock()

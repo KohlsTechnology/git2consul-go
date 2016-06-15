@@ -19,7 +19,7 @@ type Repository struct {
 }
 
 const (
-	RepositoryError = iota
+	RepositoryError = iota // Unused, it will always get returned with an err
 	RepositoryCloned
 	RepositoryOpened
 )
@@ -63,87 +63,43 @@ func New(repoBasePath string, repoConfig *config.Repo) (*Repository, int, error)
 	return r, state, nil
 }
 
-// Attempt to create *git.Repository object, whether by cloning or opening.
-// This method also returns the state of the repository creation for loggging
-// TODO: Refactor this
+// Initialize git.Repository object by opening the repostory or cloning from
+// the source URL. It does not handle purging existing file or directory
+// with the same path
 func (r *Repository) init(repoPath string) (int, error) {
-	fi, err := os.Stat(repoPath)
-
-	// Case: Directory doesn't exist
-	if os.IsNotExist(err) || fi.IsDir() == false {
-		// log.Printf("(git): Repository %s not cached, cloning to %s", r.Name(), r.store)
-		err := os.Mkdir(repoPath, 0755)
+	gitRepo, err := git.OpenRepository(repoPath)
+	if err != nil || gitRepo == nil {
+		err := r.Clone(repoPath)
 		if err != nil {
 			return RepositoryError, err
 		}
-
-		err = r.Clone(repoPath)
-		if err != nil {
-			return RepositoryError, err
-		}
-
 		return RepositoryCloned, nil
-	} else if err != nil {
-		// Some other stat error
-		return RepositoryError, err
 	}
 
-	// Case: Not a git repository, remove directory and clone
-	_, err = os.Stat(filepath.Join(repoPath, ".git"))
-	if os.IsNotExist(err) {
-		// log.Printf("(git): %s exists locally, overwritting", r.Name())
-		err := os.RemoveAll(repoPath)
+	// If remote URL are not the same, it will purge local copy and re-clone
+	if r.mismatchRemoteUrl(gitRepo) {
+		os.RemoveAll(gitRepo.Workdir())
+		err := r.Clone(repoPath)
 		if err != nil {
 			return RepositoryError, err
 		}
-
-		err = os.Mkdir(repoPath, 0755)
-		if err != nil {
-			return RepositoryError, err
-		}
-
-		err = r.Clone(repoPath)
-		if err != nil {
-			return RepositoryError, err
-		}
-
 		return RepositoryCloned, nil
-	} else if err != nil {
-		// Some other stat error
-		return RepositoryError, err
 	}
 
-	// Open repository otherwise
-	repo, err := git.OpenRepository(repoPath)
-	if err != nil {
-		return RepositoryError, err
-	}
-
-	// Check if config repo and cached repo matches
-	rm, err := repo.Remotes.Lookup("origin")
-	if err != nil {
-		return RepositoryError, err
-	}
-
-	absPath, err := filepath.Abs(r.Config.Url)
-	if err != nil {
-		return RepositoryError, err
-	}
-	// If not equal attempt to recreate the repo
-	if strings.Compare(rm.Url(), absPath) != 0 {
-		os.RemoveAll(repoPath) // Potentially dangerous?
-		err := os.Mkdir(repoPath, 0755)
-		if err != nil {
-			return RepositoryError, err
-		}
-
-		err = r.Clone(repoPath)
-		if err != nil {
-			return RepositoryError, err
-		}
-	} else {
-		r.Repository = repo
-	}
+	r.Repository = gitRepo
 
 	return RepositoryOpened, nil
+}
+
+func (r *Repository) mismatchRemoteUrl(gitRepo *git.Repository) bool {
+	rm, err := gitRepo.Remotes.Lookup("origin")
+	if err != nil {
+		return true
+	}
+
+	if strings.Compare(rm.Url(), r.Config.Url) != 0 {
+		return true
+	}
+
+	return false
 }
