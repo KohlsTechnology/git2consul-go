@@ -1,4 +1,4 @@
-// Package testutils takes care of initializing a local git repository for
+// Package testutil takes care of initializing a local git repository for
 // testing. The 'remote' should match the one specified in config/mock.
 package testutil
 
