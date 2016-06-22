@@ -21,8 +21,8 @@ git2consul will attempt to use sane defaults for configuration. However, since g
 | Configuration        | Required | Default Value  | Available Values                           | Description
 |----------------------|----------|----------------|--------------------------------------------| -----------
 | local_store          | no       | `os.TempDir()` | `string`                                   | Local cache for git2consul to store its tracked repositories
-| webhook:address      | no       |                | `string`                                   | Webhook listener address that that git2consul will be using
-| webhook:port         | no       | 9000           | `int`                                      | Webhook listener port that that git2consul will be using
+| webhook:address      | no       |                | `string`                                   | Webhook listener address that git2consul will be using
+| webhook:port         | no       | 9000           | `int`                                      | Webhook listener port that git2consul will be using
 | repos:name           | yes      |                | `string`                                   | Name of the repository. This will match the webhook path, if any are enabled
 | repos:url            | yes      |                | `string`                                   | The URL of the repository
 | repos:branches       | no       | master         | `string`                                   | Tracking branches of the repository

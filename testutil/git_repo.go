@@ -147,13 +147,18 @@ func GitCommitTestRepo(t *testing.T) (*git.Oid, func()) {
 
 	date := []byte(time.Now().String())
 	file := path.Join(testRepo.Workdir(), "foo")
-	err = ioutil.WriteFile(file, date, 0644)
+	err = ioutil.WriteFile(file, date, 0755)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Commit changes
 	idx, err := testRepo.Index()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = idx.AddByPath("foo")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -177,7 +182,7 @@ func GitCommitTestRepo(t *testing.T) (*git.Oid, func()) {
 
 	sig := &git.Signature{
 		Name:  "Test Example",
-		Email: "tes@example.com",
+		Email: "test@example.com",
 		When:  time.Date(2016, 01, 01, 12, 00, 00, 0, time.UTC),
 	}
 

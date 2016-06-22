@@ -10,7 +10,7 @@ import (
 	"gopkg.in/libgit2/git2go.v24"
 )
 
-func TestDiffStatus(t *testing.T) {
+func TestPull(t *testing.T) {
 	gitRepo, cleanup := testutil.GitInitTestRepo(t)
 	defer cleanup()
 
@@ -27,32 +27,12 @@ func TestDiffStatus(t *testing.T) {
 		Config:     repoConfig,
 	}
 
-	h, err := repo.Head()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	oldRef := h.Target().String()
-
 	// Push a commit to the repository
 	testutil.GitCommitTestRepo(t)
 
 	_, err = repo.Pull("master")
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	deltas, err := repo.DiffStatus(oldRef)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(deltas) == 0 {
-		t.Fatal("Expected deltas from pull changes")
-	}
-
-	if deltas[0].Status != git.DeltaModified {
-		t.Fatalf("Expected DeltaModified on %s", deltas[0].OldFile.Path)
 	}
 
 	// Cleanup
