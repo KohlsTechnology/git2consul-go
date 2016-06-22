@@ -51,7 +51,7 @@
 * [ ] Runner
 * [ ] Watch
   * [ ] Watcher
-  * [ ] Interval
+  * [x] Interval
   * [ ] Webhook
 * [ ] KV
   * [ ] Handler
