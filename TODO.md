@@ -39,21 +39,23 @@
 * [x] On rename: DEL old KV followed by PUT new KV
 
 ## Test coverage
-* [ ] Repository
+* [x] repository
   * [x] New
   * [x] Clone
   * [x] Load
-  * [ ] Pull
-  * [ ] Ref
+  * [x] Pull
+  * [x] Diff
+  * [x] Ref
   * [x] Checkout
-* [x] Config
+* [x] config
   * [x] Load
-* [ ] Runner
-* [ ] Watch
+* [ ] runner
+  * [ ] New
+* [ ] watcher
   * [ ] Watcher
   * [x] Interval
   * [ ] Webhook
-* [ ] KV
+* [ ] kv
   * [ ] Handler
   * [ ] Branch
   * [ ] KV
