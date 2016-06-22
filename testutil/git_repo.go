@@ -197,23 +197,3 @@ func GitCommitTestRepo(t *testing.T) (*git.Oid, func()) {
 
 	return oid, cleanup
 }
-
-// func LoadTestConfig(t *testing.T) *config.Config {
-// 	// Verify that testRepo is not nil
-// 	if testRepo == nil {
-// 		t.Fatal("testRepo not initialized")
-// 	}
-//
-// 	fixturePath := FixturesPath(t)
-// 	cfgPath := filepath.Join(fixturePath, "example.json")
-// 	cfg, err := config.Load(cfgPath)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-//
-// 	// Change defaults to use test settings
-// 	cfg.LocalStore = os.TempDir()
-// 	cfg.Repos[0].Url = testRepo.Workdir()
-//
-// 	return cfg
-// }

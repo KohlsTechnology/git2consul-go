@@ -6,7 +6,7 @@ import (
 	"gopkg.in/libgit2/git2go.v24"
 )
 
-// Clone the repository. Cloning will only checkout tracked branches
+// Clone the repository. Cloning will only checkout tracked branches.
 // A destination path to clone to needs to be provided
 func (r *Repository) Clone(path string) error {
 	r.Lock()

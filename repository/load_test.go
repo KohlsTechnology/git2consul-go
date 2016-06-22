@@ -76,7 +76,6 @@ func TestLoadRepos_existingRepo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// defer os.RemoveAll(localRepoPath)
 
 	repo, err := git.InitRepository(localRepoPath, false)
 	if err != nil {

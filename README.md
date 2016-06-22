@@ -8,7 +8,7 @@ Configuration on go-git2consul is sourced locally instead of it being fetched fr
 
 ## Configuration
 
-Configuration is provided as a JSON file and passed in via the `-config` flag. Repository configuration will take care of cloning the repository into `local_store`, but it will not be responsible for creating the actual `local_store` directory. Similarly, it is expected that there is no collision of directory or file that contains the same name as the repository name under `local_store`, or git2consul will exit with an error. If there is a git repository under a specified repo name, and the origin URL is different from the one provided in the configuration, it will be overwritten.
+Configuration is provided with a JSON file and passed in via the `-config` flag. Repository configuration will take care of cloning the repository into `local_store`, but it will not be responsible for creating the actual `local_store` directory. Similarly, it is expected that there is no collision of directory or file that contains the same name as the repository name under `local_store`, or git2consul will exit with an error. If there is a git repository under a specified repo name, and the origin URL is different from the one provided in the configuration, it will be overwritten.
 
 ### Default configuration
 
