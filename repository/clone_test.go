@@ -5,6 +5,7 @@ import (
 	"path"
 	"testing"
 
+	"github.com/Cimpress-MCP/go-git2consul/config/mock"
 	"github.com/Cimpress-MCP/go-git2consul/testutil"
 )
 
@@ -12,22 +13,21 @@ func TestClone(t *testing.T) {
 	gitRepo, cleanup := testutil.GitInitTestRepo(t)
 	defer cleanup()
 
-	cfg := testutil.LoadTestConfig(t)
+	cfg := mock.Config(gitRepo.Workdir())
 
-	r := &Repository{
-		Repository: gitRepo,
-		Config:     cfg.Repos[0],
-		store:      path.Join(cfg.LocalStore, cfg.Repos[0].Name),
+	repo := &Repository{
+		Config: cfg.Repos[0],
 	}
 
-	err := r.Clone()
+	repoPath := path.Join(cfg.LocalStore, repo.Config.Name)
+	err := repo.Clone(repoPath)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	//Cleanup cloned repo
 	defer func() {
-		err = os.RemoveAll(r.store)
+		err = os.RemoveAll(repo.Workdir())
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -2,25 +2,33 @@ package repository
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/Cimpress-MCP/go-git2consul/config/mock"
 	"github.com/Cimpress-MCP/go-git2consul/testutil"
+	"gopkg.in/libgit2/git2go.v24"
 )
 
 func TestDiffStatus(t *testing.T) {
-	_, cleanup := testutil.GitInitTestRepo(t)
+	gitRepo, cleanup := testutil.GitInitTestRepo(t)
 	defer cleanup()
 
-	cfg := testutil.LoadTestConfig(t)
+	repoConfig := mock.RepoConfig(gitRepo.Workdir())
+	dstPath := filepath.Join(os.TempDir(), repoConfig.Name)
 
-	repos, err := LoadRepos(cfg)
+	localRepo, err := git.Clone(repoConfig.Url, dstPath, &git.CloneOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	repo := repos[0]
+
+	repo := &Repository{
+		Repository: localRepo,
+		Config:     repoConfig,
+	}
 
 	// Push a commit to the repository
-	_, cleanup = testutil.TempCommitTestRepo(t)
+	_, _ = testutil.GitCommitTestRepo(t)
 
 	_, err = repo.Pull("master")
 	if err != nil {
@@ -34,6 +42,4 @@ func TestDiffStatus(t *testing.T) {
 			t.Fatal(err)
 		}
 	}()
-
-	defer cleanup()
 }

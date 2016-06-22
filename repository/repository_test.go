@@ -2,21 +2,20 @@ package repository
 
 import (
 	"os"
-	"path/filepath"
 	"testing"
 
+	"github.com/Cimpress-MCP/go-git2consul/config/mock"
 	"github.com/Cimpress-MCP/go-git2consul/testutil"
 )
 
 func TestNew(t *testing.T) {
-	_, cleanup := testutil.GitInitTestRepo(t)
+	gitRepo, cleanup := testutil.GitInitTestRepo(t)
 	defer cleanup()
 
-	cfg := testutil.LoadTestConfig(t)
+	cfg := mock.Config(gitRepo.Workdir())
 	repoConfig := cfg.Repos[0]
-	repoPath := filepath.Join(cfg.LocalStore, repoConfig.Name)
 
-	_, status, err := New(repoPath, repoConfig)
+	repo, status, err := New(cfg.LocalStore, repoConfig)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,7 +25,7 @@ func TestNew(t *testing.T) {
 	}
 
 	// Call New() again, this time expecting RepositoryOpened
-	_, status, err = New(repoPath, repoConfig)
+	repo, status, err = New(cfg.LocalStore, repoConfig)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,8 +36,9 @@ func TestNew(t *testing.T) {
 
 	// Cleanup cloning
 	defer func() {
-		for _, repo := range cfg.Repos {
-			os.RemoveAll(filepath.Join(cfg.LocalStore, repo.Name))
+		err := os.RemoveAll(repo.Workdir())
+		if err != nil {
+			t.Fatal(err)
 		}
 	}()
 }
