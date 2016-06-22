@@ -6,7 +6,7 @@ import (
 	"github.com/Cimpress-MCP/go-git2consul/config"
 	"github.com/Cimpress-MCP/go-git2consul/kv"
 	"github.com/Cimpress-MCP/go-git2consul/repository"
-	"github.com/Cimpress-MCP/go-git2consul/repository/watch"
+	"github.com/Cimpress-MCP/go-git2consul/watcher"
 	"github.com/apex/log"
 )
 

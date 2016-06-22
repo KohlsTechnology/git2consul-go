@@ -9,8 +9,7 @@ type Hook struct {
 	Interval time.Duration `json:"interval"`
 
 	// Specific to webhooks
-	Url  string `json:"url,omitempty"`
-	Port int    `json:"port,omitempty"`
+	Url string `json:"url,omitempty"`
 }
 
 type Hooks []*Hook

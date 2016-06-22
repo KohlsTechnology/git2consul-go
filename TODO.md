@@ -51,7 +51,7 @@
 * [ ] Runner
 * [ ] Watch
   * [ ] Watcher
-  * [ ] Interval
+  * [x] Interval
   * [ ] Webhook
 * [ ] KV
   * [ ] Handler
@@ -66,10 +66,4 @@ Test suite enhancement:
   * [ ] Setup resets "remote" repo to initial commit
   * [ ] Teardown cleans local store
 
-## Webhook polling
-Will be served from a single port, and different repos will be given different endpoints
-E.g. test-example will have its optional webhook endpoint at:
-* localhost:<port>/test-example/github
-* localhost:<port>/test-example/stash
-* localhost:<port>/test-example/bitbucket
-* localhost:<port>/test-example/gitlab
+* Instead of testutil, we can use mocks to set up a mock repository.Repository object

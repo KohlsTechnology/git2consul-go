@@ -1,3 +1,5 @@
+// git_repo.go takes care of initializing a local git repository for testing
+// The 'remote' must match the one specified in config/mock
 package testutil
 
 import (
@@ -11,45 +13,36 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Cimpress-MCP/go-git2consul/config"
-
 	"gopkg.in/libgit2/git2go.v24"
 )
 
 var testRepo *git.Repository
 
-// Get the test-fixtures directory
-func FixturesPath(t *testing.T) string {
+// Return the test-fixtures path in testutil
+func fixturesRepo(t *testing.T) string {
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
 		t.Fatal("Cannot find path")
 	}
 
 	testutilPath := filepath.Dir(filename)
-	return filepath.Join(testutilPath, "test-fixtures")
+	return filepath.Join(testutilPath, "test-fixtures", "example")
 }
 
-// Copy test-fixtures to os.TempDir() and performs a git-init on directory.
-// Returns git.Repository object and the cleanup function
-func GitInitTestRepo(t *testing.T) (*git.Repository, func()) {
-	fixturePath := FixturesPath(t)
-	fixtureRepo := filepath.Join(fixturePath, "example")
-	repoPath, err := ioutil.TempDir("", filepath.Join("test-git2consul-example"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
+func copyDir(srcPath string, dstPath string) error {
 	// Copy fixtures into temporary path. filepath is the full path
-	var copyFn = func(filepath string, info os.FileInfo, err error) error {
-		projectFilePath := strings.TrimPrefix(fixtureRepo, filepath)
-		targetPath := path.Join(repoPath, projectFilePath)
+	var copyFn = func(path string, info os.FileInfo, err error) error {
+		currentFilePath := strings.TrimPrefix(path, srcPath)
+		targetPath := filepath.Join(dstPath, currentFilePath)
 		if info.IsDir() {
-			err := os.Mkdir(targetPath, 0755)
-			if err != nil {
-				return err
+			if targetPath != dstPath {
+				err := os.Mkdir(targetPath, 0755)
+				if err != nil {
+					return err
+				}
 			}
 		} else {
-			src, err := os.Open(filepath)
+			src, err := os.Open(path)
 			if err != nil {
 				return err
 			}
@@ -67,7 +60,23 @@ func GitInitTestRepo(t *testing.T) (*git.Repository, func()) {
 		return nil
 	}
 
-	err = filepath.Walk(fixtureRepo, copyFn)
+	err := filepath.Walk(srcPath, copyFn)
+	return err
+}
+
+// Copy test-fixtures to os.TempDir() and performs a git-init on directory.
+// Returns git.Repository object and the cleanup function
+func GitInitTestRepo(t *testing.T) (*git.Repository, func()) {
+	fixtureRepo := fixturesRepo(t)
+	repoPath, err := ioutil.TempDir("", "git2consul-test-remote")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = copyDir(fixtureRepo, repoPath)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Init repo
 	repo, err := git.InitRepository(repoPath, false)
@@ -107,38 +116,19 @@ func GitInitTestRepo(t *testing.T) (*git.Repository, func()) {
 	}
 
 	repo.CreateCommit("HEAD", sig, sig, "Initial commit", tree)
+	testRepo = repo
 
 	// Reset to initial commit, and then remove .git
 	var cleanup = func() {
 		os.RemoveAll(repoPath)
 	}
 
-	testRepo = repo
-
 	return repo, cleanup
 }
 
-func LoadTestConfig(t *testing.T) *config.Config {
-	// Verify that testRepo is not nil
-	if testRepo == nil {
-		t.Fatal("testRepo not initialized")
-	}
-
-	fixturePath := FixturesPath(t)
-	cfgPath := filepath.Join(fixturePath, "example.json")
-	cfg, err := config.Load(cfgPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Change defaults to use test settings
-	cfg.LocalStore = os.TempDir()
-	cfg.Repos[0].Url = testRepo.Workdir()
-
-	return cfg
-}
-
-func TempCommitTestRepo(t *testing.T) (*git.Oid, func()) {
+// Performs a commit on the test repository, and returns back its Oid as well as
+// a cleanup function to revert those changes.
+func GitCommitTestRepo(t *testing.T) (*git.Oid, func()) {
 	// Save commmit ref for reset later
 	h, err := testRepo.Head()
 	if err != nil {

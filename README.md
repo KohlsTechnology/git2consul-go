@@ -6,7 +6,11 @@ go-git2consul is a port of [git2consul](https://github.com/Cimpress-MCP/git2cons
 
 Configuration on go-git2consul is sourced locally instead of it being fetched from the KV. This provides better isolation in cases where multiple instances of git2consul are running in order to provide high-availability, and addresses the issues mentioned in [Cimpress-MCP/git2consul#73](https://github.com/Cimpress-MCP/git2consul/issues/73).
 
-## Default configuration
+## Configuration
+
+Configuration is provided with a JSON file and passed in via the `-config` flag. Repository configuration will take care of cloning the repository into `local_store`, but it will not be responsible for creating the actual `local_store` directory. Similarly, it is expected that there is no collision of directory or file that contains the same name as the repository name under `local_store`, or git2consul will exit with an error. If there is a git repository under a specified repo name, and the origin URL is different from the one provided in the configuration, it will be overwritten.
+
+### Default configuration
 
 git2consul will attempt to use sane defaults for configuration. However, since git2consul needs to know which repository to pull from, minimal configuration is necessary.
 
@@ -60,3 +64,6 @@ Available endpoints:
 * Go 1.6
 * libgit2 v0.24.0
 * [glide](https://github.com/Masterminds/glide)
+
+
+*Influenced by these awesome tools: git2consul, consul-replicate, fabio*

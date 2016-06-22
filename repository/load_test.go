@@ -1,11 +1,12 @@
 package repository
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/Cimpress-MCP/go-git2consul/config"
+	"github.com/Cimpress-MCP/go-git2consul/config/mock"
 	"github.com/Cimpress-MCP/go-git2consul/testutil"
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/discard"
@@ -17,86 +18,66 @@ func init() {
 }
 
 func TestLoadRepos(t *testing.T) {
-	_, cleanup := testutil.GitInitTestRepo(t)
+	gitRepo, cleanup := testutil.GitInitTestRepo(t)
 	defer cleanup()
 
-	cfg := testutil.LoadTestConfig(t)
+	cfg := mock.Config(gitRepo.Workdir())
 
-	_, err := LoadRepos(cfg)
+	repos, err := LoadRepos(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Cleanup cloning
 	defer func() {
-		for _, repo := range cfg.Repos {
-			os.RemoveAll(filepath.Join(cfg.LocalStore, repo.Name))
+		for _, repo := range repos {
+			os.RemoveAll(repo.Workdir())
 		}
 	}()
 }
 
-func TestLoadRepos_bareDir(t *testing.T) {
-	gitRepo, cleanup := testutil.GitInitTestRepo(t)
-	defer cleanup()
-
-	cfgPath := filepath.Join(testutil.FixturesPath(t), "example.json")
-	cfg, err := config.Load(cfgPath)
+func TestLoadRepos_existingDir(t *testing.T) {
+	bareDir, err := ioutil.TempDir("", "bare-dir")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Change some values for test runtime test repo
-	cfg.Repos[0].Url = gitRepo.Workdir()
-
-	err = os.Mkdir(filepath.Join(cfg.LocalStore, cfg.Repos[0].Name), 0755)
-	if err != nil {
-		t.Fatal(err)
-	}
+	cfg := mock.Config(bareDir)
 
 	_, err = LoadRepos(cfg)
-	if err != nil {
-		t.Fatal(err)
+	if err == nil {
+		t.Fatal("Expected failure for existing repository")
 	}
 
-	// Cleanup cloning
+	// Cleanup
 	defer func() {
-		for _, repo := range cfg.Repos {
-			os.RemoveAll(filepath.Join(cfg.LocalStore, repo.Name))
-		}
+		os.RemoveAll(bareDir)
 	}()
 }
 
 func TestLoadRepos_invalidRepo(t *testing.T) {
-	cfgPath := filepath.Join(testutil.FixturesPath(t), "example.json")
-	cfg, err := config.Load(cfgPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = LoadRepos(cfg)
+	cfg := mock.Config("bogus-url")
+
+	_, err := LoadRepos(cfg)
 	if err == nil {
 		t.Fatal("Expected failure for invalid repository url")
 	}
-
-	// Cleanup cloning
-	defer func() {
-		for _, repo := range cfg.Repos {
-			os.RemoveAll(filepath.Join(cfg.LocalStore, repo.Name))
-		}
-	}()
 }
 
 func TestLoadRepos_existingRepo(t *testing.T) {
-	_, cleanup := testutil.GitInitTestRepo(t)
+	gitRepo, cleanup := testutil.GitInitTestRepo(t)
 	defer cleanup()
 
-	cfg := testutil.LoadTestConfig(t)
+	cfg := mock.Config(gitRepo.Workdir())
+	localRepoPath := filepath.Join(cfg.LocalStore, cfg.Repos[0].Name)
 
-	// Init a repo in the store:project
-	err := os.Mkdir(filepath.Join(cfg.LocalStore, cfg.Repos[0].Name), 0755)
+	// Init a repo in the local store, with same name are the "remote"
+	err := os.Mkdir(localRepoPath, 0755)
 	if err != nil {
 		t.Fatal(err)
 	}
-	repo, err := git.InitRepository(filepath.Join(cfg.LocalStore, cfg.Repos[0].Name), false)
+
+	repo, err := git.InitRepository(localRepoPath, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,15 +87,15 @@ func TestLoadRepos_existingRepo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err = LoadRepos(cfg)
+	repos, err := LoadRepos(cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Cleanup cloning
 	defer func() {
-		for _, repo := range cfg.Repos {
-			os.RemoveAll(filepath.Join(cfg.LocalStore, repo.Name))
+		for _, repo := range repos {
+			os.RemoveAll(repo.Workdir())
 		}
 	}()
 }

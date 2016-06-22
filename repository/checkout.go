@@ -31,7 +31,7 @@ func (r *Repository) checkoutConfigBranches() error {
 
 		// Only checkout tracked branches
 		// TODO: optimize this O(n^2)
-		if stringInSlice(path.Base(bn), r.repoConfig.Branches) == false {
+		if stringInSlice(path.Base(bn), r.Config.Branches) == false {
 			return nil
 		}
 
