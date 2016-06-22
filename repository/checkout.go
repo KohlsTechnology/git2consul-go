@@ -67,6 +67,7 @@ func (r *Repository) checkoutConfigBranches() error {
 	return nil
 }
 
+// CheckoutBranch performs a checkout on a specific branch
 func (r *Repository) CheckoutBranch(branch *git.Branch, opts *git.CheckoutOpts) error {
 	err := r.SetHead(branch.Reference.Name())
 	if err != nil {

@@ -2,6 +2,7 @@ package config
 
 import "time"
 
+// Hook is the configuration for hooks
 type Hook struct {
 	Type string `json:"type"`
 
@@ -12,8 +13,7 @@ type Hook struct {
 	Url string `json:"url,omitempty"`
 }
 
-type Hooks []*Hook
-
+// Repo is the configuration for the repository
 type Repo struct {
 	Name     string   `json:"name"`
 	Url      string   `json:"url"`
@@ -21,8 +21,7 @@ type Repo struct {
 	Hooks    []*Hook  `json:"hooks"`
 }
 
-type Repos []*Repo
-
+// Config is used to represent the passed in configuration
 type Config struct {
 	LocalStore string         `json:"local_store"`
 	HookSvr    *HookSvrConfig `json:"webhook"`
@@ -30,11 +29,13 @@ type Config struct {
 	Consul     *ConsulConfig  `json:"consul"`
 }
 
+// HookSvrConfig is the configuration for the git hoooks server
 type HookSvrConfig struct {
 	Address string `json:"address,omitempty"`
 	Port    int    `json:"port"`
 }
 
+// ConsulConfig is the configuration for the Consul client
 type ConsulConfig struct {
 	Address   string `json:"address"`
 	Token     string `json:"token,omitempty"`

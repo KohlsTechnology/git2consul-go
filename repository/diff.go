@@ -2,7 +2,7 @@ package repository
 
 import "gopkg.in/libgit2/git2go.v24"
 
-// Compares the current workdir with a target ref and return the modified files
+// DiffStatus compares the current workdir with a target ref and return the modified files
 func (r *Repository) DiffStatus(ref string) ([]git.DiffDelta, error) {
 	deltas := []git.DiffDelta{}
 
@@ -58,7 +58,9 @@ func (r *Repository) DiffStatus(ref string) ([]git.DiffDelta, error) {
 	}
 
 	n, err := diffs.NumDeltas()
-	// log.Debugf("(git)(trace) Diffs num from func: %d", n)
+	if err != nil {
+		return nil, err
+	}
 
 	for i := 0; i < n; i++ {
 		diff, err := diffs.GetDelta(i)

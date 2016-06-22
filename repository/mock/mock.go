@@ -10,7 +10,7 @@ import (
 	"gopkg.in/libgit2/git2go.v24"
 )
 
-// Returns a mock of a repository.Repository object
+// Repository returns a mock of a repository.Repository object
 func Repository(gitRepo *git.Repository) *repository.Repository {
 	if gitRepo == nil {
 		return nil

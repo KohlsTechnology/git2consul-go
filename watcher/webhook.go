@@ -12,16 +12,19 @@ import (
 	"gopkg.in/libgit2/git2go.v24"
 )
 
+// GithubPayload is the response from GitHub
 type GithubPayload struct {
 	Ref string `json:"ref"`
 }
 
+// StashPayload is the response from Stash
 type StashPayload struct {
 	RefChanges []struct {
 		RefId string `json:"refId"`
 	} `json:"refChanges"`
 }
 
+// BitbucketPayload is the response Bitbucket
 type BitbucketPayload struct {
 	Push struct {
 		Changes []struct {
@@ -32,6 +35,7 @@ type BitbucketPayload struct {
 	} `json:"push"`
 }
 
+// GitLabPayload is the response from GitLab
 type GitLabPayload struct {
 	Ref string `json:"ref"`
 }
@@ -59,6 +63,7 @@ func (w *Watcher) pollByWebhook(wg *sync.WaitGroup) {
 	}
 }
 
+// ListenAndServe starts the listener server for hooks
 func (w *Watcher) ListenAndServe(errCh chan<- error) {
 	r := mux.NewRouter()
 	r.HandleFunc("/{repository}/github", w.githubHandler)

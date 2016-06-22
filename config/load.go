@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
-// Create configuration from a provided file path
+// Load maps the configuration provided from a file to a Configuration object
 func Load(file string) (*Config, error) {
 	// log context
 	logger := log.WithFields(log.Fields{

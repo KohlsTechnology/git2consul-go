@@ -8,6 +8,7 @@ import (
 	"github.com/apex/log"
 )
 
+// Watcher is used to keep track of changes of the repositories
 type Watcher struct {
 	sync.Mutex
 	logger *log.Entry
@@ -23,7 +24,7 @@ type Watcher struct {
 	once    bool
 }
 
-// Create a new watcher, passing in the the repositories, webhook
+// New create a new watcher, passing in the the repositories, webhook
 // listener config, and optional once flag
 func New(repos []*repository.Repository, hookSvr *config.HookSvrConfig, once bool) *Watcher {
 	repoChangeCh := make(chan *repository.Repository, len(repos))

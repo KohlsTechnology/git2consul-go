@@ -7,12 +7,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/apex/log"
-	"github.com/apex/log/handlers/text"
 	"github.com/Cimpress-MCP/go-git2consul/config"
 	"github.com/Cimpress-MCP/go-git2consul/runner"
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/text"
 )
 
+// Exit code represented as int values for particular errors.
 const (
 	ExitCodeError = 10 + iota
 	ExitCodeFlagError

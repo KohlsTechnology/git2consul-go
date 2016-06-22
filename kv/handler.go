@@ -4,16 +4,18 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/apex/log"
 	"github.com/Cimpress-MCP/go-git2consul/config"
+	"github.com/apex/log"
 	"github.com/hashicorp/consul/api"
 )
 
+// KVHandler is used to manipulate the KV
 type KVHandler struct {
 	*api.KV
 	logger *log.Entry
 }
 
+// New creates new KV handler to manipulate the Consul VK
 func New(config *config.ConsulConfig) (*KVHandler, error) {
 	client, err := newAPIClient(config)
 	if err != nil {

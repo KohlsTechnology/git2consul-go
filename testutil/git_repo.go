@@ -1,5 +1,5 @@
-// git_repo.go takes care of initializing a local git repository for testing
-// The 'remote' must match the one specified in config/mock
+// Package testutils takes care of initializing a local git repository for
+// testing. The 'remote' should match the one specified in config/mock.
 package testutil
 
 import (
@@ -64,8 +64,8 @@ func copyDir(srcPath string, dstPath string) error {
 	return err
 }
 
-// Copy test-fixtures to os.TempDir() and performs a git-init on directory.
-// Returns git.Repository object and the cleanup function
+// GitInitTestRepo coppies test-fixtures to os.TempDir() and performs a
+// git-init on directory.
 func GitInitTestRepo(t *testing.T) (*git.Repository, func()) {
 	fixtureRepo := fixturesRepo(t)
 	repoPath, err := ioutil.TempDir("", "git2consul-test-remote")
@@ -118,7 +118,7 @@ func GitInitTestRepo(t *testing.T) (*git.Repository, func()) {
 	repo.CreateCommit("HEAD", sig, sig, "Initial commit", tree)
 	testRepo = repo
 
-	// Reset to initial commit, and then remove .git
+	// Cleanup function that removes the repository directory
 	var cleanup = func() {
 		os.RemoveAll(repoPath)
 	}
@@ -126,8 +126,8 @@ func GitInitTestRepo(t *testing.T) (*git.Repository, func()) {
 	return repo, cleanup
 }
 
-// Performs a commit on the test repository, and returns back its Oid as well as
-// a cleanup function to revert those changes.
+// GitCommitTestRepo performs a commit on the test repository, and returns
+// its Oid as well as a cleanup function to revert those changes.
 func GitCommitTestRepo(t *testing.T) (*git.Oid, func()) {
 	// Save commmit ref for reset later
 	h, err := testRepo.Head()

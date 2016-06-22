@@ -2,7 +2,7 @@ package repository
 
 import "gopkg.in/libgit2/git2go.v24"
 
-// Check whether a particular ref is part of the repository
+// CheckRef checks whether a particular ref is part of the repository
 func (r *Repository) CheckRef(ref string) error {
 	oid, err := git.NewOid(ref)
 	if err != nil {

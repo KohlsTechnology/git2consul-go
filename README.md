@@ -1,5 +1,9 @@
 # go-git2consul
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/Cimpress-MCP/go-git2consul)][goreport]
+
+[goreport]: https://goreportcard.com/report/github.com/Cimpress-MCP/go-git2consul
+
 ***NOTE: go-git2consul is experimental and still under development, and therefore should not be used in production!***
 
 go-git2consul is a port of [git2consul](https://github.com/Cimpress-MCP/git2consul), which had great success and adoption. go-git2consul takes on the same basic principles as its predecessor, and attempts to improve upon some of its feature sets as well as add new ones. There are a few advantages to go-git2consul, including, but is not limited to, the use of the official Consul API and the removal of runtime dependencies such as node and git.

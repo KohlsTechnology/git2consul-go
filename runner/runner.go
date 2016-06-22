@@ -10,6 +10,7 @@ import (
 	"github.com/apex/log"
 )
 
+// Runner is used to initialize a watcher and kvHandler
 type Runner struct {
 	logger *log.Entry
 	ErrCh  chan error
@@ -27,6 +28,7 @@ type Runner struct {
 	watcher *watch.Watcher
 }
 
+// NewRunner creates a new runner instance
 func NewRunner(config *config.Config, once bool) (*Runner, error) {
 	logger := log.WithField("caller", "runner")
 

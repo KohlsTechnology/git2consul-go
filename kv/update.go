@@ -1,12 +1,12 @@
 package kv
 
 import (
-	"github.com/apex/log"
 	"github.com/Cimpress-MCP/go-git2consul/repository"
+	"github.com/apex/log"
 )
 
-// Handles the update of a particular repository by comparing diffs against
-// the KV
+// HandleUpdate handles the update of a particular repository by
+// comparing diffs against the KV.
 func (h *KVHandler) HandleUpdate(repo *repository.Repository) error {
 	repo.Lock()
 	defer repo.Unlock()

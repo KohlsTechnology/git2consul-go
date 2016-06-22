@@ -11,6 +11,7 @@ import (
 	"gopkg.in/libgit2/git2go.v24"
 )
 
+// Repository is used to hold the git repository object and it's configuration
 type Repository struct {
 	sync.Mutex
 
@@ -18,18 +19,19 @@ type Repository struct {
 	Config *config.Repo
 }
 
+// Status codes for Repository object creation
 const (
 	RepositoryError = iota // Unused, it will always get returned with an err
 	RepositoryCloned
 	RepositoryOpened
 )
 
-// Returns the repository name
+// Name returns the repository name
 func (r *Repository) Name() string {
 	return r.Config.Name
 }
 
-// Returns the branch name
+// Branch returns the branch name
 func (r *Repository) Branch() string {
 	head, err := r.Head()
 	if err != nil {
@@ -43,6 +45,7 @@ func (r *Repository) Branch() string {
 	return bn
 }
 
+// New is used to construct a new repository object from the configuration
 func New(repoBasePath string, repoConfig *config.Repo) (*Repository, int, error) {
 	repoPath := filepath.Join(repoBasePath, repoConfig.Name)
 

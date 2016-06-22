@@ -5,7 +5,7 @@ import (
 	"gopkg.in/libgit2/git2go.v24"
 )
 
-// Function that handles initial fetching of the KV on start
+// HandleInit handles initial fetching of the KV on start
 func (h *KVHandler) HandleInit(repos []*repository.Repository) error {
 	for _, repo := range repos {
 		err := h.handleRepoInit(repo)

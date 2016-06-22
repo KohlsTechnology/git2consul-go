@@ -18,7 +18,7 @@ func (r *Repository) Clone(path string) error {
 	}
 	checkoutBranch := r.Config.Branches[0]
 
-	raw_repo, err := git.Clone(r.Config.Url, path, &git.CloneOptions{
+	rawRepo, err := git.Clone(r.Config.Url, path, &git.CloneOptions{
 		CheckoutOpts: &git.CheckoutOpts{
 			Strategy: git.CheckoutNone,
 		},
@@ -28,7 +28,7 @@ func (r *Repository) Clone(path string) error {
 		return err
 	}
 
-	r.Repository = raw_repo
+	r.Repository = rawRepo
 
 	err = r.checkoutConfigBranches()
 	if err != nil {

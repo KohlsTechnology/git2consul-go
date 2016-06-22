@@ -7,14 +7,14 @@ import (
 	"github.com/Cimpress-MCP/go-git2consul/config"
 )
 
-// Returns a mock Repo config object
+// RepoConfig returns a mock Repo config object
 func RepoConfig(repoUrl string) *config.Repo {
 	return &config.Repo{
 		Name:     "git2consul-test-local",
 		Url:      repoUrl,
 		Branches: []string{"master"},
 		Hooks: []*config.Hook{
-			&config.Hook{
+			{
 				Type:     "polling",
 				Interval: 5 * time.Second,
 			},
@@ -22,7 +22,7 @@ func RepoConfig(repoUrl string) *config.Repo {
 	}
 }
 
-// Return a mock Config object with one repository configuration
+// Config returns a mock Config object with one repository configuration
 func Config(repoUrl string) *config.Config {
 	return &config.Config{
 		LocalStore: os.TempDir(),
@@ -30,12 +30,12 @@ func Config(repoUrl string) *config.Config {
 			Port: 9000,
 		},
 		Repos: []*config.Repo{
-			&config.Repo{
+			{
 				Name:     "git2consul-test-local",
 				Url:      repoUrl,
 				Branches: []string{"master"},
 				Hooks: []*config.Hook{
-					&config.Hook{
+					{
 						Type:     "polling",
 						Interval: 5 * time.Second,
 					},

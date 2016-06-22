@@ -7,7 +7,7 @@ import (
 	"github.com/apex/log"
 )
 
-// Populates Repository slice from configuration. It also
+// LoadRepos populates Repository slice from configuration. It also
 // handles cloning of the repository if not present
 func LoadRepos(cfg *config.Config) ([]*Repository, error) {
 	logger := log.WithFields(log.Fields{
