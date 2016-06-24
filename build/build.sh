@@ -11,4 +11,5 @@ export PKG_CONFIG_PATH="/usr/lib/pkgconfig/:/usr/local/lib/pkgconfig/"
 # Build git2consul
 cd ${BUILDPATH}
 go get -v
-go build -o /build/bin/git2consul.linux.amd64 .
+GOOS=linux GOARCH=amd64 go build -o /build/bin/git2consul.linux.amd64 .
+# GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 go build -o /build/bin/git2consul.darwin.amd64 .

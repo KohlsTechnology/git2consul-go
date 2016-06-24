@@ -12,7 +12,7 @@ git clone -b ${LIBGIT2BRANCH} --depth 1 -- ${LIBGIT2REPO} ${LIBGIT2PATH}
 
 mkdir -p ${LIBGIT2PATH}/build
 cd ${LIBGIT2PATH}/build
-cmake .. -DBUILD_CLAR=off
+cmake -DBUILD_CLAR=OFF ..
 cmake --build . --target install
 
 # Cleanup

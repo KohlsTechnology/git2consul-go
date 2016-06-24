@@ -41,7 +41,7 @@ The path to the configuration file. This flag is *required*.
 ### `-once`
 Runs git2consul once and exits. This essentially ignores webhook polling.
 
-### `-v`
+### `-version`
 Displays the version of git2consul and exits. All other commands are ignored.
 
 ## Webhooks

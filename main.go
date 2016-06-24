@@ -39,7 +39,11 @@ func main() {
 	}
 
 	if version {
-		fmt.Println(Version)
+		fmt.Println("git2consul:")
+		fmt.Printf("  %-9s%s\n", "Version:", Version)
+		if GitCommit != "" {
+			fmt.Printf("  %-9s%s\n", "Build:", GitCommit)
+		}
 		return
 	}
 
