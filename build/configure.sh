@@ -7,11 +7,11 @@ export GOPATH=/tmp/go
 export PATH=${PATH}:${GOPATH}/bin
 export BUILDPATH=${GOPATH}/src/github.com/Cimpress-MCP/go-git2consul
 export PKG_CONFIG_PATH="/usr/lib/pkgconfig/:/usr/local/lib/pkgconfig/"
+export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/tmp/libgit2/install/lib/pkgconfig:/tmp/openssl/install/lib/pkgconfig:/tmp/libssh2/build/src"
 
-# Install build deps
-apk --no-cache --no-progress --virtual build-deps add go gcc musl-dev make cmake openssl-dev libssh2-dev
-
-# Install libgit2
+# Install libraries
+/build/install-openssl.sh
+/build/install-libssh2.sh
 /build/install-libgit2.sh
 
 # Set up go environment
