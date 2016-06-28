@@ -2,17 +2,17 @@
 set -x
 
 # Set temp environment vars
-export LIBGIT2REPO=https://github.com/libgit2/libgit2.git
-export LIBGIT2BRANCH=v0.24.0
-export LIBGIT2PATH=/tmp/libgit2
+export REPO=https://github.com/libssh2/libssh2
+export BRANCH=libssh2-1.7.0
+export REPO_PATH=/tmp/libssh2
 export PKG_CONFIG_PATH="/usr/lib/pkgconfig/:/usr/local/lib/pkgconfig/"
 export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/tmp/libgit2/install/lib/pkgconfig:/tmp/openssl/install/lib/pkgconfig:/tmp/libssh2/build/src"
 
 # Compile & Install libgit2 (v0.23)
-git clone -b ${LIBGIT2BRANCH} --depth 1 -- ${LIBGIT2REPO} ${LIBGIT2PATH}
+git clone -b ${BRANCH} --depth 1 -- ${REPO} ${REPO_PATH}
 
-mkdir -p ${LIBGIT2PATH}/build
-cd ${LIBGIT2PATH}/build
+mkdir -p ${REPO_PATH}/build
+cd ${REPO_PATH}/build
 cmake -DTHREADSAFE=ON \
       -DBUILD_CLAR=OFF \
       -DBUILD_SHARED_LIBS=OFF \

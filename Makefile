@@ -40,5 +40,5 @@ remove-dangling:
 
 run-build-image:
 	@echo " ===> Building..."
-	@docker run --rm --name git2consul-builder -v $(CURDIR):/app -v $(CURDIR)/build/bin:/build/bin cimpress/git2consul-builder
+	@docker run --rm --name git2consul-builder -v $(CURDIR):/app -v $(CURDIR)/build/bin:/build/bin --entrypoint /app/build/build.sh cimpress/git2consul-builder
 .PHONY: run-build-image
