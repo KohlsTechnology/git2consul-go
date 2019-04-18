@@ -1,91 +1,58 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package repository
 
 import (
 	"fmt"
 
-	"gopkg.in/libgit2/git2go.v24"
+	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 // Pull a repository branch, which is equivalent to a fetch and merge
-func (r *Repository) Pull(branchName string) (git.MergeAnalysis, error) {
+func (r *Repository) Pull(branchName string) error {
 	r.Lock()
 	defer r.Unlock()
 
-	origin, err := r.Remotes.Lookup("origin")
-	if err != nil {
-		return 0, err
-	}
-	defer origin.Free()
+	w, err := r.Worktree()
 
-	rawLocalBranchRef := fmt.Sprintf("refs/heads/%s", branchName)
-
-	// Fetch
-	err = origin.Fetch([]string{rawLocalBranchRef}, nil, "")
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	rawRemoteBranchRef := fmt.Sprintf("refs/remotes/origin/%s", branchName)
+	err = w.Checkout(&git.CheckoutOptions{
+		Branch: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", branchName)),
+		Force:  true,
+	})
 
-	remoteBranchRef, err := r.References.Lookup(rawRemoteBranchRef)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	// If the ref on the branch doesn't exist locally, create it
-	// This also creates the branch
-	_, err = r.References.Lookup(rawLocalBranchRef)
-	if err != nil {
-		_, err = r.References.Create(rawLocalBranchRef, remoteBranchRef.Target(), true, "")
-		if err != nil {
-			return 0, err
-		}
-	}
-
-	// Change the HEAD to current branch and checkout
-	err = r.SetHead(rawLocalBranchRef)
-	if err != nil {
-		return 0, err
-	}
-	err = r.CheckoutHead(&git.CheckoutOpts{
-		Strategy: git.CheckoutForce,
+	err = w.Pull(&git.PullOptions{
+		RemoteName:    "origin",
+		ReferenceName: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", branchName)),
+		Auth:          r.Authentication,
+		SingleBranch:  true,
+		Force:         true,
 	})
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	head, err := r.Head()
-	if err != nil {
-		return 0, err
-	}
-
-	// Create annotated commit
-	annotatedCommit, err := r.AnnotatedCommitFromRef(remoteBranchRef)
-	if err != nil {
-		return 0, err
-	}
-
-	// Merge analysis
-	mergeHeads := []*git.AnnotatedCommit{annotatedCommit}
-	analysis, _, err := r.MergeAnalysis(mergeHeads)
-	if err != nil {
-		return 0, err
-	}
-
-	// Action on analysis
-	switch {
-	case analysis&git.MergeAnalysisFastForward != 0, analysis&git.MergeAnalysisNormal != 0:
-		if err := r.Merge(mergeHeads, nil, nil); err != nil {
-			return 0, err
-		}
-
-		// Update refs on heads (local) from remotes
-		if _, err = head.SetTarget(remoteBranchRef.Target(), ""); err != nil {
-			return analysis, err
-		}
-	}
-
-	defer head.Free()
-	defer r.StateCleanup()
-	return analysis, nil
+	return nil
 }

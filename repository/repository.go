@@ -1,22 +1,64 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package repository
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 
-	"github.com/Cimpress-MCP/go-git2consul/config"
-	"gopkg.in/libgit2/git2go.v24"
+	"gopkg.in/src-d/go-git.v4/plumbing/object"
+	"gopkg.in/src-d/go-git.v4/storage"
+
+	"github.com/KohlsTechnology/git2consul-go/config"
+	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/transport"
 )
+
+const (
+	refHead = "refs/heads"
+)
+
+// Repo interface represents Repository
+type Repo interface {
+	Name() string
+	Pull(string) error
+	CheckoutBranch(plumbing.ReferenceName) error
+	CheckRef(string) error
+	Head() (*plumbing.Reference, error)
+	Lock()
+	Unlock()
+	DiffStatus(string) (object.Changes, error)
+	Worktree() (*git.Worktree, error)
+	Branch() plumbing.ReferenceName
+	GetConfig() *config.Repo
+	GetStorer() storage.Storer
+	ResolveRevision(plumbing.Revision) (*plumbing.Hash, error)
+}
 
 // Repository is used to hold the git repository object and it's configuration
 type Repository struct {
 	sync.Mutex
 
 	*git.Repository
-	Config *config.Repo
+	Config         *config.Repo
+	Authentication transport.AuthMethod
 }
 
 // Status codes for Repository object creation
@@ -26,18 +68,28 @@ const (
 	RepositoryOpened
 )
 
+// GetConfig returns config *Repo
+func (r *Repository) GetConfig() *config.Repo {
+	return r.Config
+}
+
+// GetStorer returns Storer
+func (r *Repository) GetStorer() storage.Storer {
+	return r.Storer
+}
+
 // Name returns the repository name
 func (r *Repository) Name() string {
 	return r.Config.Name
 }
 
 // Branch returns the branch name
-func (r *Repository) Branch() string {
+func (r *Repository) Branch() plumbing.ReferenceName {
 	head, err := r.Head()
 	if err != nil {
 		return ""
 	}
-	bn, err := head.Branch().Name()
+	bn := head.Name()
 	if err != nil {
 		return ""
 	}
@@ -46,12 +98,13 @@ func (r *Repository) Branch() string {
 }
 
 // New is used to construct a new repository object from the configuration
-func New(repoBasePath string, repoConfig *config.Repo) (*Repository, int, error) {
+func New(repoBasePath string, repoConfig *config.Repo, auth transport.AuthMethod) (*Repository, int, error) {
 	repoPath := filepath.Join(repoBasePath, repoConfig.Name)
 
 	r := &Repository{
-		Repository: &git.Repository{},
-		Config:     repoConfig,
+		Repository:     &git.Repository{},
+		Config:         repoConfig,
+		Authentication: auth,
 	}
 
 	state, err := r.init(repoPath)
@@ -66,43 +119,37 @@ func New(repoBasePath string, repoConfig *config.Repo) (*Repository, int, error)
 	return r, state, nil
 }
 
-// Initialize git.Repository object by opening the repostory or cloning from
+// Initialize git.Repository object by opening the repostiry or cloning from
 // the source URL. It does not handle purging existing file or directory
 // with the same path
 func (r *Repository) init(repoPath string) (int, error) {
-	gitRepo, err := git.OpenRepository(repoPath)
+	gitRepo, err := git.PlainOpen(repoPath)
 	if err != nil || gitRepo == nil {
 		err := r.Clone(repoPath)
 		if err != nil {
-			return RepositoryError, err
-		}
-		return RepositoryCloned, nil
-	}
-
-	// If remote URL are not the same, it will purge local copy and re-clone
-	if r.mismatchRemoteUrl(gitRepo) {
-		os.RemoveAll(gitRepo.Workdir())
-		err := r.Clone(repoPath)
-		if err != nil {
-			return RepositoryError, err
+			// more explicit error handling as a workaround for the upstream issue, tracked under:
+			// https://github.com/src-d/go-git/issues/741
+			switch err {
+			case transport.ErrAuthenticationRequired:
+				os.RemoveAll(repoPath)
+				return RepositoryError, err
+			case transport.ErrAuthorizationFailed:
+				os.RemoveAll(repoPath)
+				return RepositoryError, err
+			default:
+				os.Remove(repoPath)
+				return RepositoryError, err
+			}
 		}
 		return RepositoryCloned, nil
 	}
 
 	r.Repository = gitRepo
-
 	return RepositoryOpened, nil
 }
 
-func (r *Repository) mismatchRemoteUrl(gitRepo *git.Repository) bool {
-	rm, err := gitRepo.Remotes.Lookup("origin")
-	if err != nil {
-		return true
-	}
-
-	if strings.Compare(rm.Url(), r.Config.Url) != 0 {
-		return true
-	}
-
-	return false
+//WorkDir returns working directory for a local copy of the repository.
+func WorkDir(r Repo) string {
+	w, _ := r.Worktree()
+	return w.Filesystem.Root()
 }

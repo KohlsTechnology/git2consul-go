@@ -1,74 +1,77 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package repository
 
-import "gopkg.in/libgit2/git2go.v24"
+import (
+	"strings"
+
+	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/object"
+)
 
 // DiffStatus compares the current workdir with a target ref and return the modified files
-func (r *Repository) DiffStatus(ref string) ([]git.DiffDelta, error) {
-	deltas := []git.DiffDelta{}
-
-	oid, err := git.NewOid(ref)
+func (r *Repository) DiffStatus(ref string) (object.Changes, error) {
+	sourceRoot := strings.TrimPrefix(r.GetConfig().SourceRoot, "/")
+	h0, err := r.Head()
+	if err != nil {
+		return nil, err
+	}
+	c0, err := r.CommitObject(h0.Hash())
+	if err != nil {
+		return nil, err
+	}
+	c1, err := r.CommitObject(plumbing.NewHash(ref))
 	if err != nil {
 		return nil, err
 	}
 
-	// This can be for a different repo
-	obj, err := r.Lookup(oid)
+	commits := []*object.Commit{c0, c1}
+	if len(commits[0].ParentHashes) != 0 {
+		commits = []*object.Commit{c1, c0}
+	}
+
+	t0, err := r.TreeObject(commits[0].TreeHash)
 	if err != nil {
 		return nil, err
 	}
-
-	commit, err := obj.AsCommit()
+	t1, err := r.TreeObject(commits[1].TreeHash)
 	if err != nil {
 		return nil, err
 	}
-
-	tree, err := commit.Tree()
+	diff, err := t0.Diff(t1)
 	if err != nil {
 		return nil, err
 	}
+	return applySourceRoot(diff, sourceRoot), nil
+}
 
-	h, err := r.Head()
-	if err != nil {
-		return nil, err
-	}
-
-	obj2, err := r.Lookup(h.Target())
-	if err != nil {
-		return nil, err
-	}
-
-	commit2, err := obj2.AsCommit()
-	if err != nil {
-		return nil, err
-	}
-
-	tree2, err := commit2.Tree()
-	if err != nil {
-		return nil, err
-	}
-
-	do, err := git.DefaultDiffOptions()
-	if err != nil {
-		return nil, err
-	}
-
-	diffs, err := r.DiffTreeToTree(tree, tree2, &do)
-	if err != nil {
-		return nil, err
-	}
-
-	n, err := diffs.NumDeltas()
-	if err != nil {
-		return nil, err
-	}
-
-	for i := 0; i < n; i++ {
-		diff, err := diffs.GetDelta(i)
-		if err != nil {
-			return nil, err
+func applySourceRoot(changes object.Changes, sourceRoot string) object.Changes {
+	var selected object.Changes
+	empty := object.ChangeEntry{}
+	for _, change := range changes {
+		name := ""
+		if change.From != empty {
+			name = change.From.Name
+		} else {
+			name = change.To.Name
 		}
-		deltas = append(deltas, diff)
+		if strings.HasPrefix(name, sourceRoot) {
+			selected = append(selected, change)
+		}
 	}
-
-	return deltas, nil
+	return selected
 }

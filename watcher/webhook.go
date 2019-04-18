@@ -1,3 +1,19 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package watch
 
 import (
@@ -9,7 +25,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/mux"
-	"gopkg.in/libgit2/git2go.v24"
+	"gopkg.in/src-d/go-git.v4"
 )
 
 // GithubPayload is the response from GitHub
@@ -20,7 +36,7 @@ type GithubPayload struct {
 // StashPayload is the response from Stash
 type StashPayload struct {
 	RefChanges []struct {
-		RefId string `json:"refId"`
+		RefID string `json:"refId"`
 	} `json:"refChanges"`
 }
 
@@ -126,19 +142,16 @@ func (w *Watcher) githubHandler(rw http.ResponseWriter, rq *http.Request) {
 
 	repo := w.Repositories[i]
 	w.logger.WithField("repository", repo.Name()).Info("Received hook event from GitHub")
-	analysis, err := repo.Pull(branchName)
-	if err != nil {
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
-		return
-	}
 
-	// If there is a change, send the repo RepoChangeCh
+	err = repo.Pull(branchName)
 	switch {
-	case analysis&git.MergeAnalysisUpToDate != 0:
+	case err == git.NoErrAlreadyUpToDate:
 		w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
-	case analysis&git.MergeAnalysisNormal != 0, analysis&git.MergeAnalysisFastForward != 0:
+	case err == nil:
 		w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
 		w.RepoChangeCh <- repo
+	case err != nil:
+		w.logger.Errorf("Failed: %s/%s - %s", repo.Name(), branchName, err)
 	}
 }
 
@@ -160,7 +173,7 @@ func (w *Watcher) stashHandler(rw http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
-	ref := payload.RefChanges[0].RefId
+	ref := payload.RefChanges[0].RefID
 
 	if len(ref) == 0 {
 		http.Error(rw, "ref is empty", http.StatusInternalServerError)
@@ -183,19 +196,15 @@ func (w *Watcher) stashHandler(rw http.ResponseWriter, rq *http.Request) {
 
 	repo := w.Repositories[i]
 	w.logger.WithField("repository", repo.Name()).Info("Received hook event from Stash")
-	analysis, err := repo.Pull(branchName)
-	if err != nil {
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// If there is a change, send the repo RepoChangeCh
+	err = repo.Pull(branchName)
 	switch {
-	case analysis&git.MergeAnalysisUpToDate != 0:
+	case err == git.NoErrAlreadyUpToDate:
 		w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
-	case analysis&git.MergeAnalysisNormal != 0, analysis&git.MergeAnalysisFastForward != 0:
+	case err == nil:
 		w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
 		w.RepoChangeCh <- repo
+	case err != nil:
+		w.logger.Errorf("Failed: %s/%s - %s", repo.Name(), branchName, err)
 	}
 }
 
@@ -250,19 +259,15 @@ func (w *Watcher) bitbucketHandler(rw http.ResponseWriter, rq *http.Request) {
 
 	repo := w.Repositories[i]
 	w.logger.WithField("repository", repo.Name()).Info("Received hook event from Bitbucket")
-	analysis, err := repo.Pull(branchName)
-	if err != nil {
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// If there is a change, send the repo RepoChangeCh
+	err = repo.Pull(branchName)
 	switch {
-	case analysis&git.MergeAnalysisUpToDate != 0:
+	case err == git.NoErrAlreadyUpToDate:
 		w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
-	case analysis&git.MergeAnalysisNormal != 0, analysis&git.MergeAnalysisFastForward != 0:
+	case err == nil:
 		w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
 		w.RepoChangeCh <- repo
+	case err != nil:
+		w.logger.Errorf("Failed: %s/%s - %s", repo.Name(), branchName, err)
 	}
 }
 
@@ -316,18 +321,14 @@ func (w *Watcher) gitlabHandler(rw http.ResponseWriter, rq *http.Request) {
 
 	repo := w.Repositories[i]
 	w.logger.WithField("repository", repo.Name()).Info("Received hook event from GitLab")
-	analysis, err := repo.Pull(branchName)
-	if err != nil {
-		http.Error(rw, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// If there is a change, send the repo RepoChangeCh
+	err = repo.Pull(branchName)
 	switch {
-	case analysis&git.MergeAnalysisUpToDate != 0:
+	case err == git.NoErrAlreadyUpToDate:
 		w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
-	case analysis&git.MergeAnalysisNormal != 0, analysis&git.MergeAnalysisFastForward != 0:
+	case err == nil:
 		w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
 		w.RepoChangeCh <- repo
+	case err != nil:
+		w.logger.Errorf("Failed: %s/%s - %s", repo.Name(), branchName, err)
 	}
 }

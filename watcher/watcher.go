@@ -1,11 +1,27 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package watch
 
 import (
 	"sync"
 
-	"github.com/Cimpress-MCP/go-git2consul/config"
-	"github.com/Cimpress-MCP/go-git2consul/repository"
 	"github.com/apex/log"
+	"github.com/KohlsTechnology/git2consul-go/config"
+	"github.com/KohlsTechnology/git2consul-go/repository"
 )
 
 // Watcher is used to keep track of changes of the repositories
@@ -13,9 +29,9 @@ type Watcher struct {
 	sync.Mutex
 	logger *log.Entry
 
-	Repositories []*repository.Repository
+	Repositories []repository.Repo
 
-	RepoChangeCh chan *repository.Repository
+	RepoChangeCh chan repository.Repo
 	ErrCh        chan error
 	RcvDoneCh    chan struct{}
 	SndDoneCh    chan struct{}
@@ -24,10 +40,10 @@ type Watcher struct {
 	once    bool
 }
 
-// New create a new watcher, passing in the the repositories, webhook
+// New create a new watcher, passing in the repositories, webhook
 // listener config, and optional once flag
-func New(repos []*repository.Repository, hookSvr *config.HookSvrConfig, once bool) *Watcher {
-	repoChangeCh := make(chan *repository.Repository, len(repos))
+func New(repos []repository.Repo, hookSvr *config.HookSvrConfig, once bool) *Watcher {
+	repoChangeCh := make(chan repository.Repo, len(repos))
 	logger := log.WithField("caller", "watcher")
 
 	return &Watcher{

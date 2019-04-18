@@ -1,2 +1,5 @@
 /vendor
 /build/bin
+.idea
+*.swp
+.vscode

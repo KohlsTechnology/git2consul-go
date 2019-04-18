@@ -1,47 +1,52 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package repository
 
 import (
+	"io/ioutil"
 	"os"
-	"path/filepath"
 	"testing"
 
-	"github.com/Cimpress-MCP/go-git2consul/config/mock"
-	"github.com/Cimpress-MCP/go-git2consul/testutil"
-	"gopkg.in/libgit2/git2go.v24"
+	"github.com/stretchr/testify/assert"
+	"github.com/KohlsTechnology/git2consul-go/config/mock"
+	"github.com/KohlsTechnology/git2consul-go/repository/mocks"
+	git "gopkg.in/src-d/go-git.v4"
 )
 
 func TestCheckoutBranch(t *testing.T) {
-	gitRepo, cleanup := testutil.GitInitTestRepo(t)
-	defer cleanup()
+	_, remotePath := mocks.InitRemote(t)
+	defer os.RemoveAll(remotePath)
 
-	repoConfig := mock.RepoConfig(gitRepo.Workdir())
-	dstPath := filepath.Join(os.TempDir(), repoConfig.Name)
+	repoConfig := mock.RepoConfig(remotePath)
 
-	localRepo, err := git.Clone(repoConfig.Url, dstPath, &git.CloneOptions{})
-	if err != nil {
-		t.Fatal(err)
-	}
+	dstPath, err := ioutil.TempDir("", repoConfig.Name)
+	assert.Nil(t, err)
+	defer os.RemoveAll(dstPath)
+
+	localRepo, err := git.PlainClone(dstPath, false, &git.CloneOptions{URL: repoConfig.URL})
+	assert.Nil(t, err)
 
 	repo := &Repository{
 		Repository: localRepo,
 		Config:     repoConfig,
 	}
 
-	branch, err := repo.LookupBranch("master", git.BranchLocal)
-	if err != nil {
-		t.Fatal(err)
-	}
+	branch := repo.Branch()
 
-	err = repo.CheckoutBranch(branch, &git.CheckoutOpts{})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Cleanup
-	defer func() {
-		err = os.RemoveAll(repo.Workdir())
-		if err != nil {
-			t.Fatal(err)
-		}
-	}()
+	err = repo.CheckoutBranch(branch)
+	assert.Nil(t, err)
 }

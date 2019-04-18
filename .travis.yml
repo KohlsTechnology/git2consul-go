@@ -1,0 +1,20 @@
+---
+language: go
+matrix:
+  include:
+    - go: 1.10.x
+    - go: 1.11.x
+
+before_install:
+  - go get github.com/golang/dep/cmd/dep
+  - go get golang.org/x/lint/golint
+
+install:
+  - # skip
+
+script:
+  - gofmt -d .
+  - golint $(go list ./... | grep -v /vendor/)
+  - go vet $(go list ./... | grep -v /vendor/)
+  - dep ensure
+  - go build

@@ -1,19 +1,38 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package watch
 
 import (
+	"path"
 	"sync"
 	"time"
 
-	"github.com/Cimpress-MCP/go-git2consul/repository"
-	"gopkg.in/libgit2/git2go.v24"
+	"github.com/KohlsTechnology/git2consul-go/repository"
+	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 // Watch the repo by interval. This is called as a go routine since
 // ticker blocks
-func (w *Watcher) pollByInterval(repo *repository.Repository, wg *sync.WaitGroup) {
+func (w *Watcher) pollByInterval(repo repository.Repo, wg *sync.WaitGroup) {
 	defer wg.Done()
+	config := repo.GetConfig()
 
-	hooks := repo.Config.Hooks
+	hooks := config.Hooks
 	interval := time.Second
 
 	// Find polling hook
@@ -51,39 +70,39 @@ func (w *Watcher) pollByInterval(repo *repository.Repository, wg *sync.WaitGroup
 	}
 }
 
-// Watch all branches of a repository
-func (w *Watcher) pollBranches(repo *repository.Repository) error {
-	itr, err := repo.NewBranchIterator(git.BranchLocal)
+func (w *Watcher) pollBranches(repo repository.Repo) error {
+	storer := repo.GetStorer()
+	config := repo.GetConfig()
+	itr, err := repository.LocalBranches(storer)
 	if err != nil {
 		return err
 	}
-	defer itr.Free()
+	changed := false
 
-	var checkoutBranchFn = func(b *git.Branch, _ git.BranchType) error {
-		branchName, err := b.Name()
-		if err != nil {
-			return err
+	var checkoutBranchFn = func(b *plumbing.Reference) error {
+		branchOnRemote := repository.StringInSlice(path.Base(b.Name().String()), config.Branches)
+		if branchOnRemote {
+			branchName := b.Name().Short()
+			err := repo.Pull(branchName)
+			if err == git.NoErrAlreadyUpToDate {
+				w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
+			} else if err != nil {
+				w.logger.Debugf("Unable to pull \"%s\" branch because of \"%s\"", branchName, err)
+			} else {
+				w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
+				changed = true
+			}
 		}
-		analysis, err := repo.Pull(branchName)
-		if err != nil {
-			return err
-		}
-
-		// If there is a change, send the repo RepoChangeCh
-		switch {
-		case analysis&git.MergeAnalysisUpToDate != 0:
-			w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
-		case analysis&git.MergeAnalysisNormal != 0, analysis&git.MergeAnalysisFastForward != 0:
-			w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
-			w.RepoChangeCh <- repo
-		}
-
 		return nil
 	}
 
 	err = itr.ForEach(checkoutBranchFn)
-	if err != nil && !git.IsErrorCode(err, git.ErrIterOver) {
+	if err != nil {
 		return err
+	}
+
+	if changed {
+		w.RepoChangeCh <- repo
 	}
 
 	return nil

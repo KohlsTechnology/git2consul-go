@@ -1,13 +1,30 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package runner
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/Cimpress-MCP/go-git2consul/config"
-	"github.com/Cimpress-MCP/go-git2consul/kv"
-	"github.com/Cimpress-MCP/go-git2consul/repository"
-	"github.com/Cimpress-MCP/go-git2consul/watcher"
 	"github.com/apex/log"
+	"github.com/KohlsTechnology/git2consul-go/config"
+	"github.com/KohlsTechnology/git2consul-go/kv"
+	"github.com/KohlsTechnology/git2consul-go/repository"
+	"github.com/KohlsTechnology/git2consul-go/watcher"
 )
 
 // Runner is used to initialize a watcher and kvHandler
@@ -23,13 +40,14 @@ type Runner struct {
 
 	once bool
 
-	kvHandler *kv.KVHandler
+	kvHandler kv.Handler
 
 	watcher *watch.Watcher
 }
 
 // NewRunner creates a new runner instance
 func NewRunner(config *config.Config, once bool) (*Runner, error) {
+	// var repos repository.Repo
 	logger := log.WithField("caller", "runner")
 
 	// Create repos from configuration
@@ -37,9 +55,12 @@ func NewRunner(config *config.Config, once bool) (*Runner, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Cannot load repositories from configuration: %s", err)
 	}
-
+	var reposI = make([]repository.Repo, len(repos))
+	for index, repo := range repos {
+		reposI[index] = repo
+	}
 	// Create watcher to watch for repo changes
-	watcher := watch.New(repos, config.HookSvr, once)
+	watcher := watch.New(reposI, config.HookSvr, once)
 
 	// Create the handler
 	handler, err := kv.New(config.Consul)
@@ -70,10 +91,15 @@ func (r *Runner) Start() {
 		select {
 		case repo := <-r.watcher.RepoChangeCh:
 			// Handle change, and return if error on handler
-			err := r.kvHandler.HandleUpdate(repo)
+			retry := 0
+			var err error
+			for ok := true; ok && retry < 3; retry++ {
+				err = r.kvHandler.HandleUpdate(repo)
+				_, ok = err.(*kv.TransactionIntegrityError)
+				time.Sleep(1000 * time.Millisecond)
+			}
 			if err != nil {
 				r.ErrCh <- err
-				return
 			}
 		case <-r.watcher.SndDoneCh: // This triggers when watcher gets an error that causes termination
 			r.logger.Info("Watcher received finish")

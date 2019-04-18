@@ -1,3 +1,19 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package repository
 
 import (
@@ -6,96 +22,76 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Cimpress-MCP/go-git2consul/config/mock"
-	"github.com/Cimpress-MCP/go-git2consul/testutil"
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/discard"
-	"gopkg.in/libgit2/git2go.v24"
+	"github.com/stretchr/testify/assert"
+	git "gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/config"
+
+	"github.com/KohlsTechnology/git2consul-go/config/mock"
+	"github.com/KohlsTechnology/git2consul-go/repository/mocks"
 )
 
 func init() {
 	log.SetHandler(discard.New())
 }
 
+//TestLoadRepos test load repos from the configuration file.
 func TestLoadRepos(t *testing.T) {
-	gitRepo, cleanup := testutil.GitInitTestRepo(t)
-	defer cleanup()
+	_, remotePath := mocks.InitRemote(t)
+	defer os.RemoveAll(remotePath)
 
-	cfg := mock.Config(gitRepo.Workdir())
-
-	repos, err := LoadRepos(cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Cleanup cloning
-	defer func() {
-		for _, repo := range repos {
-			os.RemoveAll(repo.Workdir())
-		}
-	}()
+	cfg := mock.Config(remotePath)
+	defer os.RemoveAll(cfg.LocalStore)
+	_, err := LoadRepos(cfg)
+	assert.Nil(t, err)
 }
 
-func TestLoadRepos_existingDir(t *testing.T) {
+//TestLoadReposExistingDir tests load to exsiting repo.
+func TestLoadReposExistingDir(t *testing.T) {
 	bareDir, err := ioutil.TempDir("", "bare-dir")
-	if err != nil {
-		t.Fatal(err)
-	}
+	defer os.RemoveAll(bareDir)
+	assert.Nil(t, err)
 
 	cfg := mock.Config(bareDir)
+	defer os.RemoveAll(cfg.LocalStore)
 
 	_, err = LoadRepos(cfg)
-	if err == nil {
-		t.Fatal("Expected failure for existing repository")
-	}
 
-	// Cleanup
-	defer func() {
-		os.RemoveAll(bareDir)
-	}()
+	assert.NotNil(t, err)
 }
 
-func TestLoadRepos_invalidRepo(t *testing.T) {
+//TestLoadReposInvalidRepo verifies failure in case wrong url provided.
+func TestLoadReposInvalidRepo(t *testing.T) {
 	cfg := mock.Config("bogus-url")
-
+	defer os.RemoveAll(cfg.LocalStore)
 	_, err := LoadRepos(cfg)
-	if err == nil {
-		t.Fatal("Expected failure for invalid repository url")
-	}
+	assert.NotNil(t, err)
 }
 
-func TestLoadRepos_existingRepo(t *testing.T) {
-	gitRepo, cleanup := testutil.GitInitTestRepo(t)
-	defer cleanup()
+func TestLoadReposExistingRepo(t *testing.T) {
+	_, remotePath := mocks.InitRemote(t)
+	defer os.RemoveAll(remotePath)
 
-	cfg := mock.Config(gitRepo.Workdir())
+	cfg := mock.Config(remotePath)
+	defer os.RemoveAll(cfg.LocalStore)
 	localRepoPath := filepath.Join(cfg.LocalStore, cfg.Repos[0].Name)
 
 	// Init a repo in the local store, with same name are the "remote"
 	err := os.Mkdir(localRepoPath, 0755)
+	assert.Nil(t, err)
+
+	repo, err := git.PlainInit(localRepoPath, false)
+	assert.Nil(t, err)
+
+	_, err = repo.CreateRemote(&config.RemoteConfig{
+		Name: "origin",
+		URLs: []string{"/foo/bar"},
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	repo, err := git.InitRepository(localRepoPath, false)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_, err = repo.Remotes.Create("origin", "/foo/bar")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	repos, err := LoadRepos(cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Cleanup cloning
-	defer func() {
-		for _, repo := range repos {
-			os.RemoveAll(repo.Workdir())
-		}
-	}()
+	_, err = LoadRepos(cfg)
+	assert.Nil(t, err)
 }

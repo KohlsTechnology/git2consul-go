@@ -1,17 +1,34 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package mock
 
 import (
+	"io/ioutil"
 	"os"
 	"time"
 
-	"github.com/Cimpress-MCP/go-git2consul/config"
+	"github.com/KohlsTechnology/git2consul-go/config"
 )
 
 // RepoConfig returns a mock Repo config object
-func RepoConfig(repoUrl string) *config.Repo {
+func RepoConfig(repoURL string) *config.Repo {
 	return &config.Repo{
 		Name:     "git2consul-test-local",
-		Url:      repoUrl,
+		URL:      repoURL,
 		Branches: []string{"master"},
 		Hooks: []*config.Hook{
 			{
@@ -23,16 +40,20 @@ func RepoConfig(repoUrl string) *config.Repo {
 }
 
 // Config returns a mock Config object with one repository configuration
-func Config(repoUrl string) *config.Config {
+func Config(repoURL string) *config.Config {
+	localStore, err := ioutil.TempDir("", "git2consul-test-local")
+	if err != nil {
+		localStore = os.TempDir()
+	}
 	return &config.Config{
-		LocalStore: os.TempDir(),
+		LocalStore: localStore,
 		HookSvr: &config.HookSvrConfig{
 			Port: 9000,
 		},
 		Repos: []*config.Repo{
 			{
 				Name:     "git2consul-test-local",
-				Url:      repoUrl,
+				URL:      repoURL,
 				Branches: []string{"master"},
 				Hooks: []*config.Hook{
 					{

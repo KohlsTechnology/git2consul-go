@@ -1,50 +1,111 @@
-# go-git2consul
+# git2consul.go
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/Cimpress-MCP/go-git2consul)][goreport]
+The git2consul.go tool is used to populate a [Consul](https://www.consul.io) key/value store from a git repo.
 
-[goreport]: https://goreportcard.com/report/github.com/Cimpress-MCP/go-git2consul
+The baseline source code was forked from [go-git2consul](https://github.com/Cimpress-MCP/go-git2consul) which was
+inspired by the orginal [git2consul](https://github.com/breser/git2consul) tool.
 
-***NOTE: go-git2consul is experimental and still under development, and therefore should not be used in production!***
+## Improvements Over NodeJS git2consul
+* uses the official Consul Go Lang client library
+* uses native Go Lang git implementation [go-git](https://github.com/src-d/go-git/)
+* removal of nodejs and git runtime dependencies
+* configuration is sourced locally instead of it being fetched from the Consul K/V
+* transaction atomicity implies the set of keys is stored either entirely or not at all. Along with atomicity the number of the KV API calls is limited. However there is a pending [issue](https://github.com/hashicorp/consul/issues/2921) as Consul transaction endpoint can handle only 64 items in the payload. The transactions are executed in 64 elements chunks.  
 
-go-git2consul is a port of [git2consul](https://github.com/Cimpress-MCP/git2consul), which had great success and adoption. go-git2consul takes on the same basic principles as its predecessor, and attempts to improve upon some of its feature sets as well as add new ones. There are a few advantages to go-git2consul, including, but is not limited to, the use of the official Consul API and the removal of runtime dependencies such as node and git.
+## Installation
 
-Configuration on go-git2consul is sourced locally instead of it being fetched from the KV. This provides better isolation in cases where multiple instances of git2consul are running in order to provide high-availability, and addresses the issues mentioned in [Cimpress-MCP/git2consul#73](https://github.com/Cimpress-MCP/git2consul/issues/73).
+git2consul.go comes in two variants:
+* as a single binary file which after downloading can be placed in any working directory - either on the workstation (from which git2consul will be executed) or on the Consul node (depends whether access to the git repository is available from the Consul nodes or not) 
+* as a source code that can be build on the user workstation ([How to build from src?](#compiling-from-source))
 
-## Configuration
+## Documentation
 
-Configuration is provided with a JSON file and passed in via the `-config` flag. Repository configuration will take care of cloning the repository into `local_store`, but it will not be responsible for creating the actual `local_store` directory. Similarly, it is expected that there is no collision of directory or file that contains the same name as the repository name under `local_store`, or git2consul will exit with an error. If there is a git repository under a specified repo name, and the origin URL is different from the one provided in the configuration, it will be overwritten.
+### Example
+Simple example usage.
 
-### Default configuration
+```
+$ git2consul -config config.json -basic -user mygituser -password mygitpass -once
+```
+
+Simple example config file.
+```
+{
+  "repos": [
+    {
+      "name": "example",
+      "url": "http://github.com/DummyOrg/ExampleRepo.git"
+    }
+  ]
+}
+```
+
+### Command Line Options
+
+```
+$ git2consul -help
+Usage of git2consul:
+  -basic
+        run with basic auth
+  -config string
+        path to config file
+  -debug
+        enable debugging mode
+  -key string
+        path to priv ssh key
+  -once
+        run git2consul once and exit
+  -password string
+        auth password
+  -ssh
+        run with ssh auth
+  -user string
+        auth user
+  -version
+        show version
+```
+
+### Configuration
+
+Configuration is provided with a JSON file and passed in via the `-config` flag. Repository
+configuration will take care of cloning the repository into `local_store`, but it will not
+be responsible for creating the actual `local_store` directory. Similarly, it is expected
+that there is no collision of directory or file that contains the same name as the repository
+name under `local_store`, or git2consul will exit with an error. If there is a git repository
+under a specified repo name, and the origin URL is different from the one provided in the
+configuration, it will be overwritten.
+
+#### Default configuration
 
 git2consul will attempt to use sane defaults for configuration. However, since git2consul needs to know which repository to pull from, minimal configuration is necessary.
 
-| Configuration        | Required | Default Value  | Available Values                           | Description
-|----------------------|----------|----------------|--------------------------------------------| -----------
-| local_store          | no       | `os.TempDir()` | `string`                                   | Local cache for git2consul to store its tracked repositories
-| webhook:address      | no       |                | `string`                                   | Webhook listener address that git2consul will be using
-| webhook:port         | no       | 9000           | `int`                                      | Webhook listener port that git2consul will be using
-| repos:name           | yes      |                | `string`                                   | Name of the repository. This will match the webhook path, if any are enabled
-| repos:url            | yes      |                | `string`                                   | The URL of the repository
-| repos:branches       | no       | master         | `string`                                   | Tracking branches of the repository
-| repos:hooks:type     | no       | polling        |  polling, github, stash, bitbucket, gitlab | Type of hook to use to fetch changes on the repository
-| repos:hooks:interval | no       | 60             | `int`                                      | Interval, in seconds, to poll if polling is enabled
-| consul:address       | no       | 127.0.0.1:8500 | `string`                                   | Consul address to connect to. It can be either the IP or FQDN with port included
-| consul:ssl           | no       | false          | true, false                                | Whether to use HTTPS to communicate with Consul
-| consul:ssl_verify    | no       | false          | true, false                                | Whether to verify certificates when connecting via SSL
-| consul:token         | no       |                | `string`                                   | Consul API Token
 
-## Available command option flags
+| Configuration             | Required | Default Value  | Available Values                           | Description
+|---------------------------|----------|----------------|--------------------------------------------| -----------
+| local_store               | no       | `os.TempDir()` | `string`                                   | Local cache for git2consul to store its tracked repositories
+| webhook:address           | no       |                | `string`                                   | Webhook listener address that git2consul will be using
+| webhook:port              | no       | 9000           | `int`                                      | Webhook listener port that git2consul will be using
+| repos:name                | yes      |                | `string`                                   | Name of the repository. This will match the webhook path, if any are enabled
+| repos:url                 | yes      |                | `string`                                   | The URL of the repository
+| repos:branches            | no       | master         | `string`                                   | Tracking branches of the repository
+| repos:source_root         | no       |                | `string`                                   | Source root to apply on the repo.
+| repos:expand_keys         | no       |                | true, false                                | Enable/disable file content evaluation.
+| repos:skip_branch_name    | no       | false          | true, false                                | Enable/disable branch name pruning.
+| repos:skip_repo_name      | no       | false          | true, false                                | Enable/disable repository name pruning.
+| repos:mount_point         | no       |                | `string`                                   | Sets the prefix which should be used for the path in the Consul KV Store
+| repos:credentials:username     | no       |                | `string`                          | Username for the Basic Auth
+| repos:credentials:password | no       |                | `string`                          | Password/token for the Basic Auth
+| repos:credentials:private_key:pk_key | no       |                | `string`      | Path to the priv key used for the authentication
+| repos:credentials:private_key:pk_username     | no       |     git         | `string`              | Username used with the ssh authentication
+| repos:credentials:private_key:pk_password | no       |                | `string`                  | Password used with the ssh authentication
+| repos:hooks:type          | no       | polling        |  polling, github, stash, bitbucket, gitlab | Type of hook to use to fetch changes on the repository
+| repos:hooks:interval      | no       | 60             | `int`                                      | Interval, in seconds, to poll if polling is enabled
+| repos:hooks:url           | no       | ??             | `string`                                   | ???
+| consul:address            | no       | 127.0.0.1:8500 | `string`                                   | Consul address to connect to. It can be either the IP or FQDN with port included
+| consul:ssl                | no       | false          | true, false                                | Whether to use HTTPS to communicate with Consul
+| consul:ssl_verify         | no       | false          | true, false                                | Whether to verify certificates when connecting via SSL
+| consul:token              | no       |                | `string`                                   | Consul API Token
 
-### `-config`
-The path to the configuration file. This flag is *required*.
-
-### `-once`
-Runs git2consul once and exits. This essentially ignores webhook polling.
-
-### `-version`
-Displays the version of git2consul and exits. All other commands are ignored.
-
-## Webhooks
+### Webhooks
 
 Webhooks will be served from a single port, and different repositories will be given different endpoints according to their name
 
@@ -55,19 +116,113 @@ Available endpoints:
 * `<webhook:address>:<webhook:port>/{repository}/bitbucket`
 * `<webhook:address>:<webhook:port>/{repository}/gitlab`
 
-## Future feature additions
-* File format backend
-* Support for source_root and mountpoint
-* Support for tags as branches
-* Support for Consul HTTP Basic Auth
-* Logger support for other handlers other than text
-* Auth support for webhooks banckends
 
+### Options
 
-## Development dependencies
-* Go 1.6
-* libgit2 v0.24.0
-* [glide](https://github.com/Masterminds/glide)
+#### source_root (default: undefined)
 
+The "source_root" instructs the app to navigate to the specified directory in the git repo making the value of source_root is trimed from the KV Store key. By default the entire repo is evaluated.
 
-*Influenced by these awesome tools: git2consul, consul-replicate, fabio*
+When you configure the source_root with `/top_level/lower_level` the file `/top_level/lower_level/foo/web.json` will be mapped to the KV store as `/foo/web.json`
+
+#### mount_point (default: undefined)
+
+The "mount_point" option sets the prefix for the path in the Consul KV Store under which the keys should be added.
+
+#### expand_keys (default: undefined)
+
+The "expand_keys" instructs the app to evaluate known types of files. The content of the file is evaluated to key-value pair and pushed to the Consul KV store.
+
+##### Supported formats
+* Text file - the file content is pushed to the KV store as it is.
+* Yaml file - the file is evaluated into key-value pair. i.e `configuration.yml`
+```
+---
+services:
+  apache:
+    port: 80
+  ssh:
+    port: 22
+```         
+
+will be evaluated to the following keys:
+* `/configuration/services/apache/port`
+* `/configuration/services/ssh/port`  
+
+#### skip_branch_name (default: false)
+
+The "skip_branch_name" instructs the app to prune the branch name. If set to true the branch name is pruned from the KV store key.
+
+#### skip_repo_name (default: false)
+
+The "skip_repo_name" instructs the app to prune the repository name. If set to true the repository name is pruned from the KV store key.  
+
+#### credentials
+
+The "credentials" option provides the possibility to pass the credentials to authenticate to private git repositories.  
+
+Sample config with basic auth (login:password/token)
+```
+{
+  "repos": [
+    {
+      "name": "example",
+      "url": "http://github.com/DummyOrg/ExampleRepo.git",
+      "credentials: {
+            "username": "foo",
+            "password": "bar"
+      }
+    }
+  ]
+}
+```
+Sample config with ssh auth
+```
+{
+  "repos": [
+    {
+      "name": "example",
+      "url": "http://github.com/DummyOrg/ExampleRepo.git",
+      "credentials: {
+            "private_key": {
+                  "pk_key": "/path/to/priv_key",
+                  "pk_username": "foo",
+                  "pk_password": "bar"
+            }
+      }
+    }
+  ]
+}
+```
+
+## Developing
+
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details.
+
+### Dependencies
+* Go 1.10+
+* [dep](https://github.com/golang/dep)
+
+### Compiling From Source
+```
+$ dep ensure
+$ go build -o build/bin/git2consul
+```
+
+For Development/Debugging
+```
+$ go build -gcflags='-N -l' -o build/bin/git2consul
+```
+
+## License
+
+See [LICENSE](LICENSE) for details.
+
+## Acknowledgement 
+
+See [ACKNOWLEDGEMENT.md](ACKNOWLEDGEMENT.md) for details.
+
+## Code of Conduct
+
+See [CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) for details.
+

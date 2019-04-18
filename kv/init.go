@@ -1,12 +1,33 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package kv
 
 import (
-	"github.com/Cimpress-MCP/go-git2consul/repository"
-	"gopkg.in/libgit2/git2go.v24"
+	"path/filepath"
+	"strings"
+
+	"github.com/KohlsTechnology/git2consul-go/repository"
+	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/object"
+	"gopkg.in/src-d/go-git.v4/utils/merkletrie"
 )
 
 // HandleInit handles initial fetching of the KV on start
-func (h *KVHandler) HandleInit(repos []*repository.Repository) error {
+func (h *KVHandler) HandleInit(repos []repository.Repo) error {
 	for _, repo := range repos {
 		err := h.handleRepoInit(repo)
 		if err != nil {
@@ -19,47 +40,44 @@ func (h *KVHandler) HandleInit(repos []*repository.Repository) error {
 
 // Handles differences on all branches of a repository, comparing the ref
 // of the branch against the one in the KV
-func (h *KVHandler) handleRepoInit(repo *repository.Repository) error {
+func (h *KVHandler) handleRepoInit(repo repository.Repo) error {
 	repo.Lock()
 	defer repo.Unlock()
 
-	itr, err := repo.NewReferenceIterator()
+	storer := repo.GetStorer()
+	itr, err := storer.IterReferences()
 	if err != nil {
 		return err
 	}
-	defer itr.Free()
 
-	// Handle all local refs
 	for {
 		ref, err := itr.Next()
 		if err != nil {
 			break
 		}
-
-		b, err := ref.Branch().Name()
-		if err != nil {
-			return err
+		if strings.Contains(ref.String(), "HEAD") {
+			continue
 		}
 
-		// Get only local refs
-		if ref.IsRemote() == false {
-			h.logger.Infof("KV GET ref: %s/%s", repo.Name(), b)
-			kvRef, err := h.getKVRef(repo, b)
+		if ref.Name().IsRemote() == false {
+			h.logger.Infof("KV GET ref: %s/%s", repo.Name(), ref.Name())
+			kvRef, err := h.getKVRef(repo, ref.Name().String())
+
 			if err != nil {
 				return err
 			}
 
-			localRef := ref.Target().String()
+			localRef := ref.Hash().String()
 
 			if len(kvRef) == 0 {
 				// There is no ref in the KV, push the entire branch
-				h.logger.Infof("KV PUT changes: %s/%s", repo.Name(), b)
-				h.putBranch(repo, ref.Branch())
+				h.logger.Infof("KV PUT changes: %s/%s", repo.Name(), ref.Name())
+				h.putBranch(repo, plumbing.ReferenceName(ref.Name().Short()))
 
-				h.logger.Infof("KV PUT ref: %s/%s", repo.Name(), b)
-				h.putKVRef(repo, b)
+				h.logger.Infof("KV PUT ref: %s/%s", repo.Name(), ref.Name())
+				h.putKVRef(repo, ref.Name().String())
 			} else if kvRef != localRef {
-				// Check if the ref belongs to that repo
+				//Check if the ref belongs to that repo
 				err := repo.CheckRef(kvRef)
 				if err != nil {
 					return err
@@ -72,46 +90,47 @@ func (h *KVHandler) handleRepoInit(repo *repository.Repository) error {
 				}
 				h.handleDeltas(repo, deltas)
 
-				err = h.putKVRef(repo, b)
+				err = h.putKVRef(repo, ref.Name().String())
 				if err != nil {
 					return err
 				}
-				h.logger.Debugf("KV PUT ref: %s/%s", repo.Name(), b)
+				h.logger.Debugf("KV PUT ref: %s/%s", repo.Name(), ref.Name())
 			}
 		}
 	}
-
 	return nil
 }
 
 // Helper function that handles deltas
-func (h *KVHandler) handleDeltas(repo *repository.Repository, deltas []git.DiffDelta) error {
-	// Handle modified and deleted files
-	for _, d := range deltas {
-		switch d.Status {
-		case git.DeltaRenamed:
-			h.logger.Debugf("Detected renamed file: %s", d.NewFile.Path)
-			h.logger.Infof("KV DEL %s/%s/%s", repo.Name(), repo.Branch(), d.OldFile.Path)
-			err := h.deleteKV(repo, d.OldFile.Path)
+func (h *KVHandler) handleDeltas(repo repository.Repo, diff object.Changes) error {
+	for _, d := range diff {
+		action, err := d.Action()
+		if err != nil {
+			return err
+		}
+		workDir := repository.WorkDir(repo)
+		switch action {
+		case merkletrie.Insert:
+			filePath := filepath.Join(workDir, d.To.Name)
+			h.logger.Debugf("Detected added file: %s", filePath)
+			file := Init(filePath, repo)
+			err := file.Create(h, repo)
 			if err != nil {
 				return err
 			}
-			h.logger.Infof("KV PUT %s/%s/%s", repo.Name(), repo.Branch(), d.NewFile.Path)
-			err = h.putKV(repo, d.NewFile.Path)
+		case merkletrie.Modify:
+			filePath := filepath.Join(workDir, d.To.Name)
+			h.logger.Debugf("Detected modified file: %s", filePath)
+			file := Init(filePath, repo)
+			err := file.Update(h, repo)
 			if err != nil {
 				return err
 			}
-		case git.DeltaAdded, git.DeltaModified:
-			h.logger.Debugf("Detected added/modified file: %s", d.NewFile.Path)
-			h.logger.Infof("KV PUT %s/%s/%s", repo.Name(), repo.Branch(), d.NewFile.Path)
-			err := h.putKV(repo, d.NewFile.Path)
-			if err != nil {
-				return err
-			}
-		case git.DeltaDeleted:
-			h.logger.Debugf("Detected deleted file: %s", d.OldFile.Path)
-			h.logger.Infof("KV DEL %s/%s/%s", repo.Name(), repo.Branch(), d.OldFile.Path)
-			err := h.deleteKV(repo, d.OldFile.Path)
+		case merkletrie.Delete:
+			filePath := filepath.Join(workDir, d.From.Name)
+			h.logger.Debugf("Detected deleted file: %s", filePath)
+			file := Init(filePath, repo)
+			err := file.Delete(h, repo)
 			if err != nil {
 				return err
 			}

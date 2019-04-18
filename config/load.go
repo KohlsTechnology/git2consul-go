@@ -1,3 +1,19 @@
+/*
+Copyright 2019 Kohl's Department Stores, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package config
 
 import (
@@ -5,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/apex/log"
@@ -60,7 +77,7 @@ func (c *Config) checkConfig() error {
 		}
 
 		// Check on Url
-		if len(repo.Url) == 0 {
+		if len(repo.URL) == 0 {
 			return fmt.Errorf("%s does no have a repository URL", repo.Name)
 		}
 
@@ -72,6 +89,26 @@ func (c *Config) checkConfig() error {
 
 			if hook.Type == "polling" && hook.Interval <= 0 {
 				return fmt.Errorf("Invalid interval: %s. Hook interval must be greater than zero", hook.Interval)
+			}
+		}
+
+		// Check on mount_point
+		if len(repo.MountPoint) != 0 {
+			if strings.HasPrefix(repo.MountPoint, "/") {
+				return fmt.Errorf("Invalid mount point format for the %s repository - found \"/\" in the beginning of the path", repo.Name)
+			}
+			if !strings.HasSuffix(repo.MountPoint, "/") {
+				return fmt.Errorf("Invalid mount point format for the %s repository - missing trailing \"/\"", repo.Name)
+			}
+		}
+
+		// Check on source_root
+		if len(repo.SourceRoot) != 0 {
+			if !strings.HasPrefix(repo.SourceRoot, "/") {
+				return fmt.Errorf("Invalid source_root format for the %s repository - missing \"/\" in the beginning of the path", repo.Name)
+			}
+			if !strings.HasSuffix(repo.SourceRoot, "/") {
+				return fmt.Errorf("Invalid source_root format for the %s repository - missing trailing \"/\"", repo.Name)
 			}
 		}
 	}
