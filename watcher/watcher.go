@@ -19,9 +19,9 @@ package watch
 import (
 	"sync"
 
-	"github.com/apex/log"
 	"github.com/KohlsTechnology/git2consul-go/config"
 	"github.com/KohlsTechnology/git2consul-go/repository"
+	"github.com/apex/log"
 )
 
 // Watcher is used to keep track of changes of the repositories

@@ -23,10 +23,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/apex/log"
-	"github.com/apex/log/handlers/text"
 	"github.com/KohlsTechnology/git2consul-go/config"
 	"github.com/KohlsTechnology/git2consul-go/runner"
+	"github.com/apex/log"
+	"github.com/apex/log/handlers/text"
 )
 
 // Exit code represented as int values for particular errors.

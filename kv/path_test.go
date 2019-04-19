@@ -19,10 +19,10 @@ package kv
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/KohlsTechnology/git2consul-go/config"
 	"github.com/KohlsTechnology/git2consul-go/kv/mocks"
 	"github.com/KohlsTechnology/git2consul-go/repository"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPathHandlerWithoutMountPointAndSourceRoot(t *testing.T) {

@@ -20,11 +20,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/apex/log"
 	"github.com/KohlsTechnology/git2consul-go/config"
 	"github.com/KohlsTechnology/git2consul-go/kv"
 	"github.com/KohlsTechnology/git2consul-go/repository"
 	"github.com/KohlsTechnology/git2consul-go/watcher"
+	"github.com/apex/log"
 )
 
 // Runner is used to initialize a watcher and kvHandler

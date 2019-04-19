@@ -24,11 +24,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/apex/log"
-	"github.com/stretchr/testify/assert"
 	"github.com/KohlsTechnology/git2consul-go/config"
 	"github.com/KohlsTechnology/git2consul-go/kv/mocks"
 	"github.com/KohlsTechnology/git2consul-go/repository"
+	"github.com/apex/log"
+	"github.com/stretchr/testify/assert"
 )
 
 //TestPutBranch verifies putBranch function.

@@ -19,9 +19,9 @@ package kv
 import (
 	"fmt"
 
+	"github.com/KohlsTechnology/git2consul-go/config"
 	"github.com/apex/log"
 	"github.com/hashicorp/consul/api"
-	"github.com/KohlsTechnology/git2consul-go/config"
 )
 
 const consulTxnSize = 64

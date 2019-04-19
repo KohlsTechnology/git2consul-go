@@ -17,8 +17,8 @@ limitations under the License.
 package kv
 
 import (
-	"github.com/hashicorp/consul/api"
 	"github.com/KohlsTechnology/git2consul-go/repository"
+	"github.com/hashicorp/consul/api"
 )
 
 //Handler interface for Key-Value store.
