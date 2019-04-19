@@ -1,19 +1,18 @@
 ---
+branches:
+  only:
+  - master
 language: go
 matrix:
   include:
     - go: 1.13.x
 
 before_install:
-  - export GO111MODULE=on
-  - go get golang.org/x/lint/golint
+  - GO111MODULE=off go get golang.org/x/lint/golint
 
 install:
   - # skip
 
 script:
-  - test -z $(gofmt -l .)
-  - golint $(go list ./...)
-  - go vet $(go list ./...)
-  - go test $(go list ./...)
-  - go build
+  - make test-dirty
+  - make test
