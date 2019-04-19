@@ -4,6 +4,7 @@ matrix:
   include:
     - go: 1.10.x
     - go: 1.11.x
+    - go: 1.12.x
 
 before_install:
   - go get github.com/golang/dep/cmd/dep
@@ -15,6 +16,7 @@ install:
 script:
   - gofmt -d .
   - golint $(go list ./... | grep -v /vendor/)
+  - dep ensure -v
   - go vet $(go list ./... | grep -v /vendor/)
-  - dep ensure
+  - go test $(go list ./... | grep -v /vendor/)
   - go build

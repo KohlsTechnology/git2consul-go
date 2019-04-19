@@ -25,10 +25,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/apex/log"
-	"github.com/stretchr/testify/assert"
 	"github.com/KohlsTechnology/git2consul-go/config"
 	"github.com/KohlsTechnology/git2consul-go/kv/mocks"
+	"github.com/apex/log"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUpdateToHead(t *testing.T) {

@@ -21,9 +21,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/KohlsTechnology/git2consul-go/config/mock"
 	"github.com/KohlsTechnology/git2consul-go/repository/mocks"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestClone(t *testing.T) {

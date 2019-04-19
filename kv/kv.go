@@ -17,8 +17,8 @@ limitations under the License.
 package kv
 
 import (
-	"github.com/hashicorp/consul/api"
 	"github.com/KohlsTechnology/git2consul-go/repository"
+	"github.com/hashicorp/consul/api"
 )
 
 // PutKV triggers an KV api request to put data to the Consul.

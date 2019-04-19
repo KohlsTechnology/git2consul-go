@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"path"
 
-	"github.com/hashicorp/consul/api"
 	"github.com/KohlsTechnology/git2consul-go/repository"
+	"github.com/hashicorp/consul/api"
 	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
