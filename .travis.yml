@@ -14,7 +14,7 @@ install:
   - # skip
 
 script:
-  - gofmt -d .
+  - test -z "$(gofmt -l . | grep -v ^vendor)"
   - golint $(go list ./... | grep -v /vendor/)
   - dep ensure -v
   - go vet $(go list ./... | grep -v /vendor/)
