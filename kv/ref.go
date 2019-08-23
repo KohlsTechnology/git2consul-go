@@ -28,7 +28,10 @@ import (
 // Get local branch ref from the KV
 func (h *KVHandler) getKVRef(repo repository.Repo, branchName string) (string, error) {
 	refFile := fmt.Sprintf("%s.ref", branchName)
-	key := path.Join(repo.Name(), refFile)
+
+	mountPoint := repo.GetConfig().MountPoint
+
+	key := path.Join(mountPoint, repo.Name(), refFile)
 
 	pair, _, err := h.Get(key, nil)
 	if err != nil {
@@ -53,7 +56,10 @@ func (h *KVHandler) getKVRef(repo repository.Repo, branchName string) (string, e
 // Put the local branch ref to the KV
 func (h *KVHandler) putKVRef(repo repository.Repo, branchName string) error {
 	refFile := fmt.Sprintf("%s.ref", branchName)
-	key := path.Join(repo.Name(), refFile)
+
+	mountPoint := repo.GetConfig().MountPoint
+
+	key := path.Join(mountPoint, repo.Name(), refFile)
 
 	rawRef, err := repo.ResolveRevision(plumbing.Revision("refs/heads/" + branchName))
 	if err != nil {
