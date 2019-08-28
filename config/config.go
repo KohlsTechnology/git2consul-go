@@ -73,10 +73,11 @@ type HookSvrConfig struct {
 
 // ConsulConfig is the configuration for the Consul client
 type ConsulConfig struct {
-	Address   string `json:"address"`
-	Token     string `json:"token,omitempty"`
-	SSLEnable bool   `json:"ssl"`
-	SSLVerify bool   `json:"ssl_verify,omitempty"`
+	Address       string `json:"address"`
+	Token         string `json:"token,omitempty"`
+	SSLEnable     bool   `json:"ssl"`
+	SSLVerify     bool   `json:"ssl_verify,omitempty"`
+	ConsulTxnSize int    `json:"consul_txn_size"`
 }
 
 func (r *Repo) String() string {

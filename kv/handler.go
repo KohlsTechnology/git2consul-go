@@ -24,13 +24,12 @@ import (
 	"github.com/hashicorp/consul/api"
 )
 
-const consulTxnSize = 64
-
 // KVHandler is used to manipulate the KV
 type KVHandler struct {
 	API
 	api.KVTxnOps
 	logger *log.Entry
+	consulTxnSize int
 }
 
 //TransactionIntegrityError implements error to handle any violation of transaction atomicity.
@@ -57,6 +56,7 @@ func New(config *config.ConsulConfig) (*KVHandler, error) {
 		API:      kv,
 		KVTxnOps: nil,
 		logger:   logger,
+		consulTxnSize:	  config.ConsulTxnSize,
 	}
 
 	return handler, nil
@@ -131,7 +131,7 @@ func (h *KVHandler) Commit() error {
 		length := len(h.KVTxnOps)
 		kvTxnOps = append(h.KVTxnOps[1:length-1], h.KVTxnOps[0], h.KVTxnOps[length-1])
 	}
-	for _, slice := range h.splitIntoSlices(kvTxnOps, consulTxnSize) {
+	for _, slice := range h.splitIntoSlices(kvTxnOps, h.consulTxnSize) {
 		err := h.executeTransaction(slice)
 		if err != nil {
 			return err

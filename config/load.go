@@ -156,4 +156,9 @@ func (c *Config) setDefaultConsulConfig() {
 	if c.Consul.Address == "" {
 		c.Consul.Address = defConfig.Address
 	}
+
+	// Set the default consulTxnSize to 64
+	if c.Consul.ConsulTxnSize == 0 {
+		c.Consul.ConsulTxnSize = 64
+	}
 }
