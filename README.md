@@ -45,22 +45,12 @@ Simple example config file.
 ```
 $ git2consul -help
 Usage of git2consul:
-  -basic
-        run with basic auth
   -config string
         path to config file
   -debug
         enable debugging mode
-  -key string
-        path to priv ssh key
   -once
         run git2consul once and exit
-  -password string
-        auth password
-  -ssh
-        run with ssh auth
-  -user string
-        auth user
   -version
         show version
 ```
