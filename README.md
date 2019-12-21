@@ -196,14 +196,12 @@ See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details.
 ### Compiling From Source
 ```
 $ export GO111MODULE=on
-$ go mod vendor
 $ go build -o build/bin/git2consul
 ```
 
 For Development/Debugging
 ```
 $ export GO111MODULE=on
-$ go mod vendor
 $ go build -gcflags='-N -l' -o build/bin/git2consul
 ```
 
