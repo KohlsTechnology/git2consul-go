@@ -11,12 +11,12 @@ inspired by the orginal [git2consul](https://github.com/breser/git2consul) tool.
 * uses native Go Lang git implementation [go-git](https://github.com/src-d/go-git/)
 * removal of nodejs and git runtime dependencies
 * configuration is sourced locally instead of it being fetched from the Consul K/V
-* transaction atomicity implies the set of keys is stored either entirely or not at all. Along with atomicity the number of the KV API calls is limited. However there is a pending [issue](https://github.com/hashicorp/consul/issues/2921) as Consul transaction endpoint can handle only 64 items in the payload. The transactions are executed in 64 elements chunks.  
+* transaction atomicity implies the set of keys is stored either entirely or not at all. Along with atomicity the number of the KV API calls is limited. However there is a pending [issue](https://github.com/hashicorp/consul/issues/2921) as Consul transaction endpoint can handle only 64 items in the payload. The transactions are executed in 64 elements chunks.
 
 ## Installation
 
 git2consul.go comes in two variants:
-* as a single binary file which after downloading can be placed in any working directory - either on the workstation (from which git2consul will be executed) or on the Consul node (depends whether access to the git repository is available from the Consul nodes or not) 
+* as a single binary file which after downloading can be placed in any working directory - either on the workstation (from which git2consul will be executed) or on the Consul node (depends whether access to the git repository is available from the Consul nodes or not)
 * as a source code that can be build on the user workstation ([How to build from src?](#compiling-from-source))
 
 ## Documentation
@@ -45,22 +45,12 @@ Simple example config file.
 ```
 $ git2consul -help
 Usage of git2consul:
-  -basic
-        run with basic auth
   -config string
         path to config file
   -debug
         enable debugging mode
-  -key string
-        path to priv ssh key
   -once
         run git2consul once and exit
-  -password string
-        auth password
-  -ssh
-        run with ssh auth
-  -user string
-        auth user
   -version
         show version
 ```
@@ -144,11 +134,11 @@ services:
     port: 80
   ssh:
     port: 22
-```         
+```
 
 will be evaluated to the following keys:
 * `/configuration/services/apache/port`
-* `/configuration/services/ssh/port`  
+* `/configuration/services/ssh/port`
 
 #### skip_branch_name (default: false)
 
@@ -156,11 +146,11 @@ The "skip_branch_name" instructs the app to prune the branch name. If set to tru
 
 #### skip_repo_name (default: false)
 
-The "skip_repo_name" instructs the app to prune the repository name. If set to true the repository name is pruned from the KV store key.  
+The "skip_repo_name" instructs the app to prune the repository name. If set to true the repository name is pruned from the KV store key.
 
 #### credentials
 
-The "credentials" option provides the possibility to pass the credentials to authenticate to private git repositories.  
+The "credentials" option provides the possibility to pass the credentials to authenticate to private git repositories.
 
 Sample config with basic auth (login:password/token)
 ```
@@ -201,17 +191,17 @@ Sample config with ssh auth
 See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details.
 
 ### Dependencies
-* Go 1.10+
-* [dep](https://github.com/golang/dep)
+* Go 1.13+
 
 ### Compiling From Source
 ```
-$ dep ensure
+$ export GO111MODULE=on
 $ go build -o build/bin/git2consul
 ```
 
 For Development/Debugging
 ```
+$ export GO111MODULE=on
 $ go build -gcflags='-N -l' -o build/bin/git2consul
 ```
 
@@ -219,7 +209,7 @@ $ go build -gcflags='-N -l' -o build/bin/git2consul
 
 See [LICENSE](LICENSE) for details.
 
-## Acknowledgement 
+## Acknowledgement
 
 See [ACKNOWLEDGEMENT.md](ACKNOWLEDGEMENT.md) for details.
 
