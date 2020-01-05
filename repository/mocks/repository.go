@@ -27,6 +27,7 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 )
 
+// InitRemote TODO write useful documentation here
 func InitRemote(t *testing.T) (*git.Repository, string) {
 	repoPath, err := ioutil.TempDir("", "git2consul-remote")
 	if err != nil {
@@ -45,6 +46,7 @@ func InitRemote(t *testing.T) (*git.Repository, string) {
 	return repo, repoPath
 }
 
+// Add TODO write useful documentation here
 func Add(t *testing.T, repo *git.Repository, path string, content []byte) {
 	w, err := repo.Worktree()
 	if err != nil {
@@ -82,6 +84,7 @@ func getSignature() *object.Signature {
 	return sig
 }
 
+// Commit TODO write useful documentation here
 func Commit(t *testing.T, repo *git.Repository, message string) {
 	w, err := repo.Worktree()
 	if err != nil {

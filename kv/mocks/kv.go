@@ -28,11 +28,13 @@ type item struct {
 	modifyindex uint64
 }
 
+// KV TODO write a useful documentation here
 type KV struct {
 	T     *testing.T
 	items map[string]*item
 }
 
+// Get TODO write a useful documentation here
 func (kv *KV) Get(key string, opts *api.QueryOptions) (*api.KVPair, *api.QueryMeta, error) {
 	kv.T.Logf("KV Get %s", key)
 	if val, ok := kv.items[key]; ok {
@@ -41,6 +43,7 @@ func (kv *KV) Get(key string, opts *api.QueryOptions) (*api.KVPair, *api.QueryMe
 	return nil, nil, nil
 }
 
+// Put TODO write a useful documentation here
 func (kv *KV) Put(kvPair *api.KVPair, wOptions *api.WriteOptions) (*api.WriteMeta, error) {
 	if kv.items == nil {
 		kv.items = make(map[string]*item)
@@ -50,11 +53,13 @@ func (kv *KV) Put(kvPair *api.KVPair, wOptions *api.WriteOptions) (*api.WriteMet
 	return nil, nil
 }
 
+// Delete TODO write a useful documentation here
 func (kv *KV) Delete(key string, wOptions *api.WriteOptions) (*api.WriteMeta, error) {
 	delete(kv.items, key)
 	return nil, nil
 }
 
+// Txn TODO write a useful documentation here
 func (kv *KV) Txn(txnops api.KVTxnOps, opts *api.QueryOptions) (bool, *api.KVTxnResponse, *api.QueryMeta, error) {
 	var checkIndexItem *api.KVTxnOp
 	if length := len(txnops); length > 1 && txnops[length-2].Verb == api.KVCheckIndex {
