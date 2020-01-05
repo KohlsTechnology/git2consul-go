@@ -12,7 +12,7 @@ build:
 	CGO_ENABLED=0 go build -o $(BINARY)
 
 .PHONY: test
-test: fmt lint vet test-unit
+test: fmt vet test-unit
 
 .PHONY: test-unit
 test-unit:
