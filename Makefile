@@ -1,4 +1,10 @@
 BINARY = git2consul
+COMMIT := $(shell git rev-parse HEAD)
+BRANCH := $(shell git symbolic-ref --short -q HEAD || echo HEAD)
+DATE := $(shell date -u +%Y%m%d-%H:%M:%S)
+VERSION_PKG = github.com/KohlsTechnology/git2consul-go/pkg/version
+LDFLAGS := "-X ${VERSION_PKG}.Branch=${BRANCH} -X ${VERSION_PKG}.BuildDate=${DATE} \
+	-X ${VERSION_PKG}.GitSHA1=${COMMIT}"
 
 .PHONY: all
 all: build
@@ -9,7 +15,7 @@ clean:
 
 .PHONY: build
 build:
-	CGO_ENABLED=0 go build -o $(BINARY)
+	CGO_ENABLED=0 go build -o $(BINARY) -ldflags $(LDFLAGS)
 
 .PHONY: test
 test: fmt vet test-unit

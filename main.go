@@ -18,12 +18,12 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/KohlsTechnology/git2consul-go/config"
+	"github.com/KohlsTechnology/git2consul-go/pkg/version"
 	"github.com/KohlsTechnology/git2consul-go/runner"
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/text"
@@ -40,12 +40,12 @@ const (
 
 func main() {
 	var filename string
-	var version bool
+	var printVersion bool
 	var debug bool
 	var once bool
 
 	flag.StringVar(&filename, "config", "", "path to config file")
-	flag.BoolVar(&version, "version", false, "show version")
+	flag.BoolVar(&printVersion, "version", false, "show version")
 	flag.BoolVar(&debug, "debug", false, "enable debugging mode")
 	flag.BoolVar(&once, "once", false, "run git2consul once and exit")
 	flag.Parse()
@@ -54,18 +54,15 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	if version {
-		fmt.Println("git2consul", "version", Version)
-		if GitCommit != "" {
-			fmt.Printf("  %-9s%s\n", "Build:", GitCommit)
-		}
+	if printVersion {
+		version.Print()
 		return
 	}
 
 	// TODO: Accept other logger inputs
 	log.SetHandler(text.New(os.Stderr))
 
-	log.Infof("Starting git2consul version: %s", Version)
+	log.Infof("Starting git2consul version: %s", version.Version)
 
 	if len(filename) == 0 {
 		log.Error("No configuration file provided")
