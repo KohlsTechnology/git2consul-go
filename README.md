@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/KohlsTechnology/git2consul-go.svg?branch=master)](https://travis-ci.com/KohlsTechnology/git2consul-go)
+[![codecov](https://codecov.io/gh/KohlsTechnology/git2consul-go/branch/master/graph/badge.svg)](https://codecov.io/gh/KohlsTechnology/git2consul-go)
 [![Go Report Card](https://goreportcard.com/badge/github.com/KohlsTechnology/git2consul-go)](https://goreportcard.com/report/github.com/KohlsTechnology/git2consul-go)
 
 # git2consul-go
