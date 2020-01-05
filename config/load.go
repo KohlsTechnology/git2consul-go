@@ -68,7 +68,7 @@ func Load(file string) (*Config, error) {
 	return config, nil
 }
 
-// Check for the validitiy of the configuration file
+// Check for the validity of the configuration file
 func (c *Config) checkConfig() error {
 	for _, repo := range c.Repos {
 		// Check on name

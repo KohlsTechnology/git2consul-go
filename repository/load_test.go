@@ -47,7 +47,7 @@ func TestLoadRepos(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-//TestLoadReposExistingDir tests load to exsiting repo.
+//TestLoadReposExistingDir tests load to existing repo.
 func TestLoadReposExistingDir(t *testing.T) {
 	bareDir, err := ioutil.TempDir("", "bare-dir")
 	defer os.RemoveAll(bareDir)

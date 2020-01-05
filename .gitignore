@@ -1,4 +1,5 @@
-/build/bin
+coverage.txt
+git2consul
 .idea
 *.swp
 .vscode

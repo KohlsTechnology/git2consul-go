@@ -27,6 +27,7 @@ import (
 	"gopkg.in/src-d/go-git.v4/storage"
 )
 
+// Repo TODO write a useful documentation here
 type Repo struct {
 	adds   []string
 	Config *config.Repo
@@ -36,27 +37,33 @@ type Repo struct {
 	hashes map[string]plumbing.Hash
 }
 
+// Name TODO write a useful documentation here
 func (r *Repo) Name() string {
 	return "repository_mock"
 }
 
+// GetConfig TODO write a useful documentation here
 func (r *Repo) GetConfig() *config.Repo {
 	return r.Config
 }
 
+// Add TODO write a useful documentation here
 func (r *Repo) Add(path string) {
 	r.adds = append(r.adds, path)
 }
 
+// CheckRef TODO write a useful documentation here
 func (r *Repo) CheckRef(branch string) error {
 	return nil
 }
 
+// CheckoutBranch TODO write a useful documentation here
 func (r *Repo) CheckoutBranch(branch plumbing.ReferenceName) error {
 	r.branch = branch
 	return nil
 }
 
+// DiffStatus TODO write a useful documentation here
 func (r *Repo) DiffStatus(commit string) (object.Changes, error) {
 	var changes object.Changes
 	for _, add := range r.adds {
@@ -66,6 +73,7 @@ func (r *Repo) DiffStatus(commit string) (object.Changes, error) {
 	return changes, nil
 }
 
+// Head TODO write a useful documentation here
 func (r *Repo) Head() (*plumbing.Reference, error) {
 	if r.branch == "" {
 		r.branch = plumbing.NewReferenceFromStrings("master", "").Name()
@@ -74,6 +82,7 @@ func (r *Repo) Head() (*plumbing.Reference, error) {
 	return plumbing.NewHashReference(r.branch, r.hashes[r.branch.Short()]), nil
 }
 
+// Pull TODO write a useful documentation here
 func (r *Repo) Pull(branch string) error {
 	if r.hashes == nil {
 		r.hashes = make(map[string]plumbing.Hash)
@@ -88,22 +97,29 @@ func (r *Repo) Pull(branch string) error {
 	return nil
 }
 
+// ResolveRevision TODO write a useful documentation here
 func (r *Repo) ResolveRevision(plumbing.Revision) (*plumbing.Hash, error) {
 	hash := r.hashes[r.branch.Short()]
 	return &hash, nil
 }
 
+// Worktree TODO write a useful documentation here
 func (r *Repo) Worktree() (*git.Worktree, error) {
 	return &git.Worktree{Filesystem: osfs.New(r.Path)}, nil
 }
 
-func (r *Repo) Lock()   {}
+// Lock TODO write a useful documentation here
+func (r *Repo) Lock() {}
+
+// Unlock TODO write a useful documentation here
 func (r *Repo) Unlock() {}
 
+// GetStorer TODO write a useful documentation here
 func (r *Repo) GetStorer() storage.Storer {
 	return nil
 }
 
+// Branch TODO write a useful documentation here
 func (r *Repo) Branch() plumbing.ReferenceName {
 	return r.branch
 }
