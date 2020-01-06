@@ -1,5 +1,5 @@
 /*
-Copyright 2019 Kohl's Department Stores, Inc.
+Copyright 2020 Kohl's Department Stores, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,12 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package version
 
-// The git commit that will be used to describe the version
-var (
-	GitCommit string
+import (
+	"fmt"
+	"runtime"
 )
 
-// Version of the program
-const Version = "v0.1.1-dev"
+// Application build information.
+var (
+	Branch    string
+	BuildDate string
+	GitSHA1   string
+	Version   = "v0.1.1-dev"
+)
+
+// Print writes application version details to standard output.
+func Print() {
+	// TODO remove hard coded "git2consul" string here
+	fmt.Printf("git2consul, version %v (branch: %v, revision: %v)\n", Version, Branch, GitSHA1)
+	fmt.Println("build date:", BuildDate)
+	fmt.Println("go version:", runtime.Version())
+}
