@@ -1,4 +1,5 @@
 coverage.txt
+dist/
 git2consul
 .idea
 *.swp

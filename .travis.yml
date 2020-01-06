@@ -2,20 +2,37 @@
 branches:
   only:
   - master
+  - /^v\d+\.\d+\.\d+$/
+sudo: required
 language: go
 matrix:
   include:
     - go: 1.13.x
+env:
+  matrix:
+  - GO_RELEASER_VERSION=v0.123.3
 
 before_install:
   - GO111MODULE=off go get golang.org/x/lint/golint
+  - curl -L -o /tmp/goreleaser.tar.gz https://github.com/goreleaser/goreleaser/releases/download/${GO_RELEASER_VERSION}/goreleaser_Linux_x86_64.tar.gz
+  - sudo tar -xzf /tmp/goreleaser.tar.gz -C /usr/local/bin/ && sudo chmod +x /usr/local/bin/goreleaser
 
 install:
   - # skip
 
 script:
   - make test-dirty
+  - make test-release
   - make test
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+# Calls goreleaser to build and push artifacts
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: make clean release
+  on:
+    tags: true
+    condition: $TRAVIS_OS_NAME = linux
