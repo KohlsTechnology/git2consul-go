@@ -202,6 +202,19 @@ See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details.
 $ make build
 ```
 
+### Releases
+This project is using [goreleaser](https://goreleaser.com). GitHub release creation is automated using Travis
+CI. New releases are automatically created when new tags are pushed to the repo.
+```
+$ TAG=v0.0.2 make tag
+```
+
+How to manually create a release without relying on Travis CI.
+```
+$ TAG=v0.0.2 make tag
+$ GITHUB_TOKEN=xxx make clean release
+```
+
 ## License
 
 See [LICENSE](LICENSE) for details.

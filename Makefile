@@ -5,13 +5,14 @@ DATE := $(shell date -u +%Y%m%d-%H:%M:%S)
 VERSION_PKG = github.com/KohlsTechnology/git2consul-go/pkg/version
 LDFLAGS := "-X ${VERSION_PKG}.Branch=${BRANCH} -X ${VERSION_PKG}.BuildDate=${DATE} \
 	-X ${VERSION_PKG}.GitSHA1=${COMMIT}"
+TAG?=""
 
 .PHONY: all
 all: build
 
 .PHONY: clean
 clean:
-	rm -rf $(BINARY)
+	rm -rf $(BINARY) dist/
 
 .PHONY: build
 build:
@@ -30,6 +31,11 @@ test-dirty: build
 	go mod tidy
 	git diff --exit-code
 
+# Make sure goreleaser is working
+.PHONY: test-release
+test-release:
+	BRANCH=$(BRANCH) COMMIT=$(COMMIT) DATE=$(DATE) VERSION_PKG=$(VERSION_PKG) goreleaser --snapshot --skip-publish --rm-dist
+
 .PHONY: fmt
 fmt:
 	test -z "$(shell gofmt -l .)"
@@ -41,3 +47,13 @@ lint:
 .PHONY: vet
 vet:
 	VET_INPUT="$(shell go list ./...)"; go vet $$VET_INPUT
+
+.PHONY: tag
+tag:
+	git tag -a $(TAG) -m "Release $(TAG)"
+	git push origin $(TAG)
+
+# Requires GITHUB_TOKEN environment variable to be set
+.PHONY: release
+release:
+	BRANCH=$(BRANCH) COMMIT=$(COMMIT) DATE=$(DATE) VERSION_PKG=$(VERSION_PKG) goreleaser
