@@ -1,20 +1,24 @@
-# Pull Request Template
+<!--
+    Please read https://github.com/KohlsTechnology/git2consul-go/blob/master/.github/PULL_REQUEST_TEMPLATE.md before submitting
+    your pull request. Please fill in each section below to help us better prioritize your pull request. Thanks!
+-->
 
-## Description
+**Description**
 
-Please provide a summary of the change and which issue it fixes. 
+<!-- Please provide a summary of the change here. -->
 
-Fixes #(issue)
+<!-- Please link to all GitHub issue that this pull request implements(i.e. Fixes #123) -->
+Fixes #ISSUE
 
-## Type of change
+**Type of change**
 
-Please delete options that are not relevant.
+<!-- Please delete options that are not relevant. -->
 
 * Bug fix (non-breaking change which fixes an issue)
 * New feature (non-breaking change which adds functionality)
 * Breaking change (fix or feature that would cause existing functionality to not work as expected)
-* This change requires a documentation update
 
-## Environment
+**Checklist**
 
-* Runtime version(Java, Go, Python, etc):
+- [ ] Unit tests updated
+- [ ] Documentation updated
