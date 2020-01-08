@@ -92,7 +92,7 @@ git2consul will attempt to use sane defaults for configuration. However, since g
 | repos:credentials:private_key:pk_key | no       |                | `string`      | Path to the priv key used for the authentication
 | repos:credentials:private_key:pk_username     | no       |     git         | `string`              | Username used with the ssh authentication
 | repos:credentials:private_key:pk_password | no       |                | `string`                  | Password used with the ssh authentication
-| repos:hooks:type          | no       | polling        |  polling, github, stash, bitbucket, gitlab | Type of hook to use to fetch changes on the repository
+| repos:hooks:type          | no       | polling        |  polling, webhook | Type of hook to use to fetch changes on the repository. See [below](#webhooks).
 | repos:hooks:interval      | no       | 60             | `int`                                      | Interval, in seconds, to poll if polling is enabled
 | repos:hooks:url           | no       | ??             | `string`                                   | ???
 | consul:address            | no       | 127.0.0.1:8500 | `string`                                   | Consul address to connect to. It can be either the IP or FQDN with port included
