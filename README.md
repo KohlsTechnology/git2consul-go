@@ -99,6 +99,7 @@ git2consul will attempt to use sane defaults for configuration. However, since g
 | consul:ssl                | no       | false          | true, false                                | Whether to use HTTPS to communicate with Consul
 | consul:ssl_verify         | no       | false          | true, false                                | Whether to verify certificates when connecting via SSL
 | consul:token              | no       |                | `string`                                   | Consul API Token
+| consul:consul_txn_size    | no       | 64             | `int`                                      | KV slice size to send to Consul (affect to "CreateIndex" and "ModifyIndex")
 
 ### Webhooks
 
@@ -163,7 +164,7 @@ Sample config with basic auth (login:password/token)
     {
       "name": "example",
       "url": "http://github.com/DummyOrg/ExampleRepo.git",
-      "credentials: {
+      "credentials": {
             "username": "foo",
             "password": "bar"
       }
@@ -178,7 +179,7 @@ Sample config with ssh auth
     {
       "name": "example",
       "url": "http://github.com/DummyOrg/ExampleRepo.git",
-      "credentials: {
+      "credentials": {
             "private_key": {
                   "pk_key": "/path/to/priv_key",
                   "pk_username": "foo",
