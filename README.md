@@ -177,7 +177,7 @@ Sample config with ssh auth
   "repos": [
     {
       "name": "example",
-      "url": "http://github.com/DummyOrg/ExampleRepo.git",
+      "url": "ssh://github.com/DummyOrg/ExampleRepo.git",
       "credentials: {
             "private_key": {
                   "pk_key": "/path/to/priv_key",
