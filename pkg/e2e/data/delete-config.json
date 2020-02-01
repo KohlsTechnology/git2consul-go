@@ -1,0 +1,12 @@
+{
+	"repos": [
+		{
+			"name": "e2e",
+			"url": "http://github.com/KohlsTechnology/git2consul-go.git",
+			"branches": [
+				"master"
+			],
+			"source_root": "/pkg/e2e/data/delete/"
+		}
+	]
+}

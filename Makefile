@@ -25,6 +25,10 @@ test: fmt vet test-unit
 test-unit:
 	go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
+.PHONY: test-e2e
+test-e2e: build
+	go test -v ./pkg/e2e/e2e_test.go
+
 # Make sure go.mod and go.sum are not modified
 .PHONY: test-dirty
 test-dirty: build
