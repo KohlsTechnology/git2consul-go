@@ -17,6 +17,7 @@ limitations under the License.
 package config
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -42,4 +43,23 @@ func TestLoadInvalidConfig(t *testing.T) {
 
 	_, err := Load(file)
 	assert.Error(t, err)
+}
+
+func TestLoadConsulEnv(t *testing.T) {
+	file := filepath.Join("test-fixtures", "local.json")
+
+	os.Setenv("CONSUL_HTTP_ADDR", "127.0.0.1:8500")
+	defer os.Unsetenv("CONSUL_HTTP_ADDR")
+
+	os.Setenv("CONSUL_HTTP_SSL", "false")
+	defer os.Unsetenv("CONSUL_HTTP_SSL")
+
+	os.Setenv("CONSUL_HTTP_SSL_VERIFY", "false")
+	defer os.Unsetenv("CONSUL_HTTP_SSL_VERIFY")
+
+	os.Setenv("CONSUL_HTTP_TOKEN", "abcdefg123456789")
+	defer os.Unsetenv("CONSUL_HTTP_TOKEN")
+
+	_, err := Load(file)
+	assert.NoError(t, err)
 }
