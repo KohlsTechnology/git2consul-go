@@ -95,10 +95,10 @@ git2consul will attempt to use sane defaults for configuration. However, since g
 | repos:hooks:type          | no       | polling        |  polling, webhook | Type of hook to use to fetch changes on the repository. See [below](#webhooks).
 | repos:hooks:interval      | no       | 60             | `int`                                      | Interval, in seconds, to poll if polling is enabled
 | repos:hooks:url           | no       | ??             | `string`                                   | ???
-| consul:address            | no       | 127.0.0.1:8500 | `string`                                   | Consul address to connect to. It can be either the IP or FQDN with port included
-| consul:ssl                | no       | false          | true, false                                | Whether to use HTTPS to communicate with Consul
-| consul:ssl_verify         | no       | false          | true, false                                | Whether to verify certificates when connecting via SSL
-| consul:token              | no       |                | `string`                                   | Consul API Token
+| consul:address            | no       | 127.0.0.1:8500 | `string`                                   | Consul address to connect to. It can be either the IP or FQDN with port included. Will use the `CONSUL_HTTP_ADDR` environment variable as a fallback if present. If `CONSUL_HTTP_ADDR` contains `https://`, consul:ssl is implied to be true.
+| consul:ssl                | no       | false          | true, false                                | Whether to use HTTPS to communicate with Consul. Will use the `CONSUL_HTTP_SSL` environment variable as a fallback if present.
+| consul:ssl_verify         | no       | false          | true, false                                | Whether to verify certificates when connecting via SSL. Will use the `CONSUL_HTTP_SSL_VERIFY` environment variable as a fallback if present.
+| consul:token              | no       |                | `string`                                   | Consul API Token. Will use the `CONSUL_HTTP_TOKEN` environment variable as a fallback if present.
 
 ### Webhooks
 

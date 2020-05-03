@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -49,6 +50,9 @@ func Load(file string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	logger.Info("Setting Consul configuration from the environment if present")
+	config.setEnvConsulConfig()
 
 	logger.Info("Setting configuration with sane defaults")
 	config.setDefaultConfig()
@@ -114,6 +118,38 @@ func (c *Config) checkConfig() error {
 	}
 
 	return nil
+}
+
+// Return Consul configuration from environment variables
+func (c *Config) setEnvConsulConfig() {
+	// Use the value of CONSUL_HTTP_ADDR if not empty
+	if envAddr := os.Getenv(api.HTTPAddrEnvName); envAddr != "" {
+		c.Consul.Address = envAddr
+
+		// Enable SSL if CONSUL_HTTP_ADDR contains 'https://'
+		if strings.Contains(envAddr, "https://") {
+			c.Consul.SSLEnable = true
+		}
+	}
+
+	// Use the value of CONSUL_HTTP_SSL if not empty
+	if envSSL := os.Getenv(api.HTTPSSLEnvName); envSSL != "" {
+		if envSSLValue, err := strconv.ParseBool(envSSL); err == nil {
+			c.Consul.SSLEnable = envSSLValue
+		}
+	}
+
+	// Use the value of CONSUL_HTTP_SSL_VERIFY if not empty
+	if envSSLVerify := os.Getenv(api.HTTPSSLVerifyEnvName); envSSLVerify != "" {
+		if envSSLVerifyValue, err := strconv.ParseBool(envSSLVerify); err == nil {
+			c.Consul.SSLVerify = envSSLVerifyValue
+		}
+	}
+
+	// Use the value of CONSUL_HTTP_TOKEN if not empty
+	if envToken := os.Getenv(api.HTTPTokenEnvName); envToken != "" {
+		c.Consul.Token = envToken
+	}
 }
 
 // Return a configuration with sane defaults
