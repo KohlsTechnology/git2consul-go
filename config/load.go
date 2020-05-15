@@ -122,13 +122,20 @@ func (c *Config) checkConfig() error {
 
 // Return Consul configuration from environment variables
 func (c *Config) setEnvConsulConfig() {
+	// log context
+	logger := log.WithFields(log.Fields{
+		"caller": "config",
+	})
+
 	// Use the value of CONSUL_HTTP_ADDR if not empty
 	if envAddr := os.Getenv(api.HTTPAddrEnvName); envAddr != "" {
 		c.Consul.Address = envAddr
+		logger.Infof("Consul address set by %s", api.HTTPAddrEnvName)
 
 		// Enable SSL if CONSUL_HTTP_ADDR contains 'https://'
 		if strings.Contains(strings.ToLower(envAddr), "https://") {
 			c.Consul.SSLEnable = true
+			logger.Infof("Consul SSL enabled as %s contains 'https://'", api.HTTPAddrEnvName)
 		}
 	}
 
@@ -136,6 +143,7 @@ func (c *Config) setEnvConsulConfig() {
 	if envSSL := os.Getenv(api.HTTPSSLEnvName); envSSL != "" {
 		if envSSLValue, err := strconv.ParseBool(envSSL); err == nil {
 			c.Consul.SSLEnable = envSSLValue
+			logger.Infof("Consul SSL enabled by %s", api.HTTPSSLEnvName)
 		}
 	}
 
@@ -143,12 +151,14 @@ func (c *Config) setEnvConsulConfig() {
 	if envSSLVerify := os.Getenv(api.HTTPSSLVerifyEnvName); envSSLVerify != "" {
 		if envSSLVerifyValue, err := strconv.ParseBool(envSSLVerify); err == nil {
 			c.Consul.SSLVerify = envSSLVerifyValue
+			logger.Infof("Consul SSL verification enabled by %s", api.HTTPSSLVerifyEnvName)
 		}
 	}
 
 	// Use the value of CONSUL_HTTP_TOKEN if not empty
 	if envToken := os.Getenv(api.HTTPTokenEnvName); envToken != "" {
 		c.Consul.Token = envToken
+		logger.Infof("Consul token set by %s", api.HTTPTokenEnvName)
 	}
 }
 
