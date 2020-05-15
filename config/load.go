@@ -127,7 +127,7 @@ func (c *Config) setEnvConsulConfig() {
 		c.Consul.Address = envAddr
 
 		// Enable SSL if CONSUL_HTTP_ADDR contains 'https://'
-		if strings.Contains(envAddr, "https://") {
+		if strings.Contains(strings.ToLower(envAddr), "https://") {
 			c.Consul.SSLEnable = true
 		}
 	}
