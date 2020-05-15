@@ -26,6 +26,7 @@ import (
 	"github.com/KohlsTechnology/git2consul-go/pkg/version"
 	"github.com/KohlsTechnology/git2consul-go/runner"
 	"github.com/apex/log"
+	"github.com/apex/log/handlers/json"
 	"github.com/apex/log/handlers/text"
 )
 
@@ -39,16 +40,29 @@ const (
 )
 
 func main() {
-	var filename string
-	var printVersion bool
-	var debug bool
-	var once bool
+
+	var (
+		filename     string
+		printVersion bool
+		debug        bool
+		once         bool
+		logfmt       string
+	)
 
 	flag.StringVar(&filename, "config", "", "path to config file")
 	flag.BoolVar(&printVersion, "version", false, "show version")
 	flag.BoolVar(&debug, "debug", false, "enable debugging mode")
 	flag.BoolVar(&once, "once", false, "run git2consul once and exit")
+	// allow switching logformat. Structured output helps with parsers
+	flag.StringVar(&logfmt, "logfmt", "text", "specify log format [text | json] ")
 	flag.Parse()
+
+	// Init checks
+	if len(filename) == 0 {
+		log.Errorf("No configuration file provided")
+		flag.Usage()
+		os.Exit(ExitCodeFlagError)
+	}
 
 	if debug {
 		log.SetLevel(log.DebugLevel)
@@ -60,14 +74,15 @@ func main() {
 	}
 
 	// TODO: Accept other logger inputs
-	log.SetHandler(text.New(os.Stderr))
-
-	log.Infof("Starting git2consul version: %s", version.Version)
-
-	if len(filename) == 0 {
-		log.Error("No configuration file provided")
-		os.Exit(ExitCodeFlagError)
+	switch logfmt {
+	case "text":
+		log.SetHandler(text.New(os.Stderr))
+	case "json":
+		log.SetHandler(json.New(os.Stderr))
 	}
+
+	//log.Infof("Starting git2consul version: %s", version.Version)
+	log.WithField("caller", "main").Infof("Starting git2consul version: %s", version.Version)
 
 	// Load configuration from file
 	cfg, err := config.Load(filename)
