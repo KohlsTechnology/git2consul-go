@@ -59,7 +59,7 @@ func main() {
 
 	// Init checks
 	if len(filename) == 0 {
-		log.Errorf("No configuration file provided")
+		log.Error("No configuration file provided")
 		flag.Usage()
 		os.Exit(ExitCodeFlagError)
 	}
@@ -81,7 +81,6 @@ func main() {
 		log.SetHandler(json.New(os.Stderr))
 	}
 
-	//log.Infof("Starting git2consul version: %s", version.Version)
 	log.WithField("caller", "main").Infof("Starting git2consul version: %s", version.Version)
 
 	// Load configuration from file
