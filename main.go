@@ -57,6 +57,11 @@ func main() {
 	flag.StringVar(&logfmt, "logfmt", "text", "specify log format [text | json] ")
 	flag.Parse()
 
+	if printVersion {
+		version.Print()
+		return
+	}
+
 	// Init checks
 	if len(filename) == 0 {
 		log.Error("No configuration file provided")
@@ -66,11 +71,6 @@ func main() {
 
 	if debug {
 		log.SetLevel(log.DebugLevel)
-	}
-
-	if printVersion {
-		version.Print()
-		return
 	}
 
 	// TODO: Accept other logger inputs

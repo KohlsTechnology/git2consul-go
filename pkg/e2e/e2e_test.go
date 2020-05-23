@@ -55,7 +55,33 @@ func TestE2E(t *testing.T) {
 		t.Fatal("failed to get working project directory", err)
 	}
 
-	g2cCmd := exec.Command(projectDir+"/git2consul",
+	// Command line argument validations
+	// no flag provided
+	g2cCmd := exec.Command(projectDir + "/git2consul")
+	expectedNoConfigMsg := fmt.Sprintf("%v error No configuration file provided", time.Now().Format("2006/01/02 15:04:05"))
+	t.Log("Testig argument parsing...")
+	t.Logf("Expected output: %s \n", expectedNoConfigMsg)
+	err = executeCommand(g2cCmd, expectedNoConfigMsg)
+	if err != nil {
+		t.Fatal("git2consul run failed", err)
+	} else {
+		t.Log("git2consul ran successfully")
+	}
+
+	// version
+	g2cCmd = exec.Command(projectDir+"/git2consul",
+		"-version",
+	)
+	t.Logf("Expected output: %s \n", "git2consul, version")
+	err = executeCommand(g2cCmd, "git2consul, version")
+	if err != nil {
+		t.Fatal("git2consul run failed", err)
+	} else {
+		t.Log("git2consul ran successfully")
+	}
+
+	// Integration tests
+	g2cCmd = exec.Command(projectDir+"/git2consul",
 		"-config",
 		projectDir+"/pkg/e2e/data/create-config.json",
 		"-debug",
