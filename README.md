@@ -53,6 +53,8 @@ Usage of git2consul:
         path to config file
   -debug
         enable debugging mode
+  -logfmt string
+        specify log format [text | json]  (default "text")
   -once
         run git2consul once and exit
   -version
