@@ -32,6 +32,8 @@ var (
 // Print writes application version details to standard output.
 func Print() {
 	// TODO remove hard coded "git2consul" string here
+	// TODO update e2e version test once "git2consul" as described
+	// above is removed
 	fmt.Printf("git2consul, version %v (branch: %v, revision: %v)\n", Version, Branch, GitSHA1)
 	fmt.Println("build date:", BuildDate)
 	fmt.Println("go version:", runtime.Version())

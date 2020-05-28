@@ -35,8 +35,8 @@ func GetAuth(repo *config.Repo) (transport.AuthMethod, error) {
 			Password: repo.Credentials.Password,
 		}
 	} else if len(repo.Credentials.PrivateKey.Key) > 0 {
-		if len(repo.Credentials.Username) == 0 {
-			repo.Credentials.Username = "git"
+		if len(repo.Credentials.PrivateKey.Username) == 0 {
+			repo.Credentials.PrivateKey.Username = "git"
 		}
 		auth, err = ssh.NewPublicKeysFromFile(repo.Credentials.PrivateKey.Username, repo.Credentials.PrivateKey.Key, repo.Credentials.PrivateKey.Password)
 		if err != nil {
