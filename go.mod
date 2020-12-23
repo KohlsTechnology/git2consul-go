@@ -1,6 +1,6 @@
 module github.com/KohlsTechnology/git2consul-go
 
-go 1.13
+go 1.15
 
 require (
 	github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7 // indirect

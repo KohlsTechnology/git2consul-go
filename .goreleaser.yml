@@ -11,6 +11,11 @@ builds:
   - -X {{.Env.VERSION_PKG}}.Branch={{.Env.BRANCH}}
   - -X {{.Env.VERSION_PKG}}.BuildDate={{.Env.DATE}}
   - -X {{.Env.VERSION_PKG}}.GitSHA1={{.Env.COMMIT}}
+  goos:
+  - darwin
+  - linux
+  goarch:
+  - amd64
 archives:
 - replacements:
     darwin: Darwin

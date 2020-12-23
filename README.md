@@ -197,7 +197,7 @@ Sample config with ssh auth
 See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details.
 
 ### Dependencies
-* Go 1.13+
+* Go 1.15+
 
 ### Compiling From Source
 ```
