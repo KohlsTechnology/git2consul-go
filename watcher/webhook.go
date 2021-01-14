@@ -132,7 +132,7 @@ func (w *Watcher) githubHandler(rw http.ResponseWriter, rq *http.Request) {
 	branchName := ref[11:]
 
 	i := sort.Search(len(w.Repositories), func(i int) bool {
-		return w.Repositories[i].Name() == repository
+		return w.Repositories[i].Name() >= repository
 	})
 
 	// sort.Search could return last index if not found, so need to check once more
