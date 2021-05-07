@@ -1,11 +1,7 @@
-# This is an example goreleaser.yaml file with some sane defaults.
-# Make sure to check the documentation at http://goreleaser.com
+---
 project_name: git2consul
 env:
   - CGO_ENABLED=0
-before:
-  hooks:
-    - go mod tidy
 builds:
 - ldflags:
   - -X {{.Env.VERSION_PKG}}.Branch={{.Env.BRANCH}}

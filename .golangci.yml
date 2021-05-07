@@ -1,0 +1,6 @@
+---
+linters:
+  enable:
+  - gci
+  - gofmt
+  disable-all: false

@@ -22,16 +22,16 @@ build:
 vendor:
 	go mod vendor
 
+.PHONY: image
+image:
+	docker build . -t quay.io/kohlstechnology/git2consul:latest
+
 .PHONY: test
-test: fmt vet test-unit
+test: lint-all test-unit
 
 .PHONY: test-unit
 test-unit:
 	go test -race -coverprofile=coverage.txt -covermode=atomic ./...
-
-.PHONY: test-e2e
-test-e2e: build
-	go test -v ./pkg/e2e/e2e_test.go
 
 # Make sure go.mod and go.sum are not modified
 .PHONY: test-dirty
@@ -43,19 +43,18 @@ test-dirty: vendor build
 # Make sure goreleaser is working
 .PHONY: test-release
 test-release:
-	BRANCH=$(BRANCH) COMMIT=$(COMMIT) DATE=$(DATE) VERSION_PKG=$(VERSION_PKG) goreleaser --snapshot --skip-publish --rm-dist
-
-.PHONY: fmt
-fmt:
-	test -z "$(shell gofmt -l . | grep -v ^vendor)"
+	BRANCH=$(BRANCH) COMMIT=$(COMMIT) DATE=$(DATE) VERSION_PKG=$(VERSION_PKG) goreleaser release --snapshot --skip-publish --rm-dist
 
 .PHONY: lint
 lint:
 	LINT_INPUT="$(shell go list ./...)"; golint -set_exit_status $$LINT_INPUT
 
-.PHONY: vet
-vet:
-	VET_INPUT="$(shell go list ./...)"; go vet $$VET_INPUT
+.PHONY: golangci-lint
+golangci-lint:
+	golangci-lint run
+
+.PHONY: lint-all
+lint-all: lint golangci-lint
 
 .PHONY: tag
 tag:
@@ -65,4 +64,4 @@ tag:
 # Requires GITHUB_TOKEN environment variable to be set
 .PHONY: release
 release:
-	BRANCH=$(BRANCH) COMMIT=$(COMMIT) DATE=$(DATE) VERSION_PKG=$(VERSION_PKG) goreleaser
+	BRANCH=$(BRANCH) COMMIT=$(COMMIT) DATE=$(DATE) VERSION_PKG=$(VERSION_PKG) goreleaser  release --rm-dist
