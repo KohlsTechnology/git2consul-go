@@ -1,0 +1,7 @@
+coverage:
+  status:
+    # Disable CI "fail" statuses because of unmet coverage targets - we don't
+    # currently consider them wanted/valuable
+    # https://docs.codecov.io/docs/commit-status#section-disabling-a-status
+    project: off
+    patch: off
