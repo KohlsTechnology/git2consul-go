@@ -34,7 +34,7 @@ func TestKVRef(t *testing.T) {
 	var repo repository.Repo
 	repo = &mocks.Repo{Config: &config.Repo{}, T: t}
 	repo.Pull("master")
-	handler := &KVHandler{
+	handler := &KeyHandler{
 		API: &mocks.KV{T: t},
 		logger: log.WithFields(log.Fields{
 			"caller": "consul",
@@ -55,7 +55,7 @@ func TestKVRef(t *testing.T) {
 	})
 }
 
-func testPutKVRef(t *testing.T, branch string, key string, commit string, handler *KVHandler, repo repository.Repo) {
+func testPutKVRef(t *testing.T, branch string, key string, commit string, handler *KeyHandler, repo repository.Repo) {
 	err := handler.putKVRef(repo, branch)
 	if err != nil {
 		t.Fatal(err)
@@ -65,7 +65,7 @@ func testPutKVRef(t *testing.T, branch string, key string, commit string, handle
 
 }
 
-func testPutKVRefModifiedIndex(t *testing.T, branch string, key string, commit string, handler *KVHandler, repo repository.Repo) {
+func testPutKVRefModifiedIndex(t *testing.T, branch string, key string, commit string, handler *KeyHandler, repo repository.Repo) {
 	lastCommit, err := handler.getKVRef(repo, branch)
 	if err != nil {
 		t.Fatal(err)

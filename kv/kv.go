@@ -22,7 +22,7 @@ import (
 )
 
 // PutKV triggers an KV api request to put data to the Consul.
-func (h *KVHandler) PutKV(repo repository.Repo, prefix string, value []byte) error {
+func (h *KeyHandler) PutKV(repo repository.Repo, prefix string, value []byte) error {
 	head, err := repo.Head()
 	if err != nil {
 		return err
@@ -57,7 +57,7 @@ func (h *KVHandler) PutKV(repo repository.Repo, prefix string, value []byte) err
 }
 
 //DeleteKV deletes provided item from the KV store.
-func (h *KVHandler) DeleteKV(repo repository.Repo, prefix string) error {
+func (h *KeyHandler) DeleteKV(repo repository.Repo, prefix string) error {
 	key, status, err := getItemKey(repo, prefix)
 	if err != nil {
 		if status == SourceRootNotInPrefix {
@@ -79,7 +79,7 @@ func (h *KVHandler) DeleteKV(repo repository.Repo, prefix string) error {
 }
 
 //DeleteTreeKV deletes recursively all the keys with given prefix.
-func (h *KVHandler) DeleteTreeKV(repo repository.Repo, prefix string) error {
+func (h *KeyHandler) DeleteTreeKV(repo repository.Repo, prefix string) error {
 	key, status, err := getItemKey(repo, prefix)
 	if err != nil {
 		if status == SourceRootNotInPrefix {

@@ -26,8 +26,8 @@ import (
 
 const consulTxnSize = 64
 
-// KVHandler is used to manipulate the KV
-type KVHandler struct {
+// KeyHandler is used to manipulate the KV
+type KeyHandler struct {
 	API
 	api.KVTxnOps
 	logger *log.Entry
@@ -41,7 +41,7 @@ type TransactionIntegrityError struct {
 func (e *TransactionIntegrityError) Error() string { return e.msg }
 
 // New creates new KV handler to manipulate the Consul VK
-func New(config *config.ConsulConfig) (*KVHandler, error) {
+func New(config *config.ConsulConfig) (*KeyHandler, error) {
 	client, err := newAPIClient(config)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func New(config *config.ConsulConfig) (*KVHandler, error) {
 
 	kv := client.KV()
 
-	handler := &KVHandler{
+	handler := &KeyHandler{
 		API:      kv,
 		KVTxnOps: nil,
 		logger:   logger,
@@ -90,7 +90,7 @@ func newAPIClient(config *config.ConsulConfig) (*api.Client, error) {
 }
 
 //Put overrides Consul API Put function to add entry to KVTxnOps.
-func (h *KVHandler) Put(kvPair *api.KVPair, wOptions *api.WriteOptions) (*api.WriteMeta, error) {
+func (h *KeyHandler) Put(kvPair *api.KVPair, wOptions *api.WriteOptions) (*api.WriteMeta, error) {
 	txnItem := &api.KVTxnOp{
 		Verb:  api.KVSet,
 		Key:   kvPair.Key,
@@ -101,7 +101,7 @@ func (h *KVHandler) Put(kvPair *api.KVPair, wOptions *api.WriteOptions) (*api.Wr
 }
 
 //Delete overrides Consul API Delete function to add entry to KVTxnOps.
-func (h *KVHandler) Delete(key string, wOptions *api.WriteOptions) (*api.WriteMeta, error) {
+func (h *KeyHandler) Delete(key string, wOptions *api.WriteOptions) (*api.WriteMeta, error) {
 	txnItem := &api.KVTxnOp{
 		Verb: api.KVDelete,
 		Key:  key,
@@ -111,7 +111,7 @@ func (h *KVHandler) Delete(key string, wOptions *api.WriteOptions) (*api.WriteMe
 }
 
 //DeleteTree overrides Consul API DeleteTree function to add entry to KVTxnOps.
-func (h *KVHandler) DeleteTree(key string, wOptions *api.WriteOptions) (*api.WriteMeta, error) {
+func (h *KeyHandler) DeleteTree(key string, wOptions *api.WriteOptions) (*api.WriteMeta, error) {
 	txnItem := &api.KVTxnOp{
 		Verb: api.KVDeleteTree,
 		Key:  key,
@@ -121,7 +121,7 @@ func (h *KVHandler) DeleteTree(key string, wOptions *api.WriteOptions) (*api.Wri
 }
 
 //Commit function executes set of operations from KVTxnOps as single transaction.
-func (h *KVHandler) Commit() error {
+func (h *KeyHandler) Commit() error {
 	defer func() {
 		h.KVTxnOps = nil
 	}()
@@ -140,7 +140,7 @@ func (h *KVHandler) Commit() error {
 	return nil
 }
 
-func (h *KVHandler) executeTransaction(KVTxnOps api.KVTxnOps) error {
+func (h *KeyHandler) executeTransaction(KVTxnOps api.KVTxnOps) error {
 	status, response, _, err := h.Txn(KVTxnOps, nil)
 	if err != nil {
 		return err
@@ -156,7 +156,7 @@ func (h *KVHandler) executeTransaction(KVTxnOps api.KVTxnOps) error {
 	return nil
 }
 
-func (h *KVHandler) splitIntoSlices(kvTxnOps api.KVTxnOps, sliceLength int) []api.KVTxnOps {
+func (h *KeyHandler) splitIntoSlices(kvTxnOps api.KVTxnOps, sliceLength int) []api.KVTxnOps {
 	var kvTxnSlices []api.KVTxnOps
 	for len(kvTxnOps) > 0 {
 		index := sliceLength

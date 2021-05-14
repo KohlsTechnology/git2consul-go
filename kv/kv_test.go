@@ -33,7 +33,7 @@ import (
 
 //TestKV runs a test against KVPUT and DeleteKV handler functions.
 func TestKV(t *testing.T) {
-	handler := &KVHandler{
+	handler := &KeyHandler{
 		API: &mocks.KV{T: t},
 		logger: log.WithFields(log.Fields{
 			"caller": "consul",
@@ -48,7 +48,7 @@ func TestKV(t *testing.T) {
 }
 
 //testPutKV verifies the data pushed by putKV function.
-func testPutKV(t *testing.T, repo repository.Repo, handler *KVHandler) {
+func testPutKV(t *testing.T, repo repository.Repo, handler *KeyHandler) {
 	f, err := ioutil.TempFile(repository.WorkDir(repo), "example.txt")
 	f.Write([]byte("Example content"))
 	f.Close()
@@ -76,7 +76,7 @@ func testPutKV(t *testing.T, repo repository.Repo, handler *KVHandler) {
 }
 
 //testDeleteKV ensures data has been deleted.
-func testDeleteKV(t *testing.T, repo repository.Repo, handler *KVHandler) {
+func testDeleteKV(t *testing.T, repo repository.Repo, handler *KeyHandler) {
 	f, err := ioutil.TempFile(repository.WorkDir(repo), "example.txt")
 	f.Write([]byte("Example content to delete"))
 	f.Close()

@@ -32,7 +32,7 @@ import (
 )
 
 func TestUpdateToHead(t *testing.T) {
-	handler := &KVHandler{
+	handler := &KeyHandler{
 		API: &mocks.KV{T: t},
 		logger: log.WithFields(log.Fields{
 			"caller": "consul",

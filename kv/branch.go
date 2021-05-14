@@ -27,7 +27,7 @@ import (
 
 // Push a repository branch to the KV
 // TODO: Optimize for PUT only on changes instead of the entire repo
-func (h *KVHandler) putBranch(repo repository.Repo, branch plumbing.ReferenceName) error {
+func (h *KeyHandler) putBranch(repo repository.Repo, branch plumbing.ReferenceName) error {
 	// Checkout branch
 	repo.CheckoutBranch(branch)
 
