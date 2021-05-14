@@ -26,7 +26,7 @@ import (
 )
 
 // HandleUpdate handles the update of a particular repository.
-func (h *KVHandler) HandleUpdate(repo repository.Repo) error {
+func (h *KeyHandler) HandleUpdate(repo repository.Repo) error {
 	w, err := repo.Worktree()
 	config := repo.GetConfig()
 	repo.Lock()
@@ -53,7 +53,7 @@ func (h *KVHandler) HandleUpdate(repo repository.Repo) error {
 }
 
 //UpdateToHead handles update to current HEAD comparing diffs against the KV.
-func (h *KVHandler) UpdateToHead(repo repository.Repo) error {
+func (h *KeyHandler) UpdateToHead(repo repository.Repo) error {
 	head, err := repo.Head()
 	if err != nil {
 		return err

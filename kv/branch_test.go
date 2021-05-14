@@ -36,7 +36,7 @@ func TestPutBranch(t *testing.T) {
 	var repo repository.Repo
 	_, path, _, _ := runtime.Caller(0)
 	repo = &mocks.Repo{Path: filepath.Dir(path), Config: &config.Repo{}}
-	handler := &KVHandler{
+	handler := &KeyHandler{
 		API: &mocks.KV{T: t},
 		logger: log.WithFields(log.Fields{
 			"caller": "consul",

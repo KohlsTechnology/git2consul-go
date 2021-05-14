@@ -27,7 +27,7 @@ import (
 )
 
 // HandleInit handles initial fetching of the KV on start
-func (h *KVHandler) HandleInit(repos []repository.Repo) error {
+func (h *KeyHandler) HandleInit(repos []repository.Repo) error {
 	for _, repo := range repos {
 		err := h.handleRepoInit(repo)
 		if err != nil {
@@ -40,7 +40,7 @@ func (h *KVHandler) HandleInit(repos []repository.Repo) error {
 
 // Handles differences on all branches of a repository, comparing the ref
 // of the branch against the one in the KV
-func (h *KVHandler) handleRepoInit(repo repository.Repo) error {
+func (h *KeyHandler) handleRepoInit(repo repository.Repo) error {
 	repo.Lock()
 	defer repo.Unlock()
 
@@ -102,7 +102,7 @@ func (h *KVHandler) handleRepoInit(repo repository.Repo) error {
 }
 
 // Helper function that handles deltas
-func (h *KVHandler) handleDeltas(repo repository.Repo, diff object.Changes) error {
+func (h *KeyHandler) handleDeltas(repo repository.Repo, diff object.Changes) error {
 	for _, d := range diff {
 		action, err := d.Action()
 		if err != nil {

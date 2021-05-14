@@ -26,7 +26,7 @@ import (
 )
 
 // Get local branch ref from the KV
-func (h *KVHandler) getKVRef(repo repository.Repo, branchName string) (string, error) {
+func (h *KeyHandler) getKVRef(repo repository.Repo, branchName string) (string, error) {
 	refFile := fmt.Sprintf("%s.ref", branchName)
 	key := path.Join(repo.Name(), refFile)
 
@@ -51,7 +51,7 @@ func (h *KVHandler) getKVRef(repo repository.Repo, branchName string) (string, e
 }
 
 // Put the local branch ref to the KV
-func (h *KVHandler) putKVRef(repo repository.Repo, branchName string) error {
+func (h *KeyHandler) putKVRef(repo repository.Repo, branchName string) error {
 	refFile := fmt.Sprintf("%s.ref", branchName)
 	key := path.Join(repo.Name(), refFile)
 
