@@ -22,7 +22,6 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/apex/log"
 	"github.com/hashicorp/consul/api"
@@ -141,7 +140,7 @@ func (c *Config) setDefaultConfig() {
 		if len(repo.Hooks) == 0 {
 			hook := &Hook{
 				Type:     "polling",
-				Interval: 60 * time.Second,
+				Interval: 60,
 			}
 
 			repo.Hooks = append(repo.Hooks, hook)

@@ -4,3 +4,4 @@ git2consul
 .idea
 *.swp
 .vscode
+config.json
