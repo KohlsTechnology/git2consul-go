@@ -55,7 +55,10 @@ const (
 		"    - first_elem:\n" +
 		"        key_3: true\n" +
 		"        key_4: 2.35\n" +
-		"    - second_element: value_4\n"
+		"    - second_element: value_4\n" +
+		"  key_3:\n" +
+		"    - 244" +
+		"    - 234"
 )
 
 //TestFile performs tests on implemented file handlers.

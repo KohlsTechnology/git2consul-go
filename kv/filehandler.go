@@ -148,28 +148,43 @@ func (f *YAMLFile) GetPath() string {
 	return f.path
 }
 
+func convertBasicType(value interface{}) []byte {
+	var cvt []byte
+
+	switch value.(type) {
+	case string:
+		cvt = []byte(value.(string))
+	case int:
+		cvt = []byte(strconv.Itoa(value.(int)))
+	case bool:
+		cvt = []byte(strconv.FormatBool(value.(bool)))
+	case float64:
+		cvt = []byte(strconv.FormatFloat(value.(float64), 'f', 2, 64))
+	}
+	return cvt
+}
+
 func entriesToKV(node map[interface{}]interface{}) map[string][]byte {
 	keys := make(map[string][]byte)
 	for key, value := range node {
 		switch value.(type) {
-		case string:
-			keys[key.(string)] = []byte(value.(string))
-		case int:
-			keys[key.(string)] = []byte(strconv.Itoa(value.(int)))
-		case bool:
-			keys[key.(string)] = []byte(strconv.FormatBool(value.(bool)))
-		case float64:
-			keys[key.(string)] = []byte(strconv.FormatFloat(value.(float64), 'f', 2, 64))
 		case map[interface{}]interface{}:
 			for k, v := range entriesToKV(value.(map[interface{}]interface{})) {
 				keys[filepath.Join(key.(string), k)] = v
 			}
 		case []interface{}:
 			for index, item := range value.([]interface{}) {
-				for k, v := range entriesToKV(item.(map[interface{}]interface{})) {
-					keys[filepath.Join(key.(string), strconv.Itoa(index), k)] = v
+				switch item.(type) {
+				case map[interface{}]interface{}:
+					for k, v := range entriesToKV(item.(map[interface{}]interface{})) {
+						keys[filepath.Join(key.(string), strconv.Itoa(index), k)] = v
+					}
+				default:
+					keys[filepath.Join(key.(string), strconv.Itoa(index))] = convertBasicType(item)
 				}
 			}
+		default:
+			keys[key.(string)] = convertBasicType(value)
 		}
 	}
 	return keys
