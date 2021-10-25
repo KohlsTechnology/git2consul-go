@@ -27,7 +27,7 @@ import (
 	"github.com/KohlsTechnology/git2consul-go/runner"
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/json"
-	"github.com/apex/log/handlers/text"
+	"github.com/apex/log/handlers/logfmt"
 )
 
 // Exit code represented as int values for particular errors.
@@ -46,7 +46,7 @@ func main() {
 		printVersion bool
 		debug        bool
 		once         bool
-		logfmt       string
+		logformat    string
 	)
 
 	flag.StringVar(&filename, "config", "", "path to config file")
@@ -54,7 +54,7 @@ func main() {
 	flag.BoolVar(&debug, "debug", false, "enable debugging mode")
 	flag.BoolVar(&once, "once", false, "run git2consul once and exit")
 	// allow switching logformat. Structured output helps with parsers
-	flag.StringVar(&logfmt, "logfmt", "text", "specify log format [text | json] ")
+	flag.StringVar(&logformat, "logfmt", "text", "specify log format [text | json] ")
 	flag.Parse()
 
 	if printVersion {
@@ -74,9 +74,10 @@ func main() {
 	}
 
 	// TODO: Accept other logger inputs
-	switch logfmt {
+	switch logformat {
 	case "text":
-		log.SetHandler(text.New(os.Stderr))
+		//add timestamp
+		log.SetHandler(logfmt.New(os.Stderr))
 	case "json":
 		log.SetHandler(json.New(os.Stderr))
 	}

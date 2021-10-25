@@ -17,7 +17,6 @@ limitations under the License.
 package watch
 
 import (
-	"path"
 	"sync"
 	"time"
 
@@ -47,8 +46,8 @@ func (w *Watcher) pollByInterval(repo repository.Repo, wg *sync.WaitGroup) {
 	if interval == 0 {
 		return
 	}
-
-	ticker := time.NewTicker(interval * time.Second)
+	w.logger.Debugf("Poll Interval %s", interval)
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	// Polling error should not stop polling by interval
@@ -80,17 +79,23 @@ func (w *Watcher) pollBranches(repo repository.Repo) error {
 	changed := false
 
 	var checkoutBranchFn = func(b *plumbing.Reference) error {
-		branchOnRemote := repository.StringInSlice(path.Base(b.Name().String()), config.Branches)
-		if branchOnRemote {
-			branchName := b.Name().Short()
-			err := repo.Pull(branchName)
-			if err == git.NoErrAlreadyUpToDate {
-				w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
-			} else if err != nil {
-				w.logger.Debugf("Unable to pull \"%s\" branch because of \"%s\"", branchName, err)
-			} else {
-				w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
-				changed = true
+		if b.Name().String() != "HEAD" {
+			//local banch name
+			//refs/heads/topic/kurt.ding/consul refs/heads/main refs/heads/master 还有一个HEAD
+			branchOnRemote := repository.StringInSlice(b.Name().String()[11:], config.Branches)
+			w.logger.Logger.Debugf("Pull branch local name: %s ,config branch: %s  ,need pull: %+v", b.Name().String()[11:], config.Branches, branchOnRemote)
+			if branchOnRemote {
+				branchName := b.Name().Short()
+				w.logger.Logger.Debugf("Pull branch %s", branchName)
+				err := repo.Pull(branchName)
+				if err == git.NoErrAlreadyUpToDate {
+					w.logger.Debugf("Up to date: %s/%s", repo.Name(), branchName)
+				} else if err != nil {
+					w.logger.Debugf("Unable to pull \"%s\" branch because of \"%s\"", branchName, err)
+				} else {
+					w.logger.Infof("Changed: %s/%s", repo.Name(), branchName)
+					changed = true
+				}
 			}
 		}
 		return nil

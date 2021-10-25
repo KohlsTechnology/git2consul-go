@@ -1,0 +1,19 @@
+{
+    "repos": [
+      {
+        "name": "cc3.0_consul_repo",
+        "url": "ssh://git@github..com/kurt.ding/config-center.git",
+        "branches": ["topic/kurt.ding/consul"],
+        "skip_branch_name":true,
+        "skip_repo_name":true,
+        "mount_point":"config/",
+        "source_root":"/services/"
+      }
+    ],
+    "consul":{
+      "address":"cosul-server"
+    },
+    "webhook":{
+        "port":8000
+    }
+  }
