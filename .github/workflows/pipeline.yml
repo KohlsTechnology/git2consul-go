@@ -47,7 +47,7 @@ jobs:
       uses: goreleaser/goreleaser-action@v2
       with:
         install-only: true
-        version: v0.162.0
+        version: v1.0.0
     - name: Test GoReleaser
       run: make test-release
   deploy:
@@ -86,7 +86,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           install-only: true
-          version: v0.162.0
+          version: v1.0.0
       - name: Run GoReleaser
         run: make release
         env:
