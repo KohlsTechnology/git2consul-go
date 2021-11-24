@@ -30,10 +30,6 @@ import (
 	"gopkg.in/src-d/go-git.v4/storage"
 )
 
-const (
-	refHead = "refs/heads"
-)
-
 // Repo interface represents Repository
 type Repo interface {
 	Name() string
