@@ -9,7 +9,7 @@ require (
 	github.com/stretchr/testify v1.3.0
 	gopkg.in/src-d/go-billy.v4 v4.3.2
 	gopkg.in/src-d/go-git.v4 v4.4.0
-	gopkg.in/yaml.v2 v2.2.1
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
