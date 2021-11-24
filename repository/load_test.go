@@ -22,14 +22,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/KohlsTechnology/git2consul-go/config/mock"
+	"github.com/KohlsTechnology/git2consul-go/repository/mocks"
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/discard"
 	"github.com/stretchr/testify/assert"
 	git "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
-
-	"github.com/KohlsTechnology/git2consul-go/config/mock"
-	"github.com/KohlsTechnology/git2consul-go/repository/mocks"
 )
 
 func init() {

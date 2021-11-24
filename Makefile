@@ -45,16 +45,12 @@ test-dirty: vendor build
 test-release:
 	BRANCH=$(BRANCH) COMMIT=$(COMMIT) DATE=$(DATE) VERSION_PKG=$(VERSION_PKG) goreleaser release --snapshot --skip-publish --rm-dist
 
-.PHONY: lint
-lint:
-	LINT_INPUT="$(shell go list ./...)"; golint -set_exit_status $$LINT_INPUT
-
 .PHONY: golangci-lint
 golangci-lint:
 	golangci-lint run
 
 .PHONY: lint-all
-lint-all: lint golangci-lint
+lint-all: golangci-lint
 
 .PHONY: tag
 tag:

@@ -1,9 +1,4 @@
-## v0.1.2 (Unreleased)
-FEATURES:
-
-CHANGES:
-
-BUG FIXES:
+Starting with release v0.1.2 See the [releases page](https://github.com/KohlsTechnology/git2consul-go/releases).
 
 ## v0.1.1 (January 6, 2020)
 FEATURES:

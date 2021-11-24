@@ -45,23 +45,23 @@ func TestUpdateToHead(t *testing.T) {
 	defer os.RemoveAll(repoPath)
 	assert.NoError(t, err)
 	repo := &mocks.Repo{Path: repoPath, Config: &config.Repo{}, T: t}
-	repo.Pull("master")
+	repo.Pull("master") //nolint:errcheck
 	branch, err := repo.Head()
 	assert.NoError(t, err)
 	initialCommit := branch.Hash().String()
-	repo.Pull(branch.Name().Short())
+	repo.Pull(branch.Name().Short()) //nolint:errcheck
 	//Make an initial load to the Consul KV store.
-	handler.putBranch(repo, branch.Name())
-	handler.putKVRef(repo, branch.Name().Short())
+	handler.putBranch(repo, branch.Name())        //nolint:errcheck
+	handler.putKVRef(repo, branch.Name().Short()) //nolint:errcheck
 	//Fake commit
 	f, err := ioutil.TempFile(repoPath, "example.txt")
 	assert.NoError(t, err)
-	f.Write([]byte("A content!"))
+	f.Write([]byte("A content!")) //nolint:errcheck
 	f.Close()
 	fileName := strings.TrimPrefix(f.Name(), repoPath)
 	repo.Add(fileName)
 	//Pull the change.
-	repo.Pull(branch.Name().Short())
+	repo.Pull(branch.Name().Short()) //nolint:errcheck
 
 	err = handler.UpdateToHead(repo)
 	assert.NoError(t, err)
@@ -72,15 +72,15 @@ func TestUpdateToHead(t *testing.T) {
 	refFile := fmt.Sprintf("%s.ref", branch.Name().Short())
 	key := path.Join(repo.Name(), refFile)
 
-	kvBranch, _, err := handler.Get(key, nil)
+	kvBranch, _, err := handler.Get(key, nil) //nolint:ineffassign,staticcheck
 
 	assert.Equal(t, string(kvBranch.Value), branch.Hash().String())
 
 	assert.NotEqual(t, string(kvBranch.Value), initialCommit)
 
 	kvPath := filepath.Join(repo.Name(), branch.Name().Short(), fileName)
-	kvContent, _, err := handler.Get(kvPath, nil)
-	fileContent, err := ioutil.ReadFile(filepath.Join(repoPath, fileName))
+	kvContent, _, err := handler.Get(kvPath, nil)                          //nolint:ineffassign,staticcheck
+	fileContent, err := ioutil.ReadFile(filepath.Join(repoPath, fileName)) //nolint:ineffassign,staticcheck
 
 	assert.Equal(t, kvContent.Value, fileContent)
 

@@ -127,7 +127,7 @@ func (f *YAMLFile) Create(kv Handler, repo repository.Repo) error {
 
 //Update functions updates the KV store based on the file content.
 func (f *YAMLFile) Update(kv Handler, repo repository.Repo) error {
-	f.Delete(kv, repo)
+	f.Delete(kv, repo) //nolint:errcheck
 	return f.Create(kv, repo)
 }
 

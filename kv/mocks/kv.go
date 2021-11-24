@@ -74,9 +74,9 @@ func (kv *KV) Txn(txnops api.KVTxnOps, opts *api.QueryOptions) (bool, *api.KVTxn
 					return false, &api.KVTxnResponse{}, nil, nil
 				}
 			}
-			kv.Put(&api.KVPair{Key: item.Key, Value: item.Value}, nil)
+			kv.Put(&api.KVPair{Key: item.Key, Value: item.Value}, nil) //nolint:errcheck
 		case api.KVDelete:
-			kv.Delete(item.Key, nil)
+			kv.Delete(item.Key, nil) //nolint:errcheck
 		}
 	}
 	return true, nil, nil, nil

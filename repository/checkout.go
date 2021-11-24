@@ -27,7 +27,7 @@ import (
 )
 
 func (r *Repository) checkoutConfigBranches() error {
-	err := r.Fetch(&git.FetchOptions{
+	err := r.Fetch(&git.FetchOptions{ //nolint:ineffassign,staticcheck
 		RefSpecs: []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
 		Auth:     r.Authentication,
 	})
@@ -38,11 +38,11 @@ func (r *Repository) checkoutConfigBranches() error {
 		return err
 	}
 
-	refIter, err := remoteBranches(r.Storer)
+	refIter, err := remoteBranches(r.Storer) //nolint:ineffassign,staticcheck
 
 	_ = refIter.ForEach(func(b *plumbing.Reference) error {
 		branchOnRemote := StringInSlice(path.Base(b.Name().String()), r.Config.Branches)
-		if branchOnRemote != false {
+		if branchOnRemote {
 			err := w.Checkout(&git.CheckoutOptions{
 				Branch: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", b.Name())),
 				Force:  true,
@@ -59,7 +59,7 @@ func (r *Repository) checkoutConfigBranches() error {
 
 //CheckoutBranch performs a checkout on the specific branch
 func (r *Repository) CheckoutBranch(branch plumbing.ReferenceName) error {
-	err := r.Fetch(&git.FetchOptions{
+	err := r.Fetch(&git.FetchOptions{ //nolint:ineffassign,staticcheck
 		RefSpecs: []config.RefSpec{"refs/*:refs/*", "HEAD:refs/heads/HEAD"},
 		Auth:     r.Authentication,
 		Force:    true,

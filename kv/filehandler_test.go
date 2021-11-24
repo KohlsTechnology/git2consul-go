@@ -25,10 +25,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/KohlsTechnology/git2consul-go/repository"
-
+	"github.com/stretchr/testify/assert"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -122,7 +120,7 @@ func testCreateYAMLFile(t *testing.T, repo repository.Repo) {
 		t.Fatalf("Keys empty: %+v", keys)
 	}
 	for k, v := range entriesToKV(yamlTree) {
-		if bytes.Compare(keys[filepath.Join(yamlPath, k)], v) == 0 {
+		if bytes.Equal(keys[filepath.Join(yamlPath, k)], v) {
 			delete(keys, filepath.Join(yamlPath, k))
 		}
 	}
