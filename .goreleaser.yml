@@ -3,15 +3,16 @@ project_name: git2consul
 env:
   - CGO_ENABLED=0
 builds:
-- ldflags:
-  - -X {{.Env.VERSION_PKG}}.Branch={{.Env.BRANCH}}
-  - -X {{.Env.VERSION_PKG}}.BuildDate={{.Env.DATE}}
-  - -X {{.Env.VERSION_PKG}}.GitSHA1={{.Env.COMMIT}}
-  goos:
-  - darwin
-  - linux
-  goarch:
-  - amd64
+  - ldflags:
+    - "-X {{.Env.VERSION_PKG}}.Branch={{.Env.BRANCH}}"
+    - "-X {{.Env.VERSION_PKG}}.BuildDate={{.Env.DATE}}"
+    - "-X {{.Env.VERSION_PKG}}.GitSHA1={{.Env.COMMIT}}"
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
 archives:
 - replacements:
     darwin: Darwin
@@ -22,6 +23,6 @@ archives:
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  name_template: "{{.Tag}}-next"
 changelog:
-  skip: true
+  skip: false
