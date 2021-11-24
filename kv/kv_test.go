@@ -23,12 +23,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/KohlsTechnology/git2consul-go/config"
 	"github.com/KohlsTechnology/git2consul-go/kv/mocks"
 	"github.com/KohlsTechnology/git2consul-go/repository"
 	"github.com/apex/log"
+	"github.com/stretchr/testify/assert"
 )
 
 //TestKV runs a test against KVPUT and DeleteKV handler functions.
