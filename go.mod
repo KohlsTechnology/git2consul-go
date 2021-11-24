@@ -7,7 +7,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/consul v1.1.0
 	github.com/stretchr/testify v1.3.0
-	gopkg.in/src-d/go-billy.v4 v4.1.1
+	gopkg.in/src-d/go-billy.v4 v4.3.2
 	gopkg.in/src-d/go-git.v4 v4.4.0
 	gopkg.in/yaml.v2 v2.2.1
 )
@@ -39,7 +39,7 @@ require (
 	github.com/xanzy/ssh-agent v0.1.0 // indirect
 	golang.org/x/crypto v0.0.0-20181029021203-45a5f77698d3 // indirect
 	golang.org/x/net v0.0.0-20181201002055-351d144fa1fc // indirect
-	golang.org/x/sys v0.0.0-20181026203630-95b1ffbd15a5 // indirect
+	golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e // indirect
 	golang.org/x/text v0.3.0 // indirect
 	gopkg.in/src-d/go-git-fixtures.v3 v3.5.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
