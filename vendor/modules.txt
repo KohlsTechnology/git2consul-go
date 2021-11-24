@@ -1,7 +1,3 @@
-# github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7
-## explicit
-# github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239
-## explicit
 # github.com/apex/log v1.0.0
 ## explicit
 github.com/apex/log
@@ -13,7 +9,7 @@ github.com/apex/log/handlers/text
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/emirpasic/gods v1.9.0
+# github.com/emirpasic/gods v1.12.0
 ## explicit
 github.com/emirpasic/gods/containers
 github.com/emirpasic/gods/lists
@@ -21,8 +17,6 @@ github.com/emirpasic/gods/lists/arraylist
 github.com/emirpasic/gods/trees
 github.com/emirpasic/gods/trees/binaryheap
 github.com/emirpasic/gods/utils
-# github.com/gliderlabs/ssh v0.2.2
-## explicit
 # github.com/google/go-cmp v0.3.1
 ## explicit; go 1.8
 # github.com/gorilla/mux v1.8.0
@@ -49,19 +43,16 @@ github.com/hashicorp/serf/coordinate
 # github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99
 ## explicit
 github.com/jbenet/go-context/io
-# github.com/kevinburke/ssh_config v0.0.0-20180317175531-9fc7bb800b55
+# github.com/kevinburke/ssh_config v0.0.0-20190725054713-01f96b0aa0cd
 ## explicit
 github.com/kevinburke/ssh_config
-# github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747
+# github.com/mitchellh/go-homedir v1.1.0
 ## explicit
 github.com/mitchellh/go-homedir
 # github.com/mitchellh/go-testing-interface v1.0.0
 ## explicit
 # github.com/pascaldekloe/goe v0.1.0
 ## explicit
-# github.com/pelletier/go-buffruneio v0.2.0
-## explicit
-github.com/pelletier/go-buffruneio
 # github.com/pkg/errors v0.8.1
 ## explicit
 github.com/pkg/errors
@@ -71,7 +62,7 @@ github.com/pmezard/go-difflib/difflib
 # github.com/sergi/go-diff v1.0.0
 ## explicit
 github.com/sergi/go-diff/diffmatchpatch
-# github.com/src-d/gcfg v1.3.0
+# github.com/src-d/gcfg v1.4.0
 ## explicit
 github.com/src-d/gcfg
 github.com/src-d/gcfg/scanner
@@ -80,10 +71,10 @@ github.com/src-d/gcfg/types
 # github.com/stretchr/testify v1.7.0
 ## explicit; go 1.13
 github.com/stretchr/testify/assert
-# github.com/xanzy/ssh-agent v0.1.0
+# github.com/xanzy/ssh-agent v0.2.1
 ## explicit
 github.com/xanzy/ssh-agent
-# golang.org/x/crypto v0.0.0-20181029021203-45a5f77698d3
+# golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 ## explicit
 golang.org/x/crypto/cast5
 golang.org/x/crypto/curve25519
@@ -101,17 +92,16 @@ golang.org/x/crypto/poly1305
 golang.org/x/crypto/ssh
 golang.org/x/crypto/ssh/agent
 golang.org/x/crypto/ssh/knownhosts
-# golang.org/x/net v0.0.0-20181201002055-351d144fa1fc
-## explicit
+# golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
+## explicit; go 1.11
 golang.org/x/net/context
+golang.org/x/net/internal/socks
+golang.org/x/net/proxy
 # golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e
 ## explicit; go 1.12
+golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/text v0.3.0
-## explicit
-golang.org/x/text/transform
-golang.org/x/text/unicode/norm
 # gopkg.in/src-d/go-billy.v4 v4.3.2
 ## explicit
 gopkg.in/src-d/go-billy.v4
@@ -119,13 +109,12 @@ gopkg.in/src-d/go-billy.v4/helper/chroot
 gopkg.in/src-d/go-billy.v4/helper/polyfill
 gopkg.in/src-d/go-billy.v4/osfs
 gopkg.in/src-d/go-billy.v4/util
-# gopkg.in/src-d/go-git-fixtures.v3 v3.5.0
-## explicit
-# gopkg.in/src-d/go-git.v4 v4.4.0
+# gopkg.in/src-d/go-git.v4 v4.13.1
 ## explicit
 gopkg.in/src-d/go-git.v4
 gopkg.in/src-d/go-git.v4/config
 gopkg.in/src-d/go-git.v4/internal/revision
+gopkg.in/src-d/go-git.v4/internal/url
 gopkg.in/src-d/go-git.v4/plumbing
 gopkg.in/src-d/go-git.v4/plumbing/cache
 gopkg.in/src-d/go-git.v4/plumbing/filemode
@@ -153,7 +142,7 @@ gopkg.in/src-d/go-git.v4/plumbing/transport/server
 gopkg.in/src-d/go-git.v4/plumbing/transport/ssh
 gopkg.in/src-d/go-git.v4/storage
 gopkg.in/src-d/go-git.v4/storage/filesystem
-gopkg.in/src-d/go-git.v4/storage/filesystem/internal/dotgit
+gopkg.in/src-d/go-git.v4/storage/filesystem/dotgit
 gopkg.in/src-d/go-git.v4/storage/memory
 gopkg.in/src-d/go-git.v4/utils/binary
 gopkg.in/src-d/go-git.v4/utils/diff
