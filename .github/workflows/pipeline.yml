@@ -22,12 +22,8 @@ jobs:
         go-version: ${{ matrix.go-version }}
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Install dependencies
-      run: GO111MODULE=off go get golang.org/x/lint/golint
     - name: Compile
       run: make build
-    - name: Lint
-      run: make lint
     - name: golangci-lint
       uses: golangci/golangci-lint-action@v2
       with:
