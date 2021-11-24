@@ -43,10 +43,10 @@ func TestPutBranch(t *testing.T) {
 		}),
 	}
 
-	handler.putBranch(repo, repo.Branch())
-	handler.Commit()
+	handler.putBranch(repo, repo.Branch()) //nolint:errcheck
+	handler.Commit()                       //nolint:errcheck
 
-	err := filepath.Walk(repository.WorkDir(repo), func(path string, f os.FileInfo, err error) error {
+	err := filepath.Walk(repository.WorkDir(repo), func(path string, f os.FileInfo, err error) error { //nolint:staticcheck
 		// Skip the .git directory
 		if f.IsDir() && f.Name() == ".git" {
 			return filepath.SkipDir
@@ -59,8 +59,8 @@ func TestPutBranch(t *testing.T) {
 
 		key := strings.TrimPrefix(path, repository.WorkDir(repo))
 		kvPath := filepath.Join(repo.Name(), repo.Branch().Short(), key)
-		kvContent, _, err := handler.Get(kvPath, nil)
-		fileContent, err := ioutil.ReadFile(path)
+		kvContent, _, err := handler.Get(kvPath, nil) //nolint:ineffassign,staticcheck
+		fileContent, err := ioutil.ReadFile(path)     //nolint:ineffassign,staticcheck
 
 		assert.Equal(t, fileContent, kvContent.Value)
 		return nil

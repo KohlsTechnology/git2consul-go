@@ -32,7 +32,7 @@ import (
 //TestPutKVRef test functionality of putKVRef function.
 func TestKVRef(t *testing.T) {
 	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}, T: t}
-	repo.Pull("master")
+	repo.Pull("master") //nolint:errcheck
 	handler := &KVHandler{
 		API: &mocks.KV{T: t},
 		logger: log.WithFields(log.Fields{
@@ -69,7 +69,7 @@ func testPutKVRefModifiedIndex(t *testing.T, branch string, key string, commit s
 	if err != nil {
 		t.Fatal(err)
 	}
-	handler.API.Put(&api.KVPair{Key: key, Value: []byte(lastCommit)}, nil)
+	handler.API.Put(&api.KVPair{Key: key, Value: []byte(lastCommit)}, nil) //nolint:errcheck
 
 	err = handler.putKVRef(repo, branch)
 	assert.IsType(t, &TransactionIntegrityError{}, err)

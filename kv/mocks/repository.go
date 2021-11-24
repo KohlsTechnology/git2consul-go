@@ -77,7 +77,7 @@ func (r *Repo) DiffStatus(commit string) (object.Changes, error) {
 func (r *Repo) Head() (*plumbing.Reference, error) {
 	if r.branch == "" {
 		r.branch = plumbing.NewReferenceFromStrings("master", "").Name()
-		r.Pull("master")
+		r.Pull("master") //nolint:errcheck
 	}
 	return plumbing.NewHashReference(r.branch, r.hashes[r.branch.Short()]), nil
 }

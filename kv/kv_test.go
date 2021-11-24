@@ -41,7 +41,7 @@ func TestKV(t *testing.T) {
 	defer os.RemoveAll(repoPath)
 	assert.NoError(t, err)
 	repo := &mocks.Repo{Path: repoPath, Config: &config.Repo{}, T: t}
-	repoPath = repository.WorkDir(repo)
+	repoPath = repository.WorkDir(repo) //nolint:ineffassign,staticcheck
 	t.Run("testPutKV", func(t *testing.T) { testPutKV(t, repo, handler) })
 	t.Run("testDeleteKV", func(t *testing.T) { testDeleteKV(t, repo, handler) })
 }
@@ -49,7 +49,7 @@ func TestKV(t *testing.T) {
 //testPutKV verifies the data pushed by putKV function.
 func testPutKV(t *testing.T, repo repository.Repo, handler *KVHandler) {
 	f, err := ioutil.TempFile(repository.WorkDir(repo), "example.txt")
-	f.Write([]byte("Example content"))
+	f.Write([]byte("Example content")) //nolint:errcheck
 	f.Close()
 	assert.NoError(t, err)
 	value, err := ioutil.ReadFile(f.Name())
@@ -77,10 +77,10 @@ func testPutKV(t *testing.T, repo repository.Repo, handler *KVHandler) {
 //testDeleteKV ensures data has been deleted.
 func testDeleteKV(t *testing.T, repo repository.Repo, handler *KVHandler) {
 	f, err := ioutil.TempFile(repository.WorkDir(repo), "example.txt")
-	f.Write([]byte("Example content to delete"))
+	f.Write([]byte("Example content to delete")) //nolint:errcheck
 	f.Close()
 	assert.NoError(t, err)
-	value, err := ioutil.ReadFile(f.Name())
+	value, err := ioutil.ReadFile(f.Name()) //nolint:ineffassign,staticcheck
 
 	prefix := strings.TrimPrefix(f.Name(), repository.WorkDir(repo))
 	err = handler.PutKV(repo, prefix, value)
@@ -96,7 +96,7 @@ func testDeleteKV(t *testing.T, repo repository.Repo, handler *KVHandler) {
 	assert.NoError(t, err)
 	assert.NotNil(t, pair)
 
-	handler.DeleteKV(repo, prefix)
+	handler.DeleteKV(repo, prefix) //nolint:errcheck
 	err = handler.Commit()
 	assert.NoError(t, err)
 

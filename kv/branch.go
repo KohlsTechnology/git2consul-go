@@ -29,7 +29,7 @@ import (
 // TODO: Optimize for PUT only on changes instead of the entire repo
 func (h *KVHandler) putBranch(repo repository.Repo, branch plumbing.ReferenceName) error {
 	// Checkout branch
-	repo.CheckoutBranch(branch)
+	repo.CheckoutBranch(branch) //nolint:errcheck
 
 	// h, _ := repo.Head()
 	// bn, _ := h.Branch().Name()

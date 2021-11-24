@@ -71,7 +71,7 @@ func Add(t *testing.T, repo *git.Repository, path string, content []byte) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	w.Add(path)
+	w.Add(path) //nolint:errcheck
 }
 
 func getSignature() *object.Signature {
@@ -90,5 +90,5 @@ func Commit(t *testing.T, repo *git.Repository, message string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	w.Commit(message, &git.CommitOptions{Author: getSignature()})
+	w.Commit(message, &git.CommitOptions{Author: getSignature()}) //nolint:errcheck
 }

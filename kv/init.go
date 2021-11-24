@@ -72,10 +72,10 @@ func (h *KVHandler) handleRepoInit(repo repository.Repo) error {
 			if len(kvRef) == 0 {
 				// There is no ref in the KV, push the entire branch
 				h.logger.Infof("KV PUT changes: %s/%s", repo.Name(), ref.Name())
-				h.putBranch(repo, plumbing.ReferenceName(ref.Name().Short()))
+				h.putBranch(repo, plumbing.ReferenceName(ref.Name().Short())) //nolint:errcheck
 
 				h.logger.Infof("KV PUT ref: %s/%s", repo.Name(), ref.Name())
-				h.putKVRef(repo, ref.Name().String())
+				h.putKVRef(repo, ref.Name().String()) //nolint:errcheck
 			} else if kvRef != localRef {
 				//Check if the ref belongs to that repo
 				err := repo.CheckRef(kvRef)
@@ -88,7 +88,7 @@ func (h *KVHandler) handleRepoInit(repo repository.Repo) error {
 				if err != nil {
 					return err
 				}
-				h.handleDeltas(repo, deltas)
+				h.handleDeltas(repo, deltas) //nolint:errcheck
 
 				err = h.putKVRef(repo, ref.Name().String())
 				if err != nil {
