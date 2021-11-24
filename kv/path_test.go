@@ -26,8 +26,7 @@ import (
 )
 
 func TestPathHandlerWithoutMountPointAndSourceRoot(t *testing.T) {
-	var repo repository.Repo
-	repo = &mocks.Repo{Config: &config.Repo{}}
+	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}}
 
 	filePath := "first_level/second_level/foo"
 	expectedKey := "repository_mock/master/first_level/second_level/foo"
@@ -43,8 +42,7 @@ func TestPathHandlerWithoutMountPointAndSourceRoot(t *testing.T) {
 }
 
 func TestPathHandlerWithMountPointAndSourceRoot(t *testing.T) {
-	var repo repository.Repo
-	repo = &mocks.Repo{Config: &config.Repo{}}
+	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}}
 	repo.GetConfig().MountPoint = "test_mountpoint/"
 	repo.GetConfig().SourceRoot = "first_level/second_level"
 	filePath := "first_level/second_level/foo"
@@ -61,8 +59,7 @@ func TestPathHandlerWithMountPointAndSourceRoot(t *testing.T) {
 }
 
 func TestPathBaseBuilderWithoutMountPoint(t *testing.T) {
-	var repo repository.Repo
-	repo = &mocks.Repo{Config: &config.Repo{}}
+	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}}
 	repo.GetConfig().MountPoint = ""
 	expectedKey := "repository_mock/master"
 	key, status, err := pathBaseBuilder(repo)
@@ -75,8 +72,7 @@ func TestPathBaseBuilderWithoutMountPoint(t *testing.T) {
 }
 
 func TestPathBaseBuilderWithMountPoint(t *testing.T) {
-	var repo repository.Repo
-	repo = &mocks.Repo{Config: &config.Repo{}}
+	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}}
 	repo.GetConfig().MountPoint = "test_mountpoint"
 	expectedKey := "test_mountpoint/repository_mock/master"
 	key, status, err := pathBaseBuilder(repo)
@@ -89,8 +85,7 @@ func TestPathBaseBuilderWithMountPoint(t *testing.T) {
 }
 
 func TestPathCoreBuilderWithSourceRoot(t *testing.T) {
-	var repo repository.Repo
-	repo = &mocks.Repo{Config: &config.Repo{}}
+	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}}
 	repo.GetConfig().SourceRoot = "first_level/second_level"
 	defer func() {
 		repo.GetConfig().SourceRoot = ""
@@ -104,8 +99,7 @@ func TestPathCoreBuilderWithSourceRoot(t *testing.T) {
 }
 
 func TestPathCoreBuilderWithoutSourceRoot(t *testing.T) {
-	var repo repository.Repo
-	repo = &mocks.Repo{Config: &config.Repo{}}
+	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}}
 	expectedKey := "first_level/second_level/foo"
 	filePath := "first_level/second_level/foo"
 	key, status, err := pathCoreBuilder(repo, filePath)
@@ -115,8 +109,7 @@ func TestPathCoreBuilderWithoutSourceRoot(t *testing.T) {
 }
 
 func TestPathBaseBuilderSkipBranch(t *testing.T) {
-	var repo repository.Repo
-	repo = &mocks.Repo{Config: &config.Repo{}}
+	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}}
 	skipBranchName := repo.GetConfig().SkipBranchName
 	repo.GetConfig().SkipBranchName = true
 	defer func() {
@@ -130,8 +123,7 @@ func TestPathBaseBuilderSkipBranch(t *testing.T) {
 }
 
 func TestPathBaseBuilderWithBranch(t *testing.T) {
-	var repo repository.Repo
-	repo = &mocks.Repo{Config: &config.Repo{}}
+	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}}
 	skipBranchName := repo.GetConfig().SkipBranchName
 	repo.GetConfig().SkipBranchName = false
 	defer func() {
@@ -145,8 +137,7 @@ func TestPathBaseBuilderWithBranch(t *testing.T) {
 }
 
 func TestPathBaseBuilderSkipRepo(t *testing.T) {
-	var repo repository.Repo
-	repo = &mocks.Repo{Config: &config.Repo{}}
+	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}}
 	skipRepoName := repo.GetConfig().SkipRepoName
 	repo.GetConfig().SkipRepoName = true
 	defer func() {
@@ -160,8 +151,7 @@ func TestPathBaseBuilderSkipRepo(t *testing.T) {
 }
 
 func TestPathBaseBuilderWithRepo(t *testing.T) {
-	var repo repository.Repo
-	repo = &mocks.Repo{Config: &config.Repo{}}
+	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}}
 	skipRepoName := repo.GetConfig().SkipRepoName
 	repo.GetConfig().SkipRepoName = false
 	defer func() {

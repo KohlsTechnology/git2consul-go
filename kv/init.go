@@ -59,7 +59,7 @@ func (h *KVHandler) handleRepoInit(repo repository.Repo) error {
 			continue
 		}
 
-		if ref.Name().IsRemote() == false {
+		if !ref.Name().IsRemote() {
 			h.logger.Infof("KV GET ref: %s/%s", repo.Name(), ref.Name())
 			kvRef, err := h.getKVRef(repo, ref.Name().String())
 

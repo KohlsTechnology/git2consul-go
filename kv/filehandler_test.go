@@ -120,7 +120,7 @@ func testCreateYAMLFile(t *testing.T, repo repository.Repo) {
 		t.Fatalf("Keys empty: %+v", keys)
 	}
 	for k, v := range entriesToKV(yamlTree) {
-		if bytes.Compare(keys[filepath.Join(yamlPath, k)], v) == 0 {
+		if bytes.Equal(keys[filepath.Join(yamlPath, k)], v) {
 			delete(keys, filepath.Join(yamlPath, k))
 		}
 	}

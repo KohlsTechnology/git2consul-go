@@ -31,8 +31,7 @@ import (
 
 //TestPutKVRef test functionality of putKVRef function.
 func TestKVRef(t *testing.T) {
-	var repo repository.Repo
-	repo = &mocks.Repo{Config: &config.Repo{}, T: t}
+	var repo repository.Repo = &mocks.Repo{Config: &config.Repo{}, T: t}
 	repo.Pull("master")
 	handler := &KVHandler{
 		API: &mocks.KV{T: t},

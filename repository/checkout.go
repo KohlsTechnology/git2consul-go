@@ -42,7 +42,7 @@ func (r *Repository) checkoutConfigBranches() error {
 
 	_ = refIter.ForEach(func(b *plumbing.Reference) error {
 		branchOnRemote := StringInSlice(path.Base(b.Name().String()), r.Config.Branches)
-		if branchOnRemote != false {
+		if branchOnRemote {
 			err := w.Checkout(&git.CheckoutOptions{
 				Branch: plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", b.Name())),
 				Force:  true,
