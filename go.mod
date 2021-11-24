@@ -6,7 +6,7 @@ require (
 	github.com/apex/log v1.0.0
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/consul v1.1.0
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.7.0
 	gopkg.in/src-d/go-billy.v4 v4.3.2
 	gopkg.in/src-d/go-git.v4 v4.4.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -43,4 +43,5 @@ require (
 	golang.org/x/text v0.3.0 // indirect
 	gopkg.in/src-d/go-git-fixtures.v3 v3.5.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
