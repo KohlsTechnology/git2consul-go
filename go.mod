@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/apex/log v1.0.0
-	github.com/gorilla/mux v1.6.2
+	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/consul v1.1.0
 	github.com/stretchr/testify v1.3.0
 	gopkg.in/src-d/go-billy.v4 v4.1.1
@@ -20,7 +20,6 @@ require (
 	github.com/emirpasic/gods v1.9.0 // indirect
 	github.com/gliderlabs/ssh v0.2.2 // indirect
 	github.com/google/go-cmp v0.3.1 // indirect
-	github.com/gorilla/context v1.1.1 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.0 // indirect
 	github.com/hashicorp/go-msgpack v0.5.5 // indirect
 	github.com/hashicorp/go-rootcerts v0.0.0-20160503143440-6bb64b370b90 // indirect
