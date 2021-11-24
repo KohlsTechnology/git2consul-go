@@ -8,17 +8,14 @@ require (
 	github.com/hashicorp/consul v1.1.0
 	github.com/stretchr/testify v1.3.0
 	gopkg.in/src-d/go-billy.v4 v4.3.2
-	gopkg.in/src-d/go-git.v4 v4.4.0
+	gopkg.in/src-d/go-git.v4 v4.13.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
-	github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7 // indirect
-	github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239 // indirect
 	github.com/armon/go-metrics v0.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/emirpasic/gods v1.9.0 // indirect
-	github.com/gliderlabs/ssh v0.2.2 // indirect
+	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.0 // indirect
 	github.com/hashicorp/go-msgpack v0.5.5 // indirect
@@ -27,20 +24,17 @@ require (
 	github.com/hashicorp/memberlist v0.1.5 // indirect
 	github.com/hashicorp/serf v0.8.1 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
-	github.com/kevinburke/ssh_config v0.0.0-20180317175531-9fc7bb800b55 // indirect
-	github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747 // indirect
+	github.com/kevinburke/ssh_config v0.0.0-20190725054713-01f96b0aa0cd // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
 	github.com/pascaldekloe/goe v0.1.0 // indirect
-	github.com/pelletier/go-buffruneio v0.2.0 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
-	github.com/src-d/gcfg v1.3.0 // indirect
-	github.com/xanzy/ssh-agent v0.1.0 // indirect
-	golang.org/x/crypto v0.0.0-20181029021203-45a5f77698d3 // indirect
-	golang.org/x/net v0.0.0-20181201002055-351d144fa1fc // indirect
+	github.com/src-d/gcfg v1.4.0 // indirect
+	github.com/xanzy/ssh-agent v0.2.1 // indirect
+	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
+	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e // indirect
-	golang.org/x/text v0.3.0 // indirect
-	gopkg.in/src-d/go-git-fixtures.v3 v3.5.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
