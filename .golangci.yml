@@ -3,4 +3,5 @@ linters:
   enable:
   - gci
   - gofmt
+  - revive
   disable-all: false

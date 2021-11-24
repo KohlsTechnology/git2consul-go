@@ -27,7 +27,7 @@ import (
 const consulTxnSize = 64
 
 // KVHandler is used to manipulate the KV
-type KVHandler struct {
+type KVHandler struct { //nolint:revive
 	API
 	api.KVTxnOps
 	logger *log.Entry
