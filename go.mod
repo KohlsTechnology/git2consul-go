@@ -3,7 +3,7 @@ module github.com/KohlsTechnology/git2consul-go
 go 1.17
 
 require (
-	github.com/apex/log v1.0.0
+	github.com/apex/log v1.9.0
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/consul v1.1.0
 	github.com/stretchr/testify v1.7.0
@@ -37,5 +37,5 @@ require (
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
 	golang.org/x/sys v0.0.0-20190726091711-fc99dfbffb4e // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c // indirect
 )
