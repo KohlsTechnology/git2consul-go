@@ -1,4 +1,4 @@
-FROM golang:1.17.3 AS builder
+FROM golang:1.17.4 AS builder
 
 WORKDIR /go/src/github.com/KohlsTechnology/git2consul-go
 COPY . .
