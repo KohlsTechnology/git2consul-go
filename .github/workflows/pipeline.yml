@@ -39,6 +39,8 @@ jobs:
         fail_ci_if_error: true
         files: ./coverage.txt
         verbose: true
+    - name: Image Build
+      run: make image
     - name: Install GoReleaser
       uses: goreleaser/goreleaser-action@v2
       with:
