@@ -92,7 +92,7 @@ github.com/src-d/gcfg
 github.com/src-d/gcfg/scanner
 github.com/src-d/gcfg/token
 github.com/src-d/gcfg/types
-# github.com/stretchr/testify v1.7.0
+# github.com/stretchr/testify v1.7.1
 ## explicit; go 1.13
 github.com/stretchr/testify/assert
 # github.com/xanzy/ssh-agent v0.2.1
