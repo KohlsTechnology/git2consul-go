@@ -34,7 +34,7 @@ jobs:
     - name: Test
       run: make test-unit
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2.1.0
+      uses: codecov/codecov-action@v3.0.0
       with:
         fail_ci_if_error: true
         files: ./coverage.txt
