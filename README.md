@@ -3,6 +3,10 @@
 [![codecov](https://codecov.io/gh/KohlsTechnology/git2consul-go/branch/master/graph/badge.svg)](https://codecov.io/gh/KohlsTechnology/git2consul-go)
 [![Go Report Card](https://goreportcard.com/badge/github.com/KohlsTechnology/git2consul-go)](https://goreportcard.com/report/github.com/KohlsTechnology/git2consul-go)
 
+## Project Deprication and Archival
+
+**As of April 22, 2022 this project is no longer maintained. This repository is being archived(marked as read only).**
+
 # git2consul-go
 
 The git2consul-go tool is used to populate a [Consul](https://www.consul.io) key/value store from a git repo.
